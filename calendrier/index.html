@@ -2,22 +2,1658 @@
 <html lang="fr"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Calendrier Gerzat</title>
-<meta name="description" content="Tournée des calendriers à Gerzat, Aulnat et Malintrat. Plan, rues dans l'ordre de passage et cochage des adresses. Amicale des sapeurs-pompiers de Gerzat.">
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="Calendrier Gerzat">
-<meta property="og:title" content="Calendrier Gerzat">
-<meta property="og:description" content="Tournée des calendriers à Gerzat, Aulnat et Malintrat. Plan, rues dans l'ordre de passage et cochage des adresses. Amicale des sapeurs-pompiers de Gerzat.">
-<meta property="og:url" content="https://amicalespgerzat-source.github.io/calendrier/">
-<meta property="og:image" content="https://amicalespgerzat-source.github.io/calendrier/apercu.jpg">
-<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="description" content="Tournée des calendriers à Gerzat, Aulnat et Malintrat. Amicale des sapeurs-pompiers de Gerzat.">
+<meta property="og:site_name" content="Calendrier Gerzat"><meta property="og:title" content="Calendrier Gerzat">
+<meta property="og:description" content="Plan, rues dans l'ordre de passage et cochage des adresses. Amicale des sapeurs-pompiers de Gerzat.">
+<meta property="og:image" content="https://amicalespgerzat-source.github.io/calendrier/apercu.jpg"><meta property="og:url" content="https://amicalespgerzat-source.github.io/calendrier/">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="favicon.png"><link rel="apple-touch-icon" href="apple-touch-icon.png">
-<meta http-equiv="refresh" content="0;url=https://claude.ai/artifact/4T99utfNYrCU7SrdVpv4J2">
-<style>body{font-family:system-ui,sans-serif;text-align:center;padding:40px 16px;color:#222}img{width:140px}a{display:inline-block;margin-top:18px;background:#b0181e;color:#fff;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:600}</style>
-</head><body>
-<img src="logo_crop.png" alt="Logo de l'amicale">
-<h1>Calendrier Gerzat</h1>
-<p>Ouverture de la page des tournées…</p>
-<a href="https://claude.ai/artifact/4T99utfNYrCU7SrdVpv4J2">Ouvrir</a>
-<script>location.replace("https://claude.ai/artifact/4T99utfNYrCU7SrdVpv4J2" + (location.hash && true ? location.hash : ""));</script>
+<meta name="theme-color" content="#b0181e">
+<script src="config.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Semi+Condensed:wght@500;600;700&display=swap">
+<style>
+/* Layout: plein écran, carte à gauche, panneau des tournées à droite (empilés sur téléphone) */
+:root {
+  --bg: #eceef0;
+  --panel: #ffffff;
+  --map: #e3e6e9;
+  --street: #c3c9cf;
+  --dot: #66707b;
+  --fg: #1b2127;
+  --muted: #5a646e;
+  --line: #d3d8dd;
+  --soft: #f3f5f6;
+  --accent: #c42b2b;
+  --accent-fg: #ffffff;
+  --ok: #2f8a57;
+  --warn: #b7791f;
+  --bad: #c42b2b;
+  --halo: rgba(255,255,255,.85);
+  --land: #f1f0ec; --bldg: #dfdbd3; --bldg-edge: #cdc7bc; --road: #ffffff; --casing: #cbc6bd;
+  --major: #fbe3b3; --major-casing: #d8ad62; --motorway: #f2b866; --path: #b3ada2; --rail: #7d838a;
+  --water: #a8cbe6; --green: #d6e7cd; --cem: #d3dccb;
+  --font-ui: "Barlow", "Segoe UI", system-ui, sans-serif;
+  --font-map: "Barlow Semi Condensed", "Arial Narrow", "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #13171b; --panel: #1b2025; --map: #0f1316; --street: #2f373f; --dot: #8d97a1;
+  --fg: #e5e8eb; --muted: #9aa4ad; --line: #2c343b; --soft: #222930; --accent: #ec5a4e; --accent-fg: #160a09;
+  --ok: #4cb37a; --warn: #e0a43f; --bad: #ec5a4e; --halo: rgba(15,19,22,.85); --land: #13181c; --bldg: #252c33; --bldg-edge: #2f373f; --road: #3b444d; --casing: #0d1114;
+  --major: #6a5634; --major-casing: #0d1114; --motorway: #8a6a3a; --path: #4a535c; --rail: #6d747c;
+  --water: #1f3b52; --green: #1d2b22; --cem: #1f2a24; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #13171b; --panel: #1b2025; --map: #0f1316; --street: #2f373f; --dot: #8d97a1;
+  --fg: #e5e8eb; --muted: #9aa4ad; --line: #2c343b; --soft: #222930; --accent: #ec5a4e; --accent-fg: #160a09;
+  --ok: #4cb37a; --warn: #e0a43f; --bad: #ec5a4e; --halo: rgba(15,19,22,.85); --land: #13181c; --bldg: #252c33; --bldg-edge: #2f373f; --road: #3b444d; --casing: #0d1114;
+  --major: #6a5634; --major-casing: #0d1114; --motorway: #8a6a3a; --path: #4a535c; --rail: #6d747c;
+  --water: #1f3b52; --green: #1d2b22; --cem: #1f2a24; color-scheme: dark }
+
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font-ui); font-size: 15px; line-height: 1.4; }
+* { box-sizing: border-box; }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.app { height: 100%; display: grid; grid-template-rows: auto 1fr; }
+header.top {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px;
+  padding-block: 10px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  background: var(--panel); border-bottom: 1px solid var(--line);
+}
+.brand { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
+.brand h1 { margin: 0; font-size: 19px; font-weight: 700; letter-spacing: .2px; text-wrap: balance; }
+.brand .year { font-family: var(--font-map); font-weight: 600; font-size: 13px; color: var(--accent); letter-spacing: .6px; text-transform: uppercase; }
+.tabs { display: flex; gap: 4px; background: var(--soft); padding: 3px; border-radius: 8px; }
+.tabs button { border: 0; background: transparent; padding: 5px 12px; border-radius: 6px; font-weight: 600; color: var(--muted); }
+.tabs button[aria-pressed="true"] { background: var(--panel); color: var(--fg); box-shadow: 0 1px 2px rgba(0,0,0,.12); }
+.tabs button .wait { font-weight: 400; font-size: 12px; opacity: .8; }
+.status { margin-left: auto; font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+.status .dotst { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+.status[data-s="ok"] .dotst { background: var(--ok); }
+.status[data-s="saving"] .dotst { background: var(--warn); }
+.status[data-s="local"] .dotst, .status[data-s="err"] .dotst { background: var(--bad); }
+
+main.work { min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 370px; }
+.mapwrap { position: relative; min-width: 0; min-height: 0; background: var(--map); overflow: hidden; }
+canvas#map { display: block; width: 100%; height: 100%; touch-action: none; }
+canvas#map.lasso { cursor: crosshair; }
+canvas#map.pan { cursor: grab; }
+
+.toolbar {
+  position: absolute; left: max(12px, env(safe-area-inset-left, 0px)); top: 12px; right: 12px;
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center; pointer-events: none;
+}
+.toolbar > * { pointer-events: auto; }
+.seg { display: flex; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+.seg button { border: 0; background: transparent; padding: 7px 12px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--fg); color: var(--panel); }
+.seg button:disabled { opacity: .4; cursor: default; }
+.seg svg { width: 16px; height: 16px; }
+.chip-active { display: flex; align-items: center; gap: 8px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px 6px 8px; box-shadow: 0 1px 3px rgba(0,0,0,.1); font-weight: 600; }
+.chip-active .sw { width: 18px; height: 18px; border-radius: 5px; }
+.chip-active small { font-weight: 500; color: var(--muted); }
+.zoom { position: absolute; right: max(12px, env(safe-area-inset-right, 0px)); bottom: 14px; display: flex; flex-direction: column; }
+.zoom.seg button + button { border-left: 0; border-top: 1px solid var(--line); }
+.zoom button { padding: 8px 11px; font-size: 18px; line-height: 1; }
+
+.hint {
+  position: absolute; left: max(12px, env(safe-area-inset-left, 0px)); bottom: 14px; max-width: min(380px, calc(100% - 90px));
+  background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; box-shadow: 0 2px 8px rgba(0,0,0,.12); font-size: 14px;
+}
+.hint b { display: block; margin-bottom: 3px; }
+.hint p { margin: 0; color: var(--muted); }
+.addr {
+  position: absolute; left: max(12px, env(safe-area-inset-left, 0px)); bottom: 14px; width: min(360px, calc(100% - 90px));
+  background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; box-shadow: 0 2px 10px rgba(0,0,0,.16);
+}
+.addr .head { display: flex; justify-content: space-between; gap: 10px; align-items: start; }
+.addr .num { font-size: 17px; font-weight: 700; }
+.addr .cur { font-size: 13px; color: var(--muted); margin-top: 2px; }
+.addr .x { border: 0; background: transparent; font-size: 20px; line-height: 1; padding: 0 2px; color: var(--muted); }
+.addr .ckrow { display: flex; gap: 6px; margin-top: 10px; }
+.addr .ckrow .btn { flex: 1; }
+.rues .seemap.linkbtn { display: block; margin: 2px 0 4px; font-size: 13px; }
+.rues .selact { display: flex; gap: 6px; margin: 4px 0 6px; }
+.rues .selact .btn { flex: 1; padding: 8px 6px; font-size: 14px; }
+.chips button.hl { outline: 3px solid var(--fg); outline-offset: 1px; }
+.addr .acts { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 10px; }
+.btn { border: 1px solid var(--line); background: var(--soft); border-radius: 7px; padding: 7px 10px; font-weight: 600; font-size: 14px; text-align: center; }
+.btn:hover { border-color: var(--muted); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+.btn.danger { color: var(--bad); }
+.btn:disabled { opacity: .45; cursor: default; }
+
+aside.panel { background: var(--panel); border-left: 1px solid var(--line); min-height: 0; overflow-y: auto; display: flex; flex-direction: column; }
+.sum { padding: 14px 16px 12px; border-bottom: 1px solid var(--line); display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.sum div { min-width: 0; }
+.sum .v { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.sum .l { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+.sum .v.free { color: var(--warn); }
+.sum .note { grid-column: 1 / -1; font-size: 13px; color: var(--muted); }
+.listhead { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px 6px; gap: 8px; }
+.listhead h2 { margin: 0; font-size: 13px; text-transform: uppercase; letter-spacing: .7px; color: var(--muted); }
+.sectors { list-style: none; margin: 0; padding: 0 8px 8px; display: flex; flex-direction: column; gap: 2px; }
+.srow { border-radius: 8px; }
+.srow > button.pick {
+  width: 100%; border: 1px solid transparent; background: transparent; border-radius: 8px; padding: 8px 8px;
+  display: grid; grid-template-columns: 22px minmax(0,1fr) auto; gap: 4px 10px; align-items: center; text-align: left;
+}
+.srow > button.pick:hover { background: var(--soft); }
+.srow.on > button.pick { border-color: var(--fg); background: var(--soft); }
+.srow .sw { width: 22px; height: 22px; border-radius: 6px; grid-row: span 2; }
+.srow .nm { font-weight: 700; font-size: 16px; display: flex; gap: 8px; align-items: baseline; min-width: 0; }
+.srow .nm span { font-weight: 500; font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.srow .ct { font-variant-numeric: tabular-nums; font-weight: 700; text-align: right; }
+.srow .ct small { display: block; font-size: 12px; font-weight: 600; }
+.ct small.lbl { color: var(--muted); font-weight: 500; }
+.ct small.ok { color: var(--ok); } .ct small.warn { color: var(--warn); } .ct small.bad { color: var(--bad); }
+.bar { grid-column: 2 / 4; height: 6px; background: var(--soft); border-radius: 3px; position: relative; overflow: hidden; }
+.srow.on .bar { background: var(--panel); }
+.bar i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; }
+.bar b { position: absolute; top: -2px; bottom: -2px; width: 2px; background: var(--fg); opacity: .5; }
+.detail { padding: 6px 10px 14px 40px; display: grid; gap: 10px; }
+.detail label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; display: grid; gap: 3px; }
+.detail input { width: 100%; min-width: 0; border: 1px solid var(--line); background: var(--panel); border-radius: 6px; padding: 6px 8px; font-size: 15px; text-transform: none; letter-spacing: 0; color: var(--fg); }
+.detail .two { display: grid; grid-template-columns: 90px minmax(0,1fr); gap: 8px; }
+.colors { display: flex; flex-wrap: wrap; gap: 5px; }
+.colors button { width: 22px; height: 22px; border-radius: 5px; border: 2px solid transparent; padding: 0; }
+.colors button[aria-pressed="true"] { border-color: var(--fg); }
+.rues { font-size: 14px; border-top: 1px solid var(--line); padding-top: 8px; }
+.rues h3 { margin: 0 0 4px; font-size: 13px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); display: flex; justify-content: space-between; align-items: center; }
+.rues ul { list-style: none; margin: 0; padding: 0; max-height: 420px; overflow-y: auto; }
+.ckprog { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13px; margin: 2px 0 6px; }
+.ckprog .bar { flex: 1 1 100%; order: 3; display: block; min-width: 80px; height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; }
+.ckprog .bar i { display: block; height: 100%; }
+.rues li.ck { grid-template-columns: 26px minmax(0,1fr) auto; align-items: start; }
+.rues li .box { width: 22px; height: 22px; border: 2px solid var(--muted); border-radius: 5px; background: var(--panel); display: grid; place-items: center; padding: 0; color: #fff; font-weight: 800; font-size: 14px; line-height: 1; }
+.rues li .box[aria-pressed="true"] { border-color: transparent; }
+.rues li .box[aria-pressed="mixed"] { border-style: dashed; }
+.rues li .rn { cursor: pointer; }
+.rues li.done .r { text-decoration: line-through; color: var(--muted); }
+.chips { display: flex; flex-wrap: wrap; gap: 4px; margin: 6px 0 4px; }
+.chips button { min-width: 34px; height: 30px; border: 1px solid var(--line); background: var(--panel); border-radius: 6px; font-size: 13px; font-variant-numeric: tabular-nums; padding: 0 6px; }
+.chips button[aria-pressed="true"] { color: #fff; border-color: transparent; text-decoration: line-through; }
+.chips .sep { flex-basis: 100%; height: 0; }
+.rues li { padding: 4px 0; border-bottom: 1px dashed var(--line); display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 8px; }
+.rues li .r { font-weight: 600; }
+.rues li .n { color: var(--muted); font-size: 13px; }
+.rues li .c { font-variant-numeric: tabular-nums; color: var(--muted); font-size: 13px; }
+.rowbtns { display: flex; flex-wrap: wrap; gap: 6px; }
+.confirm { background: var(--soft); border-radius: 8px; padding: 8px 10px; font-size: 14px; display: grid; gap: 8px; }
+.linkbtn { border: 0; background: transparent; color: var(--accent); font-weight: 600; font-size: 13px; padding: 2px 4px; }
+.search { padding: 12px 16px 10px; border-bottom: 1px solid var(--line); display: grid; gap: 6px; }
+.search input { width: 100%; border: 1px solid var(--line); background: var(--soft); border-radius: 8px; padding: 8px 10px; font-size: 15px; color: var(--fg); }
+.search ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.search li button { width: 100%; text-align: left; border: 1px solid var(--line); background: var(--panel); border-radius: 7px; padding: 6px 8px; display: grid; grid-template-columns: 14px minmax(0,1fr) auto; gap: 8px; align-items: center; }
+.search li button:hover { border-color: var(--muted); }
+.search .sw { width: 14px; height: 14px; border-radius: 4px; }
+.search .t { font-weight: 700; white-space: nowrap; }
+.search .d { color: var(--muted); font-size: 13px; }
+.search p { margin: 0; font-size: 13px; color: var(--muted); }
+.search li p button { display: inline; width: auto; border: 0; background: transparent; padding: 2px 4px; margin: 0 2px; color: var(--accent); font-weight: 600; }
+.rues li .o { display: inline-block; min-width: 20px; height: 20px; border-radius: 10px; color: #fff; font-size: 12px; font-weight: 700; text-align: center; line-height: 20px; margin-right: 6px; }
+.guidelink { display: block; margin: 8px 2px 0; font-size: 13px; font-weight: 600; color: var(--accent); }
+.tlink { font-size: 13px; color: var(--muted); }
+.tlink a { color: var(--accent); font-weight: 600; }
+.tlink .linkbtn { padding: 0; }
+.foot { margin-top: auto; padding: 12px 16px 16px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.foot p { margin: 0; flex: 1 1 100%; font-size: 12px; color: var(--muted); }
+.osm { position: absolute; right: max(60px, calc(env(safe-area-inset-right, 0px) + 60px)); bottom: 4px; font-size: 11px; color: var(--muted); background: var(--halo); padding: 1px 6px; border-radius: 4px; }
+.ro #mLasso, .ro #bErase, .ro #bUndo, .ro #bAdd, .ro .addr .acts, .ro #dDel, .ro .colors, .ro #chipActive, .ro #mPan { display: none !important; }
+.views button { min-width: 0; }
+body[data-view="tour"] .toolbar .seg:first-child, body[data-view="tour"] #chipActive, body[data-view="tour"] #bErase, body[data-view="tour"] #bUndo,
+body[data-view="bilan"] .toolbar .seg:first-child, body[data-view="bilan"] #chipActive, body[data-view="bilan"] #bErase, body[data-view="bilan"] #bUndo { display: none !important; }
+body[data-view="tour"] #hint, body[data-view="tour"] #addr, body[data-view="bilan"] #hint, body[data-view="bilan"] #addr { display: none !important; }
+#tourPanel { display: flex; flex-direction: column; min-height: 0; }
+.tpick { display: flex; flex-wrap: wrap; gap: 6px; padding: 12px 14px 4px; }
+.tpick button { border: 2px solid var(--c); background: var(--panel); color: var(--fg); border-radius: 7px; padding: 4px 10px; font-weight: 700; }
+.tpick button[aria-pressed="true"] { background: var(--c); color: #fff; }
+.tsum { padding: 10px 14px 12px; border-bottom: 1px solid var(--line); display: grid; gap: 8px; }
+.tsum p { margin: 0; font-size: 14px; }
+.prog { height: 8px; border-radius: 4px; background: var(--soft); overflow: hidden; }
+.prog i { display: block; height: 100%; background: var(--ok); }
+.today { background: var(--soft); border-radius: 10px; padding: 10px 12px; display: grid; gap: 8px; }
+.today h3 { margin: 0; font-size: 12px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); }
+.tgrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.tgrid div { display: grid; min-width: 0; }
+.tgrid b { font-size: 16px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tgrid span { font-size: 11px; color: var(--muted); }
+.ttot { font-size: 14px; }
+.vfilt { display: flex; gap: 4px; padding: 10px 14px 6px; flex-wrap: wrap; }
+.vfilt button { border: 1px solid var(--line); background: var(--panel); border-radius: 20px; padding: 4px 10px; font-weight: 600; font-size: 13px; color: var(--muted); }
+.vfilt button[aria-pressed="true"] { background: var(--fg); color: var(--panel); border-color: var(--fg); }
+.vfilt small { opacity: .8; }
+.vlist { list-style: none; margin: 0; padding: 0 10px 16px; }
+.vstreet { font-weight: 700; font-size: 13px; padding: 10px 4px 4px; color: var(--muted); }
+.vrow { width: 100%; display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; gap: 8px; align-items: center; border: 0; border-bottom: 1px solid var(--line); background: transparent; padding: 9px 4px; text-align: left; }
+.vrow:hover { background: var(--soft); }
+.vnum { font-weight: 700; font-size: 16px; font-variant-numeric: tabular-nums; }
+.vx { font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vst { color: #fff; font-size: 12px; font-weight: 700; border-radius: 12px; padding: 3px 9px; white-space: nowrap; }
+.btab { overflow-x: auto; padding: 4px 10px; }
+.btab table { width: 100%; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; }
+.btab th, .btab td { padding: 7px 6px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }
+.btab th:first-child, .btab td:first-child { text-align: left; }
+.btab th { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
+.btab tfoot td { font-weight: 700; border-top: 2px solid var(--fg); }
+.sw2 { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; }
+.foot2 { padding: 12px 14px 16px; }
+.sheet { position: fixed; z-index: 30; left: 50%; transform: translateX(-50%); bottom: calc(12px + env(safe-area-inset-bottom, 0px)); width: min(440px, calc(100% - 24px)); background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px; box-shadow: 0 8px 30px rgba(0,0,0,.25); display: grid; gap: 12px; max-height: 80vh; overflow-y: auto; }
+.shead { display: flex; justify-content: space-between; align-items: start; gap: 10px; }
+.sadr { font-size: 18px; font-weight: 700; }
+.ssub { font-size: 13px; color: var(--muted); }
+.sheet .x { border: 0; background: transparent; font-size: 24px; line-height: 1; color: var(--muted); }
+.sstat { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.sstat button { border: 2px solid var(--c); background: var(--panel); color: var(--fg); border-radius: 9px; padding: 10px 4px; font-weight: 700; font-size: 14px; }
+.sstat button[aria-pressed="true"] { background: var(--c); color: #fff; }
+.sdon { display: grid; gap: 10px; }
+.sheet label { display: grid; gap: 4px; font-size: 12px; color: var(--muted); font-weight: 600; }
+.sheet input { border: 1px solid var(--line); background: var(--panel); color: var(--fg); border-radius: 8px; padding: 9px 10px; font-size: 16px; width: 100%; min-width: 0; }
+.step { display: grid; grid-template-columns: 48px 1fr 48px; gap: 6px; }
+.step button { border: 1px solid var(--line); background: var(--soft); border-radius: 8px; font-size: 20px; font-weight: 700; }
+.step input { text-align: center; font-weight: 700; }
+.money { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.sact { display: flex; gap: 8px; flex-wrap: wrap; }
+.sact .btn { padding: 10px 14px; font-size: 15px; }
+.recu { position: fixed; inset: 0; z-index: 40; background: rgba(0,0,0,.45); display: grid; place-items: center; padding: 16px; }
+.recu[hidden] { display: none !important; }
+.rcard { background: #fff; color: #111; border-radius: 12px; padding: 20px; width: min(420px, 100%); display: grid; gap: 8px; justify-items: center; text-align: center; }
+.rcard h2 { margin: 0; font-size: 17px; color: #b0181e; }
+.rcard p { margin: 0; font-size: 15px; line-height: 1.5; }
+.rcard .rno { font-size: 12px; color: #555; }
+.rcard .rsmall { font-size: 12px; color: #555; }
+.ract { display: flex; gap: 8px; margin-top: 12px; justify-content: center; }
+.pdfrow, .pdfrow2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.pdfrow { padding: 0 14px 6px; }
+.pdfbtn { text-decoration: none; color: var(--fg); display: flex; align-items: center; gap: 8px; width: 100%; justify-content: center; }
+.pdfbtn svg { width: 16px; height: 16px; flex: none; }
+.detail .pdfbtn { background: var(--panel); border-color: var(--fg); }
+.gpsnote { position: absolute; left: max(12px, env(safe-area-inset-left, 0px)); right: 12px; top: 64px; z-index: 6; display: flex; gap: 10px; align-items: start; background: #256ee6; color: #fff; border-radius: 9px; padding: 9px 12px; font-weight: 600; font-size: 14px; box-shadow: 0 2px 8px rgba(0,0,0,.2); max-width: 460px; }
+.gpsnote span { flex: 1; }
+.gpsnote button { border: 0; background: transparent; color: #fff; font-size: 20px; line-height: 1; padding: 0 2px; }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(18px + env(safe-area-inset-bottom, 0px)); background: var(--fg); color: var(--panel); padding: 8px 14px; border-radius: 8px; font-weight: 600; font-size: 14px; z-index: 20; }
+.empty { padding: 4px 16px 12px; color: var(--muted); font-size: 14px; }
+.nodata { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; text-align: center; }
+.nodata div { max-width: 420px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; }
+.nodata h2 { margin: 0 0 6px; font-size: 18px; }
+.nodata p { margin: 0; color: var(--muted); }
+.legend-free { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--dot); margin-right: 4px; vertical-align: middle; }
+
+@media (max-width: 820px) {
+  .app { height: auto; min-height: 100%; }
+  main.work { grid-template-columns: minmax(0, 1fr); }
+  .mapwrap { height: 64vh; height: 64dvh; }
+  aside.panel { border-left: 0; border-top: 1px solid var(--line); overflow: visible; }
+  .status { margin-left: 0; }
+  .seg button .lbl { display: none; }
+  .seg button { padding: 8px 11px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="app">
+  <header class="top">
+    <div class="brand"><h1>CalendrierGerzat</h1></div>
+    <nav class="tabs" id="tabs" aria-label="Commune"></nav>
+    <nav class="tabs views" id="views" hidden></nav>
+    <div class="status" id="status" data-s="load"><span class="dotst"></span><span id="statusTxt">Chargement…</span></div>
+  </header>
+  <main class="work">
+    <div class="mapwrap" id="mapwrap">
+      <canvas id="map" class="pan" aria-label="Carte des adresses. Chaque point est une adresse, colorée selon sa tournée."></canvas>
+      <div class="toolbar">
+        <div class="seg" role="group" aria-label="Mode">
+          <button id="mPan" aria-pressed="true" title="Déplacer la carte"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M2 12h20M12 2l-3 3M12 2l3 3M12 22l-3-3M12 22l3-3M2 12l3-3M2 12l3 3M22 12l-3-3M22 12l-3 3"/></svg><span class="lbl">Déplacer</span></button>
+          <button id="mLasso" aria-pressed="false" title="Entourer des adresses pour les mettre dans la tournée choisie"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 21c-2-1-2.5-3.5-1-5"/><path d="M6 16C3 14 2 11 3.5 8 5.5 4 11 2.5 16 4c4.5 1.4 6 5 4.5 8.2C19 15.6 14.5 17.5 10 17c-1.5-.2-3-.5-4-1"/></svg><span class="lbl">Entourer</span></button>
+        </div>
+        <div class="chip-active" id="chipActive"></div>
+        <div class="seg">
+          <button id="bErase" aria-pressed="false" title="Gomme : retirer des adresses de leur tournée"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20H9L4 15a2 2 0 0 1 0-3L13 3a2 2 0 0 1 3 0l5 5a2 2 0 0 1 0 3l-9 9"/><path d="M8 11l6 6"/></svg><span class="lbl">Gomme</span></button>
+          <button id="bUndo" disabled title="Annuler la dernière action"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg><span class="lbl">Annuler</span></button>
+          <button id="bPoi" aria-pressed="true" title="Afficher les points de repère"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg><span class="lbl">Repères</span></button>
+          <button id="bGps" title="Ouvrir Google Maps avec ta position et le chemin jusqu'à la tournée"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg><span class="lbl">Google Maps</span></button>
+          <button id="bPos" aria-pressed="false" title="Afficher ma position sur le plan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4.5 20.3l.7.7L12 18l6.8 3 .7-.7z"/></svg><span class="lbl">Ma position</span></button>
+          <button id="bCarte" title="Ouvrir la carte des tournées dans Google (My Maps), avec ta position"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg><span class="lbl">Carte Google</span></button>
+          <button id="bFit" title="Voir toute la commune"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><span class="lbl">Tout voir</span></button>
+        </div>
+      </div>
+      <div class="zoom seg"><button id="zIn" aria-label="Zoomer">+</button><button id="zOut" aria-label="Dézoomer">−</button></div>
+      <div class="gpsnote" id="gpsNote" hidden><span id="gpsTxt"></span><button id="gpsX" aria-label="Fermer">×</button></div>
+      <div class="hint" id="hint" hidden></div>
+      <div class="addr" id="addr" hidden></div>
+      <div class="nodata" id="nodata" hidden></div>
+      <div class="osm" id="osm" hidden>Plan © contributeurs OpenStreetMap</div>
+    </div>
+    <aside class="panel" id="panel">
+      <div class="search"><input id="q" type="search" placeholder="Chercher une rue, ex. 15 rue Jean Moulin" autocomplete="off" aria-label="Chercher une rue"><ul id="qres"></ul></div>
+      <div class="sum" id="sum"></div>
+      <div class="listhead"><h2>Tournées</h2><button class="linkbtn" id="bAdd">+ Ajouter une tournée</button></div>
+      <div class="pdfrow"><a class="btn pdfbtn" id="bPlanPdf" target="_blank" rel="noopener" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg><span>Plan A3</span></a><a class="btn pdfbtn" id="bLegPdf" target="_blank" rel="noopener" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg><span>Légende et rues A4</span></a></div>
+      <a class="guidelink" id="bGuide" target="_blank" rel="noopener" href="pdf/mode-emploi.pdf">Mode d'emploi (PDF) : plans, carnets, recherche, cochage, Google Maps</a>
+      <ul class="sectors" id="sectors"></ul>
+      <div id="tourPanel" hidden></div>
+      <div class="foot">
+        <button class="btn" id="bCsv">Exporter en CSV</button>
+        <p id="footNote"></p>
+      </div>
+    </aside>
+  </main>
+</div>
+<div class="toast" id="toast" hidden></div>
+<div class="sheet" id="sheet" hidden></div>
+<div class="recu" id="recu" hidden></div>
+
+<script>
+(function () {
+"use strict";
+const COMMUNES = [
+  { id: "gerzat", name: "Gerzat", file: "gerzat.json", plan: "gerzat-plan.json", zones: "gerzat-zones.json" },
+  { id: "aulnat", name: "Aulnat", file: "aulnat.json", plan: "aulnat-plan.json", zones: "aulnat-zones.json" },
+  { id: "malintrat", name: "Malintrat", file: "malintrat.json", plan: "malintrat-plan.json", zones: "malintrat-zones.json" }
+];
+const PALETTE = ["#d1495b","#2e86ab","#e09f3e","#3a9a68","#8e5ec7","#e0662f","#1c9a9a","#c4508e","#6f8f22","#4f6bd8","#a8743a","#c9b81f","#5aa9d8","#9b3d3d","#55b88a","#7d6aa8"];
+const CODES = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+const $ = (id) => document.getElementById(id);
+let LINK = null;
+try {
+  const raw = decodeURIComponent((location.hash || "").replace(/^#/, "") || new URLSearchParams(location.search).get("t") || "");
+  const mm = raw.match(/^(gerzat|aulnat|malintrat)(?:[-/](.+))?$/i);
+  if (mm) LINK = { commune: mm[1].toLowerCase(), name: mm[2] || "" };
+} catch (e) {}
+const canvas = $("map"), ctx = canvas.getContext("2d");
+
+const S = {
+  communeId: "gerzat", data: null, plan: null, assign: null, // assign: Array of codes ('.' = libre)
+  scale: 0.2, tx: 0, ty: 0, mode: "pan", active: null, erase: false,
+  selected: -1, flash: -1, open: null, history: [], lasso: null, confirmDel: null, expand: new Set(), confirmReset: null,
+  db: null, unsub: null, local: false, saveTimer: null, saving: false, pendingSave: false, lastSaved: null,
+  cache: {}, dirty: false
+};
+
+function cssVar(n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+function toast(msg) { const t = $("toast"); t.textContent = msg; t.hidden = false; clearTimeout(toast._t); toast._t = setTimeout(() => t.hidden = true, 2200); }
+function setStatus(s, txt) { $("status").dataset.s = s; $("statusTxt").textContent = txt; }
+function fmt(n) { return n.toLocaleString("fr-FR"); }
+function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c])); }
+function sectorBy(c) { return S.plan ? S.plan.sectors.find(s => s.c === c) : null; }
+function colorOf(s) { return PALETTE[(s.color ?? 0) % PALETTE.length]; }
+function addrLabel(i) { const p = S.data.pts[i]; return p[3] + (p[4] ? " " + p[4] : "") + " " + S.data.voies[p[2]]; }
+
+/* ---------- Données ---------- */
+async function loadCommune(id) {
+  if (typeof unsubVisits === "function") { unsubVisits(); closeSheet(); }
+  S.communeId = id; S.selected = -1; S.open = null; S.history = []; S.confirmDel = null;
+  renderTabs();
+  const c = COMMUNES.find(x => x.id === id);
+  if (S.unsub) { S.unsub(); S.unsub = null; }
+  if (!c.file) { S.data = null; S.plan = null; S.assign = null; showNoData(c); renderAll(); return; }
+  $("nodata").hidden = true;
+  if (!S.cache[id]) {
+    try { const r = await fetch(c.file); S.cache[id] = await r.json(); }
+    catch (e) { S.data = null; showNoData(c, true); renderAll(); return; }
+  }
+  S.data = S.cache[id];
+  loadBase(c); loadZones(c); loadPoi(c);
+  S.plan = { sectors: [], assign: "", v: S.data.version };
+  S.assign = new Array(S.data.pts.length).fill(".");
+  fitView(); renderAll();
+  subscribePlan();
+}
+const POIS = {}, SHOWPOI = { on: true };
+try { if (localStorage.getItem("cg-poi") === "0") SHOWPOI.on = false; } catch (e) {}
+const POICAT = {
+  mairie: ["M", "#1f4e9c", "Mairie"], ecole: ["É", "#d97a00", "École"], pharmacie: ["+", "#1a9b4b", "Pharmacie"],
+  sante: ["+", "#3c8f6a", "Santé"], poste: ["P", "#d4a400", "Poste"], culte: ["†", "#6b5b4b", "Église"],
+  pompiers: ["SP", "#c42b2b", "Caserne"], boulangerie: ["B", "#a8642a", "Boulangerie"], alim: ["A", "#7a4fa3", "Alimentation"],
+  resto: ["R", "#b0457a", "Café, resto"], banque: ["€", "#3b6e8f", "Banque"], essence: ["⛽", "#555c63", "Station"],
+  public: ["i", "#2f6fa8", "Service public"], sport: ["S", "#2f8a57", "Sport"], commerce: ["C", "#6c7680", "Commerce"],
+  entreprise: ["E", "#455a64", "Entreprise"]
+};
+async function loadPoi(c) {
+  if (POIS[c.id]) return;
+  try { POIS[c.id] = await (await fetch(c.id + "-poi.json")).json(); draw(); } catch (e) { POIS[c.id] = []; }
+}
+function drawPoi(sc) {
+  const L = POIS[S.communeId]; if (!SHOWPOI.on || !L || sc < 0.35) return;
+  const big = sc > 1.1, R = big ? 10 : 8;
+  ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.font = `italic 600 ${sc > 1.1 ? 14 : 12}px ${cssVar("--font-map")}`;
+  for (const [x, y, k, nm] of L) {
+    if (k !== "zone") continue;
+    const X = sx(x), Y = sy(y); if (X < -100 || Y < -20 || X > W + 100 || Y > H + 20) continue;
+    ctx.lineWidth = 3.5; ctx.strokeStyle = cssVar("--halo"); ctx.strokeText(nm, X, Y); ctx.fillStyle = "#455a64"; ctx.fillText(nm, X, Y);
+  }
+  const order = ["zone", "entreprise", "commerce", "resto", "alim", "banque", "essence", "sport", "public", "sante", "boulangerie", "culte", "poste", "pharmacie", "ecole", "mairie", "pompiers"];
+  const list = L.filter(p => p[2] !== "zone" && (sc > 0.7 || ["mairie", "ecole", "pharmacie", "poste", "culte", "pompiers"].includes(p[2])))
+    .sort((a, b) => order.indexOf(a[2]) - order.indexOf(b[2]));
+  ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  for (const [x, y, k, nm] of list) {
+    const X = sx(x), Y = sy(y); if (X < -20 || Y < -20 || X > W + 20 || Y > H + 20) continue;
+    const [g, col] = POICAT[k] || POICAT.commerce;
+    ctx.beginPath(); ctx.arc(X, Y, R, 0, 6.2832); ctx.fillStyle = col; ctx.fill();
+    ctx.lineWidth = 2; ctx.strokeStyle = "#fff"; ctx.stroke();
+    ctx.fillStyle = "#fff"; ctx.font = `700 ${g.length > 1 ? R * 0.9 : R * 1.25}px ${cssVar("--font-ui")}`; ctx.fillText(g, X, Y + 0.5);
+    if (big && nm) {
+      ctx.font = `600 11px ${cssVar("--font-ui")}`; ctx.textAlign = "left";
+      ctx.lineWidth = 3; ctx.strokeStyle = cssVar("--halo"); ctx.strokeText(nm, X + R + 3, Y);
+      ctx.fillStyle = col; ctx.fillText(nm, X + R + 3, Y); ctx.textAlign = "center";
+    }
+  }
+}
+const ZONES = {};
+async function loadZones(c) {
+  if (!c.zones || ZONES[c.id]) return;
+  try { ZONES[c.id] = (await (await fetch(c.zones)).json()).cells; draw(); } catch (e) {}
+}
+function drawZones(pts, A, colors, sc) {
+  if (!S.terr) S.terr = document.createElement("canvas");
+  const T = S.terr; if (T.width !== canvas.width || T.height !== canvas.height) { T.width = canvas.width; T.height = canvas.height; }
+  const tc = T.getContext("2d"); tc.setTransform(DPR, 0, 0, DPR, 0, 0); tc.clearRect(0, 0, W, H);
+  const cells = ZONES[S.communeId], byC = {};
+  for (let i = 0; i < pts.length; i++) { const a = A[i]; if (a === "." || !colors[a]) continue; (byC[a] = byC[a] || []).push(i); }
+  const m = 100 * sc;
+  for (const sct of S.plan.sectors) {
+    const f = sct.area; if (!Array.isArray(f) || f.length < 6 || !colors[sct.c]) continue;
+    tc.fillStyle = colors[sct.c]; tc.beginPath(); tc.moveTo(sx(f[0]), sy(f[1]));
+    for (let k = 2; k < f.length; k += 2) tc.lineTo(sx(f[k]), sy(f[k + 1]));
+    tc.closePath(); tc.fill();
+  }
+  for (const c in byC) {
+    tc.fillStyle = colors[c]; tc.beginPath();
+    for (const i of byC[c]) {
+      const X = sx(pts[i][0]), Y = sy(pts[i][1]); if (X < -m || Y < -m || X > W + m || Y > H + m) continue;
+      const f = cells && cells[i];
+      if (f && f.length) { tc.moveTo(sx(f[0]), sy(f[1])); for (let k = 2; k < f.length; k += 2) tc.lineTo(sx(f[k]), sy(f[k + 1])); tc.closePath(); }
+      else { const R = Math.max(28 * sc, 4); tc.moveTo(X + R, Y); tc.arc(X, Y, R, 0, 6.2832); }
+    }
+    tc.fill(); tc.strokeStyle = colors[c]; tc.lineWidth = Math.max(1.5, 1.5 * sc); tc.lineJoin = "round"; tc.stroke();
+  }
+  ctx.globalAlpha = BASES[S.communeId] ? 0.32 : 0.22; ctx.drawImage(T, 0, 0, W, H); ctx.globalAlpha = 1;
+}
+const BASES = {}, BASE_RAW = {};
+async function loadBase(c) {
+  $("osm").hidden = !c.plan;
+  if (!c.plan || BASES[c.id]) { draw(); return; }
+  try {
+    const b = await (await fetch(c.plan)).json();
+    if (b.named) { b.namedSorted = b.named.slice().sort((p, q) => (q[1] - p[1]) || ((q[4] - q[2]) + (q[5] - q[3]) - (p[4] - p[2]) - (p[5] - p[3]))); BASE_RAW[c.id] = b; }
+    const mk = (list, closed) => { const p = new Path2D(); for (const f of list) { p.moveTo(f[0], f[1]); for (let k = 2; k < f.length; k += 2) p.lineTo(f[k], f[k + 1]); if (closed) p.closePath(); } return p; };
+    BASES[c.id] = {
+      building: mk(b.building, true), green: mk(b.green, true), cem: mk(b.cemetery, true),
+      water: mk(b.water), rail: mk(b.rail), path: mk(b.path), service: mk(b.service), minor: mk(b.minor), major: mk(b.major), motorway: mk(b.motorway)
+    };
+    draw();
+  } catch (e) { /* le plan reste en points si le fond ne charge pas */ }
+}
+function showNoData(c, failed) {
+  const n = $("nodata"); n.hidden = false;
+  n.innerHTML = failed
+    ? `<div><h2>Impossible de charger ${esc(c.name)}</h2><p>Le fichier des adresses n'a pas pu être lu. Recharge la page.</p></div>`
+    : `<div><h2>${esc(c.name)} arrive bientôt</h2><p>Il manque le fichier des adresses de ${esc(c.name)} (format CSV, sur adresse.data.gouv.fr). Dès qu'il est envoyé à Claude, la commune s'ajoute ici.</p></div>`;
+}
+
+function docRef() { return S.db.doc("plans/" + S.communeId); }
+function applyPlan(d) {
+  const n = S.data.pts.length;
+  S.plan = { sectors: Array.isArray(d.sectors) ? d.sectors.map(s => ({ ...s })) : [], v: d.v || S.data.version };
+  const a = typeof d.assign === "string" ? d.assign : "";
+  S.assign = a.length === n ? a.split("") : new Array(n).fill(".");
+  if (a.length && a.length !== n) toast("Le fichier d'adresses a changé, les tournées sont à refaire");
+  if (S.active && !sectorBy(S.active)) S.active = null;
+  if (!S.active && S.plan.sectors.length) S.active = S.plan.sectors[0].c;
+  if (LINK && LINK.commune === S.communeId && !LINK.name) LINK = null;
+  if (LINK && LINK.commune === S.communeId) {
+    const t = S.plan.sectors.find(x => norm(x.name) === norm(LINK.name));
+    if (t) { S.active = t.c; S.open = t.c; S.pendingCenter = t.c; LINK = null; }
+  }
+}
+function subscribePlan() {
+  const id = S.communeId;
+  if (S.unsub) { S.unsub(); S.unsub = null; }
+  if (S.local) { loadSnapshot(); return; }
+  if (!S.db) return;
+  let timer = setTimeout(() => setStatus("err", "Données pas encore joignables"), 10000);
+  S.unsub = docRef().onSnapshot(snap => {
+    if (id !== S.communeId) return;
+    if (!snap.metadata.fromCache) { clearTimeout(timer); }
+    if (S.dirty || S.saving) return; // une modification locale attend d'être enregistrée
+    if (snap.exists) applyPlan(snap.data());
+    if (S.view !== "plan") { if (!S.tour || !sectorBy(S.tour)) S.tour = S.plan.sectors[0]?.c || null; subscribeVisits(); }
+    else if (!snap.metadata.fromCache) { loadSnapshot(); return; }
+    setStatus("ok", snap.metadata.fromCache ? "Synchronisation…" : "À jour, partagé avec le bureau");
+    renderAll();
+  }, err => {
+    clearTimeout(timer);
+    if (err.code === "revoked") { setStatus("err", "Accès retiré"); return; }
+    setStatus("err", "Connexion perdue, modifications non enregistrées");
+  });
+}
+function scheduleSave() {
+  if (S.readonly) return;
+  S.dirty = true;
+  if (S.local) { saveLocal(); S.dirty = false; return; }
+  setStatus("saving", "Modification en cours…");
+  clearTimeout(S.saveTimer);
+  S.saveTimer = setTimeout(doSave, 900);
+}
+async function doSave() {
+  if (!S.db) return;
+  if (S.saving) { S.pendingSave = true; return; }
+  S.saving = true; S.dirty = false;
+  const body = { sectors: S.plan.sectors, assign: S.assign.join(""), v: S.data.version, updatedAt: new Date().toISOString() };
+  try { await docRef().set(body); setStatus("ok", "Enregistré"); }
+  catch (e) {
+    if (e && e.code === "invalid_argument") { setReadonly(true); setStatus("ok", "Consultation seule"); subscribePlan(); renderAll(); }
+    else if (e && e.code === "unavailable") { S.dirty = true; setTimeout(doSave, 1500 + Math.random() * 1000); }
+    else setStatus("err", "Échec de l'enregistrement");
+  } finally {
+    S.saving = false;
+    if (S.pendingSave) { S.pendingSave = false; doSave(); }
+  }
+}
+function lsKey() { return "secteurs-" + S.communeId; }
+let SNAP = null;
+async function getSnap() {
+  if (SNAP) return SNAP;
+  try { SNAP = await (await fetch("snapshot.json")).json(); } catch (e) { SNAP = {}; }
+  return SNAP;
+}
+function setReadonly(on) {
+  S.readonly = on; document.body.classList.toggle("ro", on);
+  if (on) { S.mode = "pan"; S.erase = false; }
+}
+async function loadSnapshot() {
+  const id = S.communeId, snap = await getSnap();
+  if (id !== S.communeId) return;
+  setReadonly(true);
+  const d = snap[id];
+  if (d) applyPlan(d);
+  const when = d && d.updatedAt ? new Date(d.updatedAt).toLocaleDateString("fr-FR", { day: "numeric", month: "long" }) : "";
+  setStatus("ok", "Consultation" + (when ? ", version du " + when : ""));
+  renderAll();
+  if (SYNC.url) { SYNC.last[id] = new Set(doneSet()); syncStatus(); SYNC.q.length ? syncPush() : syncPull(); }
+}
+function loadLocal() {
+  try { const raw = localStorage.getItem(lsKey()); if (raw) applyPlan(JSON.parse(raw)); } catch (e) {}
+  setStatus("local", "Enregistré sur cet appareil seulement");
+  renderAll();
+}
+function saveLocal() {
+  try { localStorage.setItem(lsKey(), JSON.stringify({ sectors: S.plan.sectors, assign: S.assign.join(""), v: S.data.version })); } catch (e) {}
+}
+
+/* ---------- Modifications ---------- */
+function snapshotHist() {
+  S.history.push({ assign: S.assign.join(""), sectors: JSON.stringify(S.plan.sectors) });
+  if (S.history.length > 40) S.history.shift();
+  $("bUndo").disabled = false;
+}
+function undo() {
+  if (S.readonly) return;
+  const h = S.history.pop(); if (!h) return;
+  S.assign = h.assign.split(""); S.plan.sectors = JSON.parse(h.sectors);
+  if (S.active && !sectorBy(S.active)) S.active = S.plan.sectors[0]?.c || null;
+  $("bUndo").disabled = !S.history.length;
+  scheduleSave(); renderAll(); toast("Action annulée");
+}
+function targetCode() { return S.erase ? "." : S.active; }
+function assignIdx(list) {
+  if (S.readonly) return 0;
+  const code = targetCode();
+  if (!code) { toast("Choisis d'abord une tournée à droite"); return 0; }
+  let n = 0;
+  for (const i of list) if (S.assign[i] !== code) n++;
+  if (!n) return 0;
+  snapshotHist();
+  for (const i of list) S.assign[i] = code;
+  scheduleSave(); renderAll();
+  return n;
+}
+function newSector() {
+  if (S.readonly) return;
+  const used = new Set(S.plan.sectors.map(s => s.c));
+  const c = [...CODES].find(x => !used.has(x)); if (!c) return;
+  const usedCol = new Set(S.plan.sectors.map(s => s.color));
+  let color = 0; while (usedCol.has(color) && color < PALETTE.length - 1) color++;
+  const nums = S.plan.sectors.map(s => parseInt(String(s.name).replace(/\D/g, ""), 10)).filter(n => !isNaN(n));
+  const name = "T" + ((nums.length ? Math.max(...nums) : 0) + 1);
+  snapshotHist();
+  S.plan.sectors.push({ c, name, color });
+  S.active = c; S.erase = false; S.open = c;
+  scheduleSave(); renderAll();
+}
+function deleteSector(c) {
+  if (S.readonly) return;
+  snapshotHist();
+  for (let i = 0; i < S.assign.length; i++) if (S.assign[i] === c) S.assign[i] = ".";
+  S.plan.sectors = S.plan.sectors.filter(s => s.c !== c);
+  if (S.active === c) S.active = S.plan.sectors[0]?.c || null;
+  S.open = null; S.confirmDel = null;
+  scheduleSave(); renderAll(); toast("Tournée supprimée, ses adresses sont libres");
+}
+
+/* ---------- Statistiques ---------- */
+function counts() {
+  const m = {}; let free = 0;
+  for (const a of S.assign) { if (a === ".") free++; else m[a] = (m[a] || 0) + 1; }
+  return { m, free };
+}
+function streetsOf(c) {
+  const by = new Map(), totals = new Map();
+  S.data.pts.forEach((p, i) => {
+    totals.set(p[2], (totals.get(p[2]) || 0) + 1);
+    if (S.assign[i] === c) { if (!by.has(p[2])) by.set(p[2], []); by.get(p[2]).push(p[3]); }
+  });
+  const out = [];
+  for (const [v, nums] of by) {
+    const ev = nums.filter(n => n % 2 === 0), od = nums.filter(n => n % 2 === 1);
+    const part = [];
+    const rng = (a, w) => { if (!a.length) return; const mn = Math.min(...a), mx = Math.max(...a); part.push(mn === mx ? `${w} ${mn}` : `${w} ${mn} à ${mx}`); };
+    const whole = nums.length === totals.get(v);
+    if (!whole) { rng(od, "impairs"); rng(ev, "pairs"); }
+    out.push({ v, name: S.data.voies[v], n: nums.length, detail: whole ? "rue entière" : part.join(", "), first: Math.min(...nums) });
+  }
+  out.sort((a, b) => b.n - a.n);
+  return out;
+}
+
+/* ---------- Rendu panneau ---------- */
+function renderTabs() {
+  $("tabs").innerHTML = COMMUNES.map(c => `<button data-c="${c.id}" aria-pressed="${c.id === S.communeId}">${c.name}${c.file ? "" : ' <span class="wait">(à venir)</span>'}</button>`).join("");
+  $("tabs").querySelectorAll("button").forEach(b => b.onclick = () => { if (b.dataset.c !== S.communeId) loadCommune(b.dataset.c); });
+  document.title = "CalendrierGerzat";
+}
+function renderPanel() {
+  if (S.data) { $("bPlanPdf").href = driveUrl("plan-" + S.communeId); $("bLegPdf").href = driveUrl("legende-" + S.communeId); if (DRIVE.guide) $("bGuide").href = driveUrl("guide"); }
+  const sumEl = $("sum"), list = $("sectors");
+  if (!S.data) { sumEl.innerHTML = ""; list.innerHTML = ""; $("footNote").textContent = ""; return; }
+  const total = S.data.pts.length, { m, free } = counts();
+  const ns = S.plan.sectors.length, avg = ns ? total / ns : 0;
+  sumEl.innerHTML = `
+    <div><div class="v">${fmt(total)}</div><div class="l">adresses</div></div>
+    <div><div class="v${free ? " free" : ""}">${fmt(free)}</div><div class="l">sans tournée</div></div>
+    <div><div class="v">${fmt(ns)}</div><div class="l">tournées</div></div>`;
+  if (!ns) {
+    list.innerHTML = `<li class="empty">Aucune tournée pour l'instant. Ajoute la première avec le bouton ci-dessus, puis entoure sa zone sur la carte.</li>`;
+  } else {
+    const maxv = Math.max(...Object.values(m), 1);
+    list.innerHTML = S.plan.sectors.map(s => {
+      const n = m[s.c] || 0, col = colorOf(s);
+      const diff = avg ? Math.round((n - avg) / avg * 100) : 0;
+      const cls = Math.abs(diff) <= 15 ? "ok" : Math.abs(diff) <= 30 ? "warn" : "bad";
+      const dtxt = n ? (diff > 0 ? "+" : "") + diff + " %" : "vide";
+      const on = S.active === s.c && !S.erase;
+      let html = `<li class="srow${on ? " on" : ""}" data-c="${s.c}">
+        <button class="pick" data-c="${s.c}" aria-expanded="${S.open === s.c}">
+          <span class="sw" style="background:${col}"></span>
+          <span class="nm">${esc(s.name)}</span>
+          <span class="ct">${fmt(n)}<small class="lbl">adresse${n > 1 ? "s" : ""}</small></span>
+          <span class="bar"><i style="width:${n / maxv * 100}%;background:${col}"></i></span>
+        </button>`;
+      if (S.open === s.c) html += detailHtml(s, n);
+      return html + "</li>";
+    }).join("");
+  }
+  list.querySelectorAll("button.pick").forEach(b => b.onclick = () => {
+    const c = b.dataset.c;
+    if (S.active === c && !S.erase) S.open = S.open === c ? null : c; else { S.active = c; S.open = c; }
+    S.erase = false; S.confirmDel = null; renderAll();
+  });
+  bindDetail();
+  $("footNote").textContent = `Adresses : Base Adresse Nationale, mise à jour du ${new Date(S.data.maj).toLocaleDateString("fr-FR")}.`;
+}
+function detailHtml(s, n) {
+  const st0 = n ? streetsOf(s.c) : [], ord = n ? routeOrder(s.c) : [];
+  const st = ord.map(v => st0.find(r => r.v === v)).filter(Boolean);
+  const colors = PALETTE.map((p, i) => `<button data-col="${i}" aria-pressed="${s.color === i}" style="background:${p}" aria-label="Couleur ${i + 1}"></button>`).join("");
+  const col = colorOf(s), DS = doneSet(), byV = new Map();
+  if (n) S.data.pts.forEach((p, i) => { if (S.assign[i] === s.c) { if (!byV.has(p[2])) byV.set(p[2], []); byV.get(p[2]).push(i); } });
+  let nDone = 0; for (const L of byV.values()) for (const i of L) if (DS.has(akey(i))) nDone++;
+  const rues = n
+    ? `<div class="rues"><h3>${st.length} rue${st.length > 1 ? "s" : ""}, dans l'ordre de passage <button class="linkbtn" id="dCopy">Copier la liste</button></h3>
+      <div class="ckprog"><span><b>${nDone}</b> / ${n} adresses cochées</span><span class="bar"><i style="width:${(100 * nDone / n).toFixed(1)}%;background:${col}"></i></span>${nDone ? `<button class="linkbtn" id="dReset">${S.confirmReset === s.c ? (SYNC.url ? "Confirmer : tout décocher pour tout le monde" : "Confirmer : tout décocher") : "Tout décocher"}</button>` : ""}</div>
+      <p class="n" style="margin:0 0 6px;color:var(--muted);font-size:12px">Touche une rue pour voir ses numéros, puis un numéro pour le cocher ou le voir sur le plan. ${SYNC.url ? "Les coches sont partagées avec toute l'équipe." : "Les coches restent sur ce téléphone."}</p>
+      <ul>${st.map((r, k) => {
+        const ids = (byV.get(r.v) || []).slice().sort((a, b) => { const pa = S.data.pts[a], pb = S.data.pts[b]; return (pa[3] % 2) - (pb[3] % 2) || pa[3] - pb[3] || String(pa[4] || "").localeCompare(String(pb[4] || "")); });
+        const d = ids.filter(i => DS.has(akey(i))).length, all = d === ids.length && d > 0;
+        const open = S.expand.has(r.v);
+        const odd = ids.filter(i => S.data.pts[i][3] % 2), even = ids.filter(i => !(S.data.pts[i][3] % 2));
+        const chip = i => { const p = S.data.pts[i], on = DS.has(akey(i)); return `<button data-i="${i}"${i === S.flash ? ' class="hl"' : ""} aria-pressed="${on}" style="${on ? "background:" + col : ""}">${p[3]}${p[4] ? " " + esc(p[4]) : ""}</button>`; };
+        return `<li class="ck${all ? " done" : ""}"><button class="box" data-v="${r.v}" aria-pressed="${all ? "true" : d ? "mixed" : "false"}" aria-label="Rue faite" style="${all ? "background:" + col : ""}">${all ? "✓" : ""}</button><div class="rn" data-v="${r.v}"><div class="r"><span class="o" style="background:${col}">${k + 1}</span>${esc(r.name)}</div><div class="n">${esc(r.detail)}</div>${open ? `<div class="chips">${even.length && odd.length ? odd.map(chip).join("") + '<span class="sep"></span>' + even.map(chip).join("") : ids.map(chip).join("")}</div>${ids.includes(S.flash) ? (() => { const q = S.data.pts[S.flash], lab = esc(String(q[3]) + (q[4] ? " " + q[4] : "")), on = DS.has(akey(S.flash)); return `<div class="selact"><button class="btn${on ? "" : " primary"} ckone" type="button">${on ? "Décocher" : "Cocher"} le ${lab}</button><button class="btn seemap" data-v="${r.v}" type="button">Voir sur le plan</button></div>`; })() : `<button class="linkbtn seemap" data-v="${r.v}" type="button">Voir la rue sur le plan</button>`}` : ""}</div><span class="c">${d}/${r.n}</span></li>`;
+      }).join("")}</ul></div>`
+    : `<div class="rues"><p class="n" style="margin:0;color:var(--muted)">Pas encore d'adresse. Passe en mode Entourer et dessine autour de la zone de ${esc(s.name)}.</p></div>`;
+  const del = S.confirmDel === s.c
+    ? `<div class="confirm">Supprimer ${esc(s.name)} ? Ses ${fmt(n)} adresses redeviennent libres.<div class="rowbtns"><button class="btn danger" id="dDelYes">Supprimer</button><button class="btn" id="dDelNo">Garder</button></div></div>`
+    : `<div class="rowbtns"><button class="btn" id="dCenter" ${n ? "" : "disabled"}>Centrer sur la carte</button><button class="btn danger" id="dDel">Supprimer</button></div>`;
+  return `<div class="detail">
+    <label>Nom<input id="dName" value="${esc(s.name)}" maxlength="20"></label>
+    <div class="colors" role="group" aria-label="Couleur">${colors}</div>
+    <div class="pdfrow2"><a class="btn pdfbtn" id="dPdf" target="_blank" rel="noopener" href="${driveUrl(`tplan-${S.communeId}-${s.c}`)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Plan de la tournée A4</a><a class="btn pdfbtn" id="dCarnet" target="_blank" rel="noopener" href="${driveUrl(`carnet-${S.communeId}-${s.c}`)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Carnet à plier A4</a></div>
+    <div class="tlink">Lien de la tournée, pour un SMS ou un mail : <a href="${esc(tourUrl(s))}" target="_blank" rel="noopener">ouvrir</a> · <button class="linkbtn" id="dLink" type="button">copier le lien</button></div>
+    ${rues}${del}</div>`;
+}
+function bindDetail() {
+  const s = sectorBy(S.open); if (!s) return;
+  const name = $("dName");
+  if (S.readonly) name.readOnly = true;
+  let before = null;
+  const onFocus = () => { if (!before) before = { assign: S.assign.join(""), sectors: JSON.stringify(S.plan.sectors) }; };
+  const onInput = (field, el) => () => { s[field] = el.value.trim() || (field === "name" ? s.c : ""); renderLight(); scheduleSave(); };
+  const onBlur = () => { if (before) { S.history.push(before); $("bUndo").disabled = false; before = null; } renderPanel(); };
+  [[name, "name"]].forEach(([el, f]) => { el.onfocus = onFocus; el.oninput = onInput(f, el); el.onblur = onBlur; el.onkeydown = e => { if (e.key === "Enter") el.blur(); }; });
+  document.querySelectorAll(".colors button").forEach(b => b.onclick = () => { snapshotHist(); s.color = +b.dataset.col; scheduleSave(); renderAll(); });
+  const cp = $("dCopy"); if (cp) cp.onclick = () => {
+    const st0 = streetsOf(s.c), txt = s.name + "\n" + routeOrder(s.c).map((v, k) => { const r = st0.find(q => q.v === v); return `${k + 1}. ${r.name} : ${r.detail} (${r.n})`; }).join("\n");
+    navigator.clipboard.writeText(txt).then(() => toast("Liste copiée"), () => toast("Copie impossible ici, sélectionne le texte à la main"));
+  };
+  const ce = $("dCenter"); if (ce) ce.onclick = () => centerOn(s.c);
+  const keep = () => { const u = document.querySelector(".rues ul"); const t = u ? u.scrollTop : 0; renderPanel(); draw(); const u2 = document.querySelector(".rues ul"); if (u2) u2.scrollTop = t; };
+  document.querySelectorAll(".rues .rn").forEach(el => el.onclick = () => { const v = +el.dataset.v; S.expand.has(v) ? S.expand.delete(v) : S.expand.add(v); keep(); });
+  document.querySelectorAll(".rues .box").forEach(el => el.onclick = () => {
+    const v = +el.dataset.v, DS = doneSet(), ids = []; S.data.pts.forEach((p, i) => { if (S.assign[i] === s.c && p[2] === v) ids.push(i); });
+    const all = ids.every(i => DS.has(akey(i)));
+    ids.forEach(i => all ? DS.delete(akey(i)) : DS.add(akey(i))); saveDone(); keep();
+  });
+  document.querySelectorAll(".chips button").forEach(el => el.onclick = e => { e.stopPropagation(); const i = +el.dataset.i; S.flash = S.flash === i ? -1 : i; keep(); });
+  document.querySelectorAll(".rues .ckone").forEach(el => el.onclick = e => {
+    e.stopPropagation(); const i = S.flash; if (i < 0) return; const k = akey(i), DS = doneSet(); DS.has(k) ? DS.delete(k) : DS.add(k); saveDone();
+    if (S.selected === i) renderHint(); keep(); toast(addrLabel(i) + (DS.has(k) ? " coché" : " décoché"));
+  });
+  document.querySelectorAll(".rues .seemap").forEach(el => el.onclick = e => {
+    e.stopPropagation();
+    const v = +el.dataset.v, ids = []; S.data.pts.forEach((p, i) => { if (S.assign[i] === s.c && p[2] === v) ids.push(i); });
+    const one = ids.includes(S.flash), bb = { x0: Infinity, x1: -Infinity, y0: Infinity, y1: -Infinity };
+    for (const i of one ? [S.flash] : ids) { const p = S.data.pts[i]; bb.x0 = Math.min(bb.x0, p[0]); bb.x1 = Math.max(bb.x1, p[0]); bb.y0 = Math.min(bb.y0, p[1]); bb.y1 = Math.max(bb.y1, p[1]); }
+    if (one) { S.selected = S.flash; S.found = null; bb.x0 -= 90; bb.x1 += 90; bb.y0 -= 90; bb.y1 += 90; } else { S.selected = -1; S.found = ids; bb.x0 -= 40; bb.x1 += 40; bb.y0 -= 40; bb.y1 += 40; }
+    fitTo(bb, 70); renderHint(); draw();
+    $("mapwrap").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+  const rs = $("dReset"); if (rs) rs.onclick = () => {
+    if (S.confirmReset !== s.c) { S.confirmReset = s.c; keep(); return; }
+    S.confirmReset = null; const DS = doneSet(); S.data.pts.forEach((p, i) => { if (S.assign[i] === s.c) DS.delete(akey(i)); }); saveDone(); keep();
+  };
+  const lk = $("dLink"); if (lk) lk.onclick = () => {
+    const done = t => { lk.textContent = t; setTimeout(() => { lk.textContent = "copier le lien"; }, 2500); };
+    try { navigator.clipboard.writeText(shareUrl(s)).then(() => done("lien copié"), () => done("copie impossible ici")); } catch (e) { done("copie impossible ici"); }
+  };
+  const d = $("dDel"); if (d) d.onclick = () => { S.confirmDel = s.c; renderPanel(); };
+  const y = $("dDelYes"); if (y) y.onclick = () => deleteSector(s.c);
+  const no = $("dDelNo"); if (no) no.onclick = () => { S.confirmDel = null; renderPanel(); };
+}
+function renderLight() { renderChip(); draw(); const row = document.querySelector(`.srow[data-c="${S.open}"] .nm`); const s = sectorBy(S.open); if (row && s) row.textContent = s.name; }
+function renderChip() {
+  const el = $("chipActive");
+  if (!S.data) { el.hidden = true; return; }
+  el.hidden = false;
+  if (S.erase) { el.innerHTML = `<span class="sw" style="background:var(--dot)"></span>Gomme <small>retire les adresses</small>`; }
+  else { const s = sectorBy(S.active); el.innerHTML = s ? `<span class="sw" style="background:${colorOf(s)}"></span>${esc(s.name)} <small>reçoit les adresses</small>` : `<small>Choisis une tournée</small>`; }
+  $("bErase").setAttribute("aria-pressed", S.erase);
+  $("mPan").setAttribute("aria-pressed", S.mode === "pan");
+  $("mLasso").setAttribute("aria-pressed", S.mode === "lasso");
+  canvas.className = S.mode;
+}
+function renderHint() {
+  const h = $("hint"), a = $("addr");
+  if (!S.data) { h.hidden = true; a.hidden = true; return; }
+  if (S.selected >= 0) {
+    h.hidden = true; a.hidden = false;
+    const i = S.selected, p = S.data.pts[i], cur = sectorBy(S.assign[i]);
+    const t = S.erase ? null : sectorBy(S.active);
+    const verb = S.erase ? "Retirer" : t ? "Mettre dans " + esc(t.name) : null;
+    const par = p[3] % 2 === 0 ? "pair" : "impair";
+    const on = doneSet().has(akey(i));
+    const ck = cur ? `<div class="ckrow"><button class="btn${on ? "" : " primary"}" id="aCk">${on ? "Décocher" : "Cocher"} ce numéro</button><button class="btn" id="aSee">Voir dans la liste</button></div>` : "";
+    a.innerHTML = `<div class="head"><div><div class="num">${esc(addrLabel(i))}${on ? " ✓" : ""}</div><div class="cur">${cur ? "Tournée " + esc(cur.name) : "Sans tournée"}</div></div><button class="x" id="aClose" aria-label="Fermer">×</button></div>
+      ${ck}${S.readonly ? "" : verb ? `<div class="acts">
+        <button class="btn primary" data-a="one">${S.erase ? "Retirer ce numéro" : "Ce numéro"}</button>
+        <button class="btn" data-a="street">Toute la rue</button>
+        <button class="btn" data-a="side">Côté ${par} de la rue</button>
+        <button class="btn" data-a="sidefrom">Côté ${par}, à partir d'ici</button>
+      </div>` : `<p class="cur" style="margin:8px 0 0">Choisis une tournée à droite pour y mettre cette adresse.</p>`}`;
+    $("aClose").onclick = () => { S.selected = -1; S.flash = -1; renderHint(); renderPanel(); draw(); };
+    const ak = $("aCk"); if (ak) ak.onclick = () => {
+      const DS = doneSet(), k = akey(i); DS.has(k) ? DS.delete(k) : DS.add(k); saveDone();
+      const u = document.querySelector(".rues ul"), t = u ? u.scrollTop : 0; renderPanel(); const u2 = document.querySelector(".rues ul"); if (u2) u2.scrollTop = t;
+      renderHint(); draw(); toast(DS.has(k) ? addrLabel(i) + " coché" : addrLabel(i) + " décoché");
+    };
+    const as = $("aSee"); if (as) as.onclick = () => { const el = document.querySelector(`.chips button[data-i="${i}"]`); if (el) el.scrollIntoView({ behavior: "smooth", block: "center" }); };
+    a.querySelectorAll("[data-a]").forEach(b => b.onclick = () => {
+      const kind = b.dataset.a, list = [];
+      S.data.pts.forEach((q, j) => {
+        if (q[2] !== p[2]) return;
+        if (kind === "one" && j !== i) return;
+        if ((kind === "side" || kind === "sidefrom") && q[3] % 2 !== p[3] % 2) return;
+        if (kind === "sidefrom" && q[3] < p[3]) return;
+        list.push(j);
+      });
+      const n = assignIdx(list);
+      if (n) toast(`${n} adresse${n > 1 ? "s" : ""} ${S.erase ? "retirée" + (n > 1 ? "s" : "") : "dans " + sectorBy(S.active).name}`);
+    });
+    return;
+  }
+  a.hidden = true;
+  const anyAssigned = S.assign.some(x => x !== ".");
+  if (!anyAssigned) {
+    h.hidden = false;
+    h.innerHTML = `<b>Pour commencer</b><p>Choisis une tournée à droite, passe en mode <strong>Entourer</strong> et dessine autour de sa zone. Les adresses prennent sa couleur. Touche un point pour régler une rue ou un côté de rue.</p>`;
+  } else h.hidden = true;
+}
+function renderAll() { renderChip(); if (S.view === "plan") { renderPanel(); renderSearch(); } renderSide(); renderHint(); draw(); if (S.pendingCenter && W && S.assign.includes(S.pendingCenter)) { const c = S.pendingCenter; S.pendingCenter = null; centerOn(c); } }
+
+/* ---------- Carte ---------- */
+let W = 0, H = 0, DPR = 1;
+function resize() {
+  const r = $("mapwrap").getBoundingClientRect();
+  DPR = window.devicePixelRatio || 1; W = r.width; H = r.height;
+  canvas.width = Math.round(W * DPR); canvas.height = Math.round(H * DPR);
+  draw();
+}
+function bounds() {
+  let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+  for (const p of S.data.pts) { if (p[0] < x0) x0 = p[0]; if (p[0] > x1) x1 = p[0]; if (p[1] < y0) y0 = p[1]; if (p[1] > y1) y1 = p[1]; }
+  return { x0, x1, y0, y1 };
+}
+function fitTo(b, pad) {
+  pad = pad ?? 60;
+  const w = Math.max(b.x1 - b.x0, 50), h = Math.max(b.y1 - b.y0, 50);
+  S.scale = Math.min((W - pad * 2) / w, (H - pad * 2 - 40) / h);
+  S.tx = W / 2 - (b.x0 + w / 2) * S.scale; S.ty = H / 2 + 20 + (b.y0 + h / 2) * S.scale;
+}
+function coreBounds() {
+  const xs = S.data.pts.map(p => p[0]).sort((a, b) => a - b), ys = S.data.pts.map(p => p[1]).sort((a, b) => a - b);
+  const q = (a, f) => a[Math.floor((a.length - 1) * f)];
+  return { x0: q(xs, .015), x1: q(xs, .985), y0: q(ys, .015), y1: q(ys, .985) };
+}
+function fitView() { if (!S.data || !W) return; fitTo(coreBounds(), 30); draw(); }
+function centerOn(c) {
+  const b = { x0: Infinity, x1: -Infinity, y0: Infinity, y1: -Infinity };
+  S.data.pts.forEach((p, i) => { if (S.assign[i] !== c) return; b.x0 = Math.min(b.x0, p[0]); b.x1 = Math.max(b.x1, p[0]); b.y0 = Math.min(b.y0, p[1]); b.y1 = Math.max(b.y1, p[1]); });
+  if (b.x0 === Infinity) return;
+  fitTo(b, 90); draw();
+  if (window.innerWidth <= 820) $("mapwrap").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+const sx = x => S.tx + x * S.scale, sy = y => S.ty - y * S.scale;
+const wx = X => (X - S.tx) / S.scale, wy = Y => (S.ty - Y) / S.scale;
+function zoomAt(f, X, Y) {
+  const ns = Math.min(Math.max(S.scale * f, 0.05), 12);
+  const x = wx(X), y = wy(Y); S.scale = ns; S.tx = X - x * ns; S.ty = Y + y * ns; draw();
+}
+function hexA(hex, a) { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16 & 255},${n >> 8 & 255},${n & 255},${a})`; }
+
+function draw() {
+  if (!W) return;
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  ctx.fillStyle = cssVar("--map"); ctx.fillRect(0, 0, W, H);
+  if (!S.data) return;
+  const pts = S.data.pts, A = S.assign, sc = S.scale;
+  const colors = {}; for (const s of S.plan.sectors) if (S.view === "plan" || s.c === S.tour) colors[s.c] = colorOf(s);
+  const focus = (S.erase || !S.active) ? null : S.active;
+  const streetCol = cssVar("--street"), dotCol = cssVar("--dot");
+  const base = BASES[S.communeId];
+  ctx.lineCap = "round"; ctx.lineJoin = "round";
+  if (base) {
+    ctx.fillStyle = cssVar("--land"); ctx.fillRect(0, 0, W, H);
+    ctx.setTransform(DPR * sc, 0, 0, -DPR * sc, DPR * S.tx, DPR * S.ty);
+    const px = v => v / sc;
+    ctx.fillStyle = cssVar("--green"); ctx.fill(base.green);
+    ctx.fillStyle = cssVar("--cem"); ctx.fill(base.cem);
+    ctx.strokeStyle = cssVar("--water"); ctx.lineWidth = Math.max(px(2.5), 3); ctx.stroke(base.water);
+    if (sc > 0.25) { ctx.fillStyle = cssVar("--bldg"); ctx.fill(base.building); if (sc > 0.9) { ctx.strokeStyle = cssVar("--bldg-edge"); ctx.lineWidth = px(0.8); ctx.stroke(base.building); } }
+    ctx.setLineDash([px(3), px(3)]); ctx.strokeStyle = cssVar("--path"); ctx.lineWidth = px(1); if (sc > 0.5) ctx.stroke(base.path); ctx.setLineDash([]);
+    const rw = (m, minpx) => Math.max(m, minpx / sc);
+    ctx.strokeStyle = cssVar("--casing");
+    ctx.lineWidth = rw(6, 2.2); ctx.stroke(base.service); ctx.lineWidth = rw(10, 3.4); ctx.stroke(base.minor);
+    ctx.strokeStyle = cssVar("--major-casing"); ctx.lineWidth = rw(14, 4.6); ctx.stroke(base.major); ctx.lineWidth = rw(20, 5.6); ctx.stroke(base.motorway);
+    ctx.strokeStyle = cssVar("--road"); ctx.lineWidth = rw(4.5, 1.2); ctx.stroke(base.service); ctx.lineWidth = rw(8, 2.2); ctx.stroke(base.minor);
+    ctx.strokeStyle = cssVar("--major"); ctx.lineWidth = rw(11.5, 3.2); ctx.stroke(base.major);
+    ctx.strokeStyle = cssVar("--motorway"); ctx.lineWidth = rw(17, 4); ctx.stroke(base.motorway);
+    ctx.strokeStyle = cssVar("--rail"); ctx.lineWidth = px(1.6); ctx.stroke(base.rail);
+    ctx.setLineDash([px(6), px(6)]); ctx.lineWidth = px(1.6); ctx.strokeStyle = cssVar("--land"); ctx.stroke(base.rail); ctx.setLineDash([]);
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  }
+  drawZones(pts, A, colors, sc);
+  if (!base) {
+  ctx.lineWidth = Math.min(Math.max(sc * 9, 1.6), 16);
+  ctx.strokeStyle = streetCol; ctx.beginPath();
+  const colored = {};
+  for (const [i, j] of S.data.edges) {
+    const a = A[i];
+    if (a !== "." && a === A[j] && colors[a]) { (colored[a] = colored[a] || []).push(i, j); continue; }
+    ctx.moveTo(sx(pts[i][0]), sy(pts[i][1])); ctx.lineTo(sx(pts[j][0]), sy(pts[j][1]));
+  }
+  ctx.stroke();
+  for (const c in colored) {
+    const L = colored[c]; ctx.strokeStyle = hexA(colors[c], focus && focus !== c ? 0.22 : 0.5); ctx.beginPath();
+    for (let k = 0; k < L.length; k += 2) { ctx.moveTo(sx(pts[L[k]][0]), sy(pts[L[k]][1])); ctx.lineTo(sx(pts[L[k + 1]][0]), sy(pts[L[k + 1]][1])); }
+    ctx.stroke();
+  }
+  }
+  // points
+  const r = Math.min(Math.max(sc * 2.4, 1.7), 5.5);
+  const groups = {};
+  for (let i = 0; i < pts.length; i++) {
+    const X = sx(pts[i][0]), Y = sy(pts[i][1]);
+    if (X < -10 || Y < -10 || X > W + 10 || Y > H + 10) continue;
+    let key = A[i];
+    if (S.view !== "plan") key = A[i] === S.tour ? "s:" + (((S.visits[S.tour] || {})[i] || {}).s || "todo") : "o";
+    (groups[key] = groups[key] || []).push(X, Y);
+  }
+  for (const c in groups) {
+    const L = groups[c];
+    const rr = c.startsWith("s:") ? Math.max(r * 1.5, 4) : (c === "o" ? Math.max(r * 0.7, 1.4) : r);
+    if (c === "o") ctx.fillStyle = hexA("#8a929b", 0.5);
+    else if (c.startsWith("s:")) { const k = c.slice(2); ctx.fillStyle = k === "todo" ? "#ffffff" : STAT[k][1]; }
+    else ctx.fillStyle = c === "." ? dotCol : hexA(colors[c] || dotCol, focus && focus !== c ? 0.45 : 1);
+    ctx.beginPath();
+    for (let k = 0; k < L.length; k += 2) { ctx.moveTo(L[k] + rr, L[k + 1]); ctx.arc(L[k], L[k + 1], rr, 0, 6.2832); }
+    ctx.fill();
+    if (c === "s:todo") { ctx.lineWidth = 2; ctx.strokeStyle = "#4a535c"; ctx.stroke(); }
+    else if (base && r > 2.2) { ctx.lineWidth = 1; ctx.strokeStyle = cssVar("--land"); ctx.stroke(); }
+  }
+  // noms de rues
+  const boxes = [], halo = cssVar("--halo"), fg = cssVar("--fg");
+  const hit = box => boxes.some(b => !(box[2] < b[0] || box[0] > b[2] || box[3] < b[1] || box[1] > b[3]));
+  const fsz = sc > 2 ? 14 : sc > 1 ? 13 : 12;
+  ctx.font = `600 ${fsz}px ${cssVar("--font-map")}`;
+  ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  const drawLabel = (txt, X, Y, ang, w) => {
+    const h = fsz + 3, c = Math.abs(Math.cos(ang)), s2 = Math.abs(Math.sin(ang));
+    const bw = w * c + h * s2, bh = w * s2 + h * c, box = [X - bw / 2, Y - bh / 2, X + bw / 2, Y + bh / 2];
+    if (hit(box)) return false;
+    boxes.push(box);
+    ctx.save(); ctx.translate(X, Y); ctx.rotate(ang);
+    ctx.lineWidth = 3.5; ctx.strokeStyle = halo; ctx.strokeText(txt, 0, 0);
+    ctx.fillStyle = fg; ctx.fillText(txt, 0, 0); ctx.restore();
+    return true;
+  };
+  const rawBase = BASE_RAW[S.communeId], done = new Set();
+  if (rawBase && rawBase.named && sc > 0.22) {
+    const x0 = wx(-50), x1 = wx(W + 50), y0 = wy(H + 50), y1 = wy(-50);
+    for (const [ni, major, bx0, by0, bx1, by1, f] of rawBase.namedSorted) {
+      if (!major && sc < 0.4) continue;
+      if (bx1 < x0 || bx0 > x1 || by1 < y0 || by0 > y1) continue;
+      const txt = rawBase.names[ni], w = ctx.measureText(txt).width + 8;
+      const P = []; let tot = 0;
+      for (let k = 0; k < f.length; k += 2) { const X = sx(f[k]), Y = sy(f[k + 1]); if (P.length) tot += Math.hypot(X - P[P.length - 1][0], Y - P[P.length - 1][1]); P.push([X, Y, tot]); }
+      if (tot < w * 1.05) continue;
+      const at = d => { let k = 1; while (k < P.length - 1 && P[k][2] < d) k++; const [xa, ya, da] = P[k - 1], [xb, yb, db] = P[k]; const t = db > da ? (d - da) / (db - da) : 0; return [xa + (xb - xa) * t, ya + (yb - ya) * t]; };
+      const step = Math.max(w * 3, 420), n = Math.max(1, Math.floor(tot / step));
+      for (let j = 0; j < n; j++) {
+        const d = tot * (j + 0.5) / n;
+        if (d - w / 2 < 0 || d + w / 2 > tot) continue;
+        const p1 = at(d - w / 2), p2 = at(d + w / 2), pm = at(d);
+        if (pm[0] < 0 || pm[1] < 0 || pm[0] > W || pm[1] > H) continue;
+        if (Math.hypot(p2[0] - p1[0], p2[1] - p1[1]) < w * 0.88) continue;
+        let ang = Math.atan2(p2[1] - p1[1], p2[0] - p1[0]);
+        if (ang > Math.PI / 2) ang -= Math.PI; else if (ang < -Math.PI / 2) ang += Math.PI;
+        if (drawLabel(txt, pm[0], pm[1], ang, w)) done.add(txt.toLowerCase());
+      }
+    }
+  }
+  if (rawBase && rawBase.named && sc > 0.6) {
+    for (const [v, x, y, ang, n] of S.data.labels) {
+      const txt = S.data.voies[v]; if (done.has(txt.toLowerCase())) continue;
+      const X = sx(x), Y = sy(y); if (X < 0 || Y < 0 || X > W || Y > H) continue;
+      drawLabel(txt, X, Y, -ang, ctx.measureText(txt).width + 6);
+    }
+  } else if (!(rawBase && rawBase.named) && sc > 0.32) {
+    const labels = S.data.labels.slice().sort((a, b) => b[4] - a[4]);
+    for (const [v, x, y, ang, n] of labels) {
+      if (sc < 0.6 && n < 12) continue;
+      const X = sx(x), Y = sy(y); if (X < -80 || Y < -20 || X > W + 80 || Y > H + 20) continue;
+      const txt = S.data.voies[v]; drawLabel(txt, X, Y, -ang, ctx.measureText(txt).width + 6);
+    }
+  }
+  drawPoi(sc);
+  // étiquettes de tournées
+  const cen = {};
+  for (let i = 0; i < pts.length; i++) { const a = A[i]; if (a === ".") continue; const o = cen[a] = cen[a] || [0, 0, 0]; o[0] += pts[i][0]; o[1] += pts[i][1]; o[2]++; }
+  ctx.font = `700 ${sc > 1 ? 22 : 17}px ${cssVar("--font-map")}`; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  for (const c in cen) {
+    const s = sectorBy(c); if (!s) continue;
+    const X = sx(cen[c][0] / cen[c][2]), Y = sy(cen[c][1] / cen[c][2]);
+    const w = ctx.measureText(s.name).width + 14;
+    ctx.fillStyle = colors[c]; ctx.globalAlpha = focus && focus !== c ? 0.6 : 1;
+    ctx.beginPath(); ctx.roundRect ? ctx.roundRect(X - w / 2, Y - 14, w, 28, 6) : ctx.rect(X - w / 2, Y - 14, w, 28); ctx.fill();
+    ctx.fillStyle = "#fff"; ctx.fillText(s.name, X, Y + 1); ctx.globalAlpha = 1;
+  }
+  // adresses cochées
+  if (S.view === "plan" && S.data) {
+    const DS = doneSet();
+    if (DS.size) {
+      const rr = Math.max(r, 3);
+      ctx.fillStyle = "#ffffff"; ctx.strokeStyle = "#3b4148"; ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      for (let i = 0; i < pts.length; i++) {
+        if (!DS.has(akey(i))) continue;
+        const X = sx(pts[i][0]), Y = sy(pts[i][1]); if (X < -10 || Y < -10 || X > W + 10 || Y > H + 10) continue;
+        ctx.moveTo(X + rr, Y); ctx.arc(X, Y, rr, 0, 6.2832);
+      }
+      ctx.fill(); ctx.stroke();
+      if (rr >= 4.5) {
+        ctx.beginPath(); ctx.lineWidth = 1.6;
+        for (let i = 0; i < pts.length; i++) {
+          if (!DS.has(akey(i))) continue;
+          const X = sx(pts[i][0]), Y = sy(pts[i][1]); if (X < -10 || Y < -10 || X > W + 10 || Y > H + 10) continue;
+          ctx.moveTo(X - rr * 0.5, Y); ctx.lineTo(X - rr * 0.1, Y + rr * 0.45); ctx.lineTo(X + rr * 0.55, Y - rr * 0.45);
+        }
+        ctx.stroke();
+      }
+    }
+  }
+  // ordre de passage de la tournée ouverte
+  if (S.open && sc > 0.45 && S.view === "plan" && colors[S.open]) {
+    const ord = routeOrder(S.open), col = colors[S.open];
+    ctx.font = `700 12px ${cssVar("--font-ui")}`; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ord.forEach((v, k) => {
+      const ids = []; for (let i = 0; i < pts.length; i++) if (A[i] === S.open && pts[i][2] === v) ids.push(i);
+      ids.sort((a, b) => pts[a][0] - pts[b][0] || pts[a][1] - pts[b][1]);
+      const p = pts[ids[Math.floor(ids.length / 2)]], X = sx(p[0]), Y = sy(p[1]) - 14;
+      ctx.beginPath(); ctx.arc(X, Y, 10, 0, 6.2832); ctx.fillStyle = col; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = "#fff"; ctx.stroke();
+      ctx.fillStyle = "#fff"; ctx.fillText(String(k + 1), X, Y + 0.5);
+    });
+  }
+  // résultat de recherche
+  if (S.found && S.found.length) {
+    ctx.lineWidth = 3; ctx.strokeStyle = cssVar("--fg");
+    for (const i of S.found) { ctx.beginPath(); ctx.arc(sx(pts[i][0]), sy(pts[i][1]), r + (S.found.length === 1 ? 9 : 5), 0, 6.2832); ctx.stroke(); }
+  }
+  // ma position
+  if (GPS.pos) {
+    const X = sx((GPS.pos.lon - S.data.lon0) * S.data.kx), Y = sy((GPS.pos.lat - S.data.lat0) * S.data.ky);
+    const R = Math.max(GPS.pos.acc * sc, 9);
+    ctx.beginPath(); ctx.arc(X, Y, R, 0, 6.2832); ctx.fillStyle = "rgba(37,110,230,.14)"; ctx.fill();
+    ctx.lineWidth = 1; ctx.strokeStyle = "rgba(37,110,230,.5)"; ctx.stroke();
+    ctx.beginPath(); ctx.arc(X, Y, 8, 0, 6.2832); ctx.fillStyle = "#256ee6"; ctx.fill(); ctx.lineWidth = 3; ctx.strokeStyle = "#fff"; ctx.stroke();
+  }
+  // adresse choisie
+  if (S.selected >= 0) {
+    const p = pts[S.selected]; ctx.lineWidth = 2.5; ctx.strokeStyle = cssVar("--fg");
+    ctx.beginPath(); ctx.arc(sx(p[0]), sy(p[1]), r + 5, 0, 6.2832); ctx.stroke();
+  }
+  // lasso
+  if (S.lasso && S.lasso.length > 1) {
+    const col = S.erase ? dotCol : (colors[S.active] || cssVar("--accent"));
+    ctx.beginPath(); ctx.moveTo(S.lasso[0][0], S.lasso[0][1]);
+    for (const q of S.lasso) ctx.lineTo(q[0], q[1]);
+    ctx.closePath(); ctx.fillStyle = hexA(col.startsWith("#") ? col : "#888888", 0.15); ctx.fill();
+    ctx.setLineDash([6, 5]); ctx.lineWidth = 2; ctx.strokeStyle = col; ctx.stroke(); ctx.setLineDash([]);
+  }
+}
+
+/* ---------- Gestes ---------- */
+const ptrs = new Map(); let gesture = null;
+function local(e) { const r = canvas.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; }
+canvas.addEventListener("pointerdown", e => {
+  if (!S.data) return;
+  canvas.setPointerCapture(e.pointerId);
+  ptrs.set(e.pointerId, local(e));
+  if (ptrs.size === 1) {
+    const p = local(e);
+    gesture = { type: S.mode === "lasso" ? "lasso" : "pan", start: p, last: p, t: Date.now(), moved: false };
+    if (gesture.type === "lasso") S.lasso = [p];
+  } else if (ptrs.size === 2) {
+    S.lasso = null;
+    const [a, b] = [...ptrs.values()];
+    gesture = { type: "pinch", d: Math.hypot(a[0] - b[0], a[1] - b[1]), c: [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], moved: true };
+    draw();
+  }
+});
+canvas.addEventListener("pointermove", e => {
+  if (!ptrs.has(e.pointerId) || !gesture) return;
+  const p = local(e); ptrs.set(e.pointerId, p);
+  if (gesture.type === "pinch" && ptrs.size >= 2) {
+    const [a, b] = [...ptrs.values()];
+    const d = Math.hypot(a[0] - b[0], a[1] - b[1]), c = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+    S.tx += c[0] - gesture.c[0]; S.ty += c[1] - gesture.c[1];
+    zoomAt(d / gesture.d, c[0], c[1]); gesture.d = d; gesture.c = c; return;
+  }
+  if (Math.hypot(p[0] - gesture.start[0], p[1] - gesture.start[1]) > 6) gesture.moved = true;
+  if (gesture.type === "pan") { S.tx += p[0] - gesture.last[0]; S.ty += p[1] - gesture.last[1]; gesture.last = p; draw(); }
+  else if (gesture.type === "lasso") { const l = S.lasso[S.lasso.length - 1]; if (Math.hypot(p[0] - l[0], p[1] - l[1]) > 3) { S.lasso.push(p); draw(); } }
+});
+function endPointer(e) {
+  if (!ptrs.has(e.pointerId)) return;
+  ptrs.delete(e.pointerId);
+  if (!gesture) return;
+  if (gesture.type === "pinch") { if (ptrs.size === 0) gesture = null; return; }
+  if (!gesture.moved && e.type === "pointerup") { pick(gesture.start); }
+  else if (gesture.type === "lasso" && S.lasso && S.lasso.length > 3 && e.type === "pointerup") { finishLasso(); }
+  S.lasso = null; gesture = null; draw();
+}
+canvas.addEventListener("pointerup", endPointer);
+canvas.addEventListener("pointercancel", endPointer);
+canvas.addEventListener("wheel", e => { if (!S.data) return; e.preventDefault(); const [X, Y] = local(e); zoomAt(Math.exp(-e.deltaY * 0.0016), X, Y); }, { passive: false });
+function pick(p) {
+  let best = -1, bd = 16 * 16;
+  S.data.pts.forEach((q, i) => { if (S.view !== "plan" && S.assign[i] !== S.tour) return; const dx = sx(q[0]) - p[0], dy = sy(q[1]) - p[1], d = dx * dx + dy * dy; if (d < bd) { bd = d; best = i; } });
+  if (S.view === "tour") { if (best >= 0 && S.canVisit) openSheet(best, false); else closeSheet(); return; }
+  if (S.view === "bilan") return;
+  S.selected = best; S.flash = -1;
+  if (best >= 0 && S.assign[best] !== ".") {
+    const c = S.assign[best];
+    if (S.open !== c) { S.open = c; if (S.readonly || !S.active) S.active = c; S.confirmDel = null; }
+    S.expand.add(S.data.pts[best][2]); S.flash = best;
+    renderPanel();
+    const el = document.querySelector(`.chips button[data-i="${best}"]`), u = document.querySelector(".rues ul");
+    if (el && u) { const r = el.getBoundingClientRect(), ru = u.getBoundingClientRect(); if (r.top < ru.top || r.bottom > ru.bottom) u.scrollTop += r.top - ru.top - ru.height / 2; }
+  }
+  renderHint(); draw();
+}
+function finishLasso() {
+  const poly = S.lasso.map(([X, Y]) => [wx(X), wy(Y)]);
+  let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+  for (const [x, y] of poly) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
+  const inside = [];
+  S.data.pts.forEach((p, i) => {
+    const x = p[0], y = p[1]; if (x < x0 || x > x1 || y < y0 || y > y1) return;
+    let c = false;
+    for (let a = 0, b = poly.length - 1; a < poly.length; b = a++) {
+      const [xa, ya] = poly[a], [xb, yb] = poly[b];
+      if ((ya > y) !== (yb > y) && x < (xb - xa) * (y - ya) / (yb - ya) + xa) c = !c;
+    }
+    if (c) inside.push(i);
+  });
+  if (!inside.length) return;
+  const n = assignIdx(inside);
+  if (n) toast(`${n} adresse${n > 1 ? "s" : ""} ${S.erase ? "retirée" + (n > 1 ? "s" : "") : "dans " + sectorBy(S.active).name}`);
+}
+
+/* ---------- Cochage (sur cet appareil) ---------- */
+const DONE = {};
+function akey(i) { const p = S.data.pts[i]; return p[2] + ":" + p[3] + ":" + (p[4] || ""); }
+function doneSet() {
+  const k = "cg-done-" + S.communeId;
+  if (!DONE[k]) { let a = []; try { a = JSON.parse(localStorage.getItem(k) || "[]"); } catch (e) {} DONE[k] = new Set(a); }
+  return DONE[k];
+}
+const SYNC = { url: (window.COCHES_URL || "").trim(), last: {}, q: [], busy: false, ok: null, t: null };
+try { SYNC.q = JSON.parse(localStorage.getItem("cg-q") || "[]"); } catch (e) {}
+function syncSaveQ() { try { localStorage.setItem("cg-q", JSON.stringify(SYNC.q)); } catch (e) {} }
+function syncStatus() {
+  if (!SYNC.url) return;
+  const el = $("statusTxt"); if (!el) return;
+  const base = el.textContent.replace(/ · .*$/, "");
+  el.textContent = base + (SYNC.ok === false ? " · coches hors ligne" : SYNC.q.length ? " · envoi des coches…" : " · coches partagées");
+}
+async function syncPull() {
+  if (!SYNC.url || SYNC.busy || !S.data) return;
+  const c = S.communeId;
+  try {
+    const r = await fetch(SYNC.url + "?c=" + c, { cache: "no-store" }); const j = await r.json();
+    if (!j.ok || c !== S.communeId || SYNC.busy) return;
+    const sv = new Set(j.keys.map(k => k.replace(/^k/, "")));
+    for (const op of SYNC.q) if (op.c === c) { op.on.forEach(k => sv.add(k)); op.off.forEach(k => sv.delete(k)); }
+    const DS = doneSet(), same = DS.size === sv.size && [...sv].every(k => DS.has(k));
+    if (!same) { DS.clear(); sv.forEach(k => DS.add(k)); try { localStorage.setItem("cg-done-" + c, JSON.stringify([...DS])); } catch (e) {} SYNC.last[c] = new Set(DS); if (S.view === "plan") { const u = document.querySelector(".rues ul"), t = u ? u.scrollTop : 0; renderPanel(); const u2 = document.querySelector(".rues ul"); if (u2) u2.scrollTop = t; renderHint(); } draw(); }
+    else SYNC.last[c] = new Set(DS);
+    SYNC.ok = true;
+  } catch (e) { SYNC.ok = false; }
+  syncStatus();
+}
+async function syncPush() {
+  if (!SYNC.url || SYNC.busy || !SYNC.q.length) return;
+  SYNC.busy = true;
+  const op = SYNC.q[0];
+  try {
+    const r = await fetch(SYNC.url, { method: "POST", body: JSON.stringify({ c: op.c, on: op.on.map(k => "k" + k), off: op.off.map(k => "k" + k) }) });
+    const j = await r.json(); if (!j.ok) throw new Error("refus");
+    SYNC.q.shift(); syncSaveQ(); SYNC.ok = true;
+  } catch (e) { SYNC.ok = false; SYNC.busy = false; syncStatus(); setTimeout(syncPush, 15000); return; }
+  SYNC.busy = false;
+  if (SYNC.q.length) syncPush(); else syncPull();
+  syncStatus();
+}
+function syncDiff() {
+  if (!SYNC.url) return;
+  const c = S.communeId, DS = doneSet(), last = SYNC.last[c] || new Set();
+  const on = [...DS].filter(k => !last.has(k)), off = [...last].filter(k => !DS.has(k));
+  SYNC.last[c] = new Set(DS);
+  if (!on.length && !off.length) return;
+  SYNC.q.push({ c, on, off }); syncSaveQ(); syncStatus(); syncPush();
+}
+if (SYNC.url) {
+  setInterval(() => { if (!document.hidden) { SYNC.q.length ? syncPush() : syncPull(); } }, 20000);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) syncPull(); });
+}
+function saveDone() {
+  syncDiff();
+  try { localStorage.setItem("cg-done-" + S.communeId, JSON.stringify([...doneSet()])); }
+  catch (e) { if (!saveDone.w) { saveDone.w = 1; gpsMsg("Les coches ne peuvent pas être gardées sur cet appareil (navigation privée ?). Elles restent jusqu'à la fermeture de la page."); } }
+}
+
+/* ---------- Ordre de passage ---------- */
+const ROUTE = {};
+function routeOrder(c) {
+  const key = S.communeId + "|" + c + "|" + S.assign.join("");
+  if (ROUTE[c] && ROUTE[c].key === key) return ROUTE[c].ord;
+  const by = new Map();
+  S.data.pts.forEach((p, i) => { if (S.assign[i] === c) { if (!by.has(p[2])) by.set(p[2], []); by.get(p[2]).push(p); } });
+  const vs = [...by.keys()].sort((a, b) => a - b), n = vs.length;
+  const d = vs.map(() => new Array(n).fill(0));
+  for (let a = 0; a < n; a++) for (let b = a + 1; b < n; b++) {
+    let m = Infinity; for (const p of by.get(vs[a])) for (const q of by.get(vs[b])) { const t = (p[0] - q[0]) ** 2 + (p[1] - q[1]) ** 2; if (t < m) m = t; }
+    d[a][b] = d[b][a] = Math.sqrt(m);
+  }
+  const cost = P => { let t = 0; for (let k = 1; k < P.length; k++) t += d[P[k - 1]][P[k]]; return t; };
+  let best = null, bc = Infinity;
+  for (let s0 = 0; s0 < n; s0++) {
+    const P = [s0], used = new Set(P);
+    while (P.length < n) { const l = P[P.length - 1]; let nx = -1, nd = Infinity; for (let j = 0; j < n; j++) if (!used.has(j) && d[l][j] < nd) { nd = d[l][j]; nx = j; } P.push(nx); used.add(nx); }
+    let imp = true;
+    while (imp) {
+      imp = false;
+      for (let i = 0; i < n - 1; i++) for (let j = i + 1; j < n; j++) {
+        const before = (i > 0 ? d[P[i - 1]][P[i]] : 0) + (j < n - 1 ? d[P[j]][P[j + 1]] : 0);
+        const after = (i > 0 ? d[P[i - 1]][P[j]] : 0) + (j < n - 1 ? d[P[i]][P[j + 1]] : 0);
+        if (after < before - 1e-6) { const seg = P.slice(i, j + 1).reverse(); P.splice(i, j - i + 1, ...seg); imp = true; }
+      }
+    }
+    const cc = cost(P); if (cc < bc - 1e-6) { bc = cc; best = P; }
+  }
+  const ord = (best || []).map(k => vs[k]);
+  ROUTE[c] = { key, ord };
+  return ord;
+}
+
+/* ---------- Recherche ---------- */
+function norm(t) { return String(t).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim(); }
+const STOP = new Set(["rue", "r", "avenue", "av", "ave", "bd", "boulevard", "chemin", "ch", "chem", "impasse", "imp", "place", "pl", "allee", "all", "route", "rte", "square", "sq", "de", "du", "des", "la", "le", "les", "l", "d", "a", "au", "aux", "et"]);
+let QV = "";
+function renderSearch() {
+  const ul = $("qres"), q = QV.trim();
+  if (!q || !S.data) { ul.innerHTML = ""; if (S.found) { S.found = null; } return; }
+  const m = norm(q).match(/^(\d+)\s*(bis|ter|quater|[a-d])?\b\s*(.*)$/);
+  const num = m ? +m[1] : null, suf = m && m[2] ? m[2] : "", words = norm(m ? m[3] : q).split(" ").filter(w => w && !STOP.has(w));
+  if (!words.length) { ul.innerHTML = `<li><p>Tape le nom de la rue.</p></li>`; return; }
+  const vNorm = S.data.voies.map(v => norm(v).split(" "));
+  const hits = [];
+  S.data.voies.forEach((v, k) => { if (words.every(w => vNorm[k].some(t => t.startsWith(w)))) hits.push(k); });
+  hits.sort((a, b) => S.data.voies[a].length - S.data.voies[b].length);
+  const items = [];
+  for (const v of hits.slice(0, 6)) {
+    const ids = []; S.data.pts.forEach((p, i) => { if (p[2] === v) ids.push(i); });
+    if (num !== null) {
+      const ex = ids.filter(i => S.data.pts[i][3] === num && (!suf || norm(S.data.pts[i][4]) === suf));
+      if (ex.length) { for (const i of ex) items.push({ ids: [i], c: S.assign[i], t: addrLabel(i), d: "" }); continue; }
+      items.push({ ids, c: null, t: S.data.voies[v], d: `pas de n° ${num}${suf ? " " + suf : ""} dans la base` });
+    }
+    const byC = new Map(); for (const i of ids) { const c = S.assign[i]; if (!byC.has(c)) byC.set(c, []); byC.get(c).push(i); }
+    for (const [c, L] of byC) {
+      const ns = L.map(i => S.data.pts[i][3]); const mn = Math.min(...ns), mx = Math.max(...ns);
+      const whole = byC.size === 1;
+      items.push({ ids: L, c, t: S.data.voies[v], d: whole ? `rue entière, ${L.length} adresse${L.length > 1 ? "s" : ""}` : (mn === mx ? `n° ${mn}` : `n° ${mn} à ${mx}`) + `, ${L.length} adresse${L.length > 1 ? "s" : ""}` });
+    }
+  }
+  if (num === null) for (const [x, y, k, nm] of (POIS[S.communeId] || [])) {
+    if (!nm || items.length > 12) continue;
+    const tn = norm(nm).split(" ");
+    if (!words.every(w => tn.some(t => t.startsWith(w)))) continue;
+    let bi = -1, bd = Infinity; S.data.pts.forEach((p, i) => { const dd = (p[0] - x) ** 2 + (p[1] - y) ** 2; if (dd < bd) { bd = dd; bi = i; } });
+    items.push({ ids: [bi], at: [x, y], c: bd < 250 * 250 ? S.assign[bi] : null, t: nm, d: (POICAT[k] || ["", "", k === "zone" ? "Zone d'activités" : "Repère"])[2] });
+  }
+  const others = COMMUNES.filter(c => c.id !== S.communeId && c.file);
+  if (!items.length) {
+    const cn = COMMUNES.find(c => c.id === S.communeId).name;
+    ul.innerHTML = `<li><p>Rien trouvé à ${esc(cn)}. Chercher à ${others.map(c => `<button class="linkbtn" data-oc="${c.id}">${esc(c.name)}</button>`).join(" ou ")}</p></li>`;
+    ul.querySelectorAll("[data-oc]").forEach(b => b.onclick = () => loadCommune(b.dataset.oc));
+    return;
+  }
+  ul.innerHTML = items.slice(0, 10).map((it, k) => {
+    const s = it.c && it.c !== "." ? sectorBy(it.c) : null;
+    const tag = it.c === null ? "" : s ? esc(s.name) : "sans tournée";
+    return `<li><button data-k="${k}"><span class="sw" style="background:${s ? colorOf(s) : "var(--dot)"}"></span><span><span class="r">${esc(it.t)}</span>${it.d ? `<br><span class="d">${esc(it.d)}</span>` : ""}</span><span class="t">${tag}</span></button></li>`;
+  }).join("");
+  ul.querySelectorAll("button[data-k]").forEach(b => b.onclick = () => {
+    const it = items[+b.dataset.k]; S.found = it.at ? null : it.ids;
+    if (it.c && it.c !== "." && sectorBy(it.c)) { S.active = it.c; S.open = it.c; S.erase = false; }
+    const bb = { x0: Infinity, x1: -Infinity, y0: Infinity, y1: -Infinity };
+    for (const i of it.ids) { const p = it.at || S.data.pts[i]; bb.x0 = Math.min(bb.x0, p[0]); bb.x1 = Math.max(bb.x1, p[0]); bb.y0 = Math.min(bb.y0, p[1]); bb.y1 = Math.max(bb.y1, p[1]); }
+    if (it.ids.length === 1) { bb.x0 -= 120; bb.x1 += 120; bb.y0 -= 120; bb.y1 += 120; }
+    renderAll(); fitTo(bb, 70); draw();
+    if (window.innerWidth <= 820) $("mapwrap").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+}
+$("q").addEventListener("input", e => { QV = e.target.value; clearTimeout(renderSearch._t); renderSearch._t = setTimeout(() => { renderSearch(); draw(); }, 150); });
+
+/* ---------- Ma position ---------- */
+const GPS = { watch: null, pos: null, first: true };
+function stopGps() { if (GPS.watch !== null && navigator.geolocation) navigator.geolocation.clearWatch(GPS.watch); GPS.watch = null; GPS.pos = null; $("bGps").setAttribute("aria-pressed", "false"); draw(); }
+function gpsMsg(m) { $("gpsTxt").textContent = m; $("gpsNote").hidden = false; clearTimeout(gpsMsg._t); gpsMsg._t = setTimeout(() => $("gpsNote").hidden = true, 15000); }
+$("gpsX").onclick = () => { $("gpsNote").hidden = true; };
+function gpsLbl(txt) { $("bGps").querySelector(".lbl").textContent = txt; }
+function startPos() {
+  if (!navigator.geolocation) { gpsMsg("Ce téléphone ne donne pas sa position."); return; }
+  GPS.first = true; $("bPos").setAttribute("aria-pressed", "true");
+  gpsMsg("Recherche de ta position…");
+  GPS.watch = navigator.geolocation.watchPosition(p => {
+    GPS.pos = { lat: p.coords.latitude, lon: p.coords.longitude, acc: p.coords.accuracy };
+    if (GPS.first && S.data) {
+      GPS.first = false; $("gpsNote").hidden = true;
+      const x = (GPS.pos.lon - S.data.lon0) * S.data.kx, y = (GPS.pos.lat - S.data.lat0) * S.data.ky;
+      const b = bounds();
+      if (x < b.x0 - 300 || x > b.x1 + 300 || y < b.y0 - 300 || y > b.y1 + 300) gpsMsg("Tu es en dehors de " + COMMUNES.find(c => c.id === S.communeId).name + ". Le point bleu apparaîtra quand tu y seras.");
+      else { S.scale = Math.max(S.scale, 1.2); S.tx = W / 2 - x * S.scale; S.ty = H / 2 + y * S.scale; }
+    }
+    draw();
+  }, err => {
+    stopPos();
+    gpsMsg(err.code === 1 ? "Position refusée. Autorise la localisation pour ce site dans les réglages du navigateur, puis réessaie." : "Position introuvable pour l'instant. Réessaie dehors, avec la localisation activée.");
+  }, { enableHighAccuracy: true, maximumAge: 5000, timeout: 20000 });
+}
+function stopPos() { if (GPS.watch !== null && navigator.geolocation) navigator.geolocation.clearWatch(GPS.watch); GPS.watch = null; GPS.pos = null; $("bPos").setAttribute("aria-pressed", "false"); draw(); }
+$("bPos").onclick = () => { GPS.watch !== null ? stopPos() : startPos(); };
+const MYMAPS = "1EfYS1S1oTBp89AGaMp1rPQgn-avkCVA";
+$("bCarte").onclick = () => {
+  let u = "https://www.google.com/maps/d/viewer?mid=" + MYMAPS;
+  if (S.data) {
+    let x = wx(W / 2), y = wy(H / 2), z = Math.round(Math.max(13, Math.min(18, 15 + Math.log2(S.scale / 0.5))));
+    if (S.open) { const b = { x0: Infinity, x1: -Infinity, y0: Infinity, y1: -Infinity }; S.data.pts.forEach((p, i) => { if (S.assign[i] !== S.open) return; b.x0 = Math.min(b.x0, p[0]); b.x1 = Math.max(b.x1, p[0]); b.y0 = Math.min(b.y0, p[1]); b.y1 = Math.max(b.y1, p[1]); }); if (b.x0 < Infinity) { x = (b.x0 + b.x1) / 2; y = (b.y0 + b.y1) / 2; z = 16; } }
+    u += `&ll=${(y / S.data.ky + S.data.lat0).toFixed(6)},${(x / S.data.kx + S.data.lon0).toFixed(6)}&z=${z}`;
+  }
+  const a = document.createElement("a"); a.href = u; a.target = "_blank"; a.rel = "noopener"; document.body.appendChild(a); a.click(); a.remove();
+  gpsMsg("La carte des tournées s'ouvre dans Google. Dans Google, touche une zone puis son lien pour revenir sur sa tournée.");
+};
+$("bGps").onclick = () => {
+  if (!S.data) return;
+  let x = wx(W / 2), y = wy(H / 2), z = Math.round(Math.max(13, Math.min(19, 15 + Math.log2(S.scale / 0.5))));
+  if (S.open) { const b = { x0: Infinity, x1: -Infinity, y0: Infinity, y1: -Infinity }; S.data.pts.forEach((p, i) => { if (S.assign[i] !== S.open) return; b.x0 = Math.min(b.x0, p[0]); b.x1 = Math.max(b.x1, p[0]); b.y0 = Math.min(b.y0, p[1]); b.y1 = Math.max(b.y1, p[1]); }); if (b.x0 < Infinity) { x = (b.x0 + b.x1) / 2; y = (b.y0 + b.y1) / 2; z = 16; } }
+  const lon = (x / S.data.kx + S.data.lon0).toFixed(6), lat = (y / S.data.ky + S.data.lat0).toFixed(6);
+  const a = document.createElement("a"); a.href = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}&travelmode=walking`; a.target = "_blank"; a.rel = "noopener";
+  document.body.appendChild(a); a.click(); a.remove();
+  gpsMsg(S.open ? "Google Maps s'ouvre avec ta position et le chemin jusqu'à la tournée." : "Google Maps s'ouvre avec ta position et le chemin jusqu'au centre du plan affiché. Ouvre une tournée pour viser la tournée.");
+};
+
+/* ---------- Boutons ---------- */
+$("mPan").onclick = () => { S.mode = "pan"; renderChip(); };
+$("mLasso").onclick = () => { S.mode = "lasso"; if (!S.active && !S.erase) toast("Choisis aussi une tournée à droite"); renderChip(); };
+$("bErase").onclick = () => { S.erase = !S.erase; renderAll(); };
+$("bUndo").onclick = undo;
+$("bFit").onclick = fitView;
+$("bPoi").onclick = () => { SHOWPOI.on = !SHOWPOI.on; $("bPoi").setAttribute("aria-pressed", SHOWPOI.on); try { localStorage.setItem("cg-poi", SHOWPOI.on ? "1" : "0"); } catch (e) {} draw(); };
+$("bPoi").setAttribute("aria-pressed", SHOWPOI.on);
+$("zIn").onclick = () => zoomAt(1.5, W / 2, H / 2);
+$("zOut").onclick = () => zoomAt(1 / 1.5, W / 2, H / 2);
+$("bAdd").onclick = () => { if (S.data) newSector(); };
+const DRIVE = {"plan-gerzat": "10Es3FEanPGwrxZvKmyUovGj4SYVNvoJA", "legende-gerzat": "1y--wkege-h3OrvCkROTK7GChRoH5yd-d", "tplan-gerzat-A": "1p__uuGukeeLkPJM_hswMCKLcBOQUYya5", "carnet-gerzat-A": "1yIxA1RFwUMRVVKeweTYiNZntovxjpOdO", "tplan-gerzat-B": "1iC_AGshgJG0ND1bOaOqS2Bvjncn4XlHR", "carnet-gerzat-B": "1bbjJY2ibDYu_upHCQJYkuWKHGzqjsa2U", "tplan-gerzat-C": "1_jrDNe9GXmLEexB_PsfI_KTyFYHienT9", "carnet-gerzat-C": "1T4AzGrYYUFsi2mPAb2pWwavHf_iHPrZY", "tplan-gerzat-D": "1_qq68Z3lo56BAdTSqxKiWc9YL0NNvIZp", "carnet-gerzat-D": "1RvEhdMk3TcbdaE3F9h8SVEip2mBtSPaW", "tplan-gerzat-E": "1E6F1oFp-jBJcepMclw5VeI6ZxOCg683Q", "carnet-gerzat-E": "1UDTd0AwRQ8Qy_IfwmSuxmUxr2p3Timm-", "tplan-gerzat-F": "1nCWhBqXb8dHVlVZvFvP2y1xYj_P9GBsb", "carnet-gerzat-F": "1huSKMTePOpdyxE36NMrfMRYFeVJT3DrL", "tplan-gerzat-G": "1VYmzpYiRueil5yvedasoV_L8CS8rnn6A", "carnet-gerzat-G": "1K7rQTwa_3PEoxNlY8GC35A8a831NIswR", "tplan-gerzat-H": "1ahNkgX2J04uDr2z0tjBnLeFjVE2DxDP4", "carnet-gerzat-H": "1Cm6XpVQcbVxHYDDsST5hLKFuWume8oZA", "tplan-gerzat-I": "1SxD7MBs9GO0rxCbM472CXfgFsU-CPc-v", "carnet-gerzat-I": "1oK3GEQjZ3Uk4woIal8hyVGxgI5JzowWy", "tplan-gerzat-J": "1mFRCq17g-2mTe0PqMh8yP8jzMi1ZBsoZ", "carnet-gerzat-J": "130CV5KlYpWYyUTTYsCmVpL7NIA8nCjwq", "tplan-gerzat-K": "125u7psZc54Ogm8jYy9SWlq4SUa4Kzbnz", "carnet-gerzat-K": "1wnwyxZQ87XokxRQzmQLvv_-4JMcZBgA4", "tplan-gerzat-L": "1oQYQI247-8S0ZgVzyXOSDsWVMh8Qwo85", "carnet-gerzat-L": "1Xza-X07UDIbXm84YvlSv7idtlSUbAqSU", "tplan-gerzat-M": "18rwLLrZ9W9163vogn9vEjKSLw3qPhGX2", "carnet-gerzat-M": "1ObtRMIq9HV93zMe_t_DgKg__hRa_qrye", "plan-aulnat": "1rMv-KEZ3juA-CtOVlN_s_NdW05qLbrt7", "legende-aulnat": "1Yewm3VVmEohF4VLOueRK0SpPeQMJjfxf", "tplan-aulnat-A": "1-eAU8Pf26fu6cT35aej0f9aZ8n5ghNtp", "carnet-aulnat-A": "1_jRNjf3PtWdZpmVbqt9w9PIgIBvQsOCe", "tplan-aulnat-B": "1LmpMwdm4Is6ucCCo47PKfK3YOaUaI853", "carnet-aulnat-B": "10DFNHfpQH3B0s4fHctwd7uWHT2V3LcYJ", "tplan-aulnat-C": "1BKEK5sLUouVUbY2aoEIz-WjgUzSI-OYh", "carnet-aulnat-C": "15pVHelNOLyb8fIvqTaxOsM0xaxi4vlnQ", "tplan-aulnat-D": "1f7bBpiVxs8y_9ZB7fZ6YdG2WEbRHFceK", "carnet-aulnat-D": "1sC29TxsBlalhCAs8wBGlCVCbK2mrtJJd", "tplan-aulnat-E": "14JqOJNsj-WJ4Y64L37M6269VyQ7pAm2F", "carnet-aulnat-E": "1VF-g4nP9Tl_2GFHnJfZ2FkRrn4fbKjQ_", "tplan-aulnat-F": "1vI9nKyOusvGTQuMOyrZB1P0x-Lg2595L", "carnet-aulnat-F": "19X6MiB359nzhxGRL5u4AGGmVMoltPsie", "plan-malintrat": "1Oe_N9vJwPkTu__p72ErQWJOFbVkeMGPs", "legende-malintrat": "1APpbmy4RUM7B2dDrssR19T6lJ9LuxAuE", "tplan-malintrat-A": "1SWMFPTkNbXYz2njMCauHY8oZHrKC9Pcf", "carnet-malintrat-A": "1gjWWBCIxRHAI2Q3zDB9MqCTxVUj6qnXw", "tplan-malintrat-B": "17LM9rUD5g0M1E9DxyMLAW9FGm86jv7Iq", "carnet-malintrat-B": "1rtxZXaVcuySViks3RFFVy5fkkXn_EfWh", "guide": "1xwJDOgZS7N7f9e117L2ObXXmbTPuRcTw"};
+function tourUrl(s) { return "https://amicalespgerzat-source.github.io/calendrier/#" + S.communeId + "-" + encodeURIComponent(s.name); }
+function shareUrl(s) { return "https://amicalespgerzat-source.github.io/calendrier/" + S.communeId + "-" + encodeURIComponent(s.name); }
+function driveUrl(key) { return DRIVE[key] ? "https://drive.google.com/file/d/" + DRIVE[key] + "/view" : "#"; }
+function openPdf(key, path, name, btn) {
+  const id = DRIVE[key];
+  if (id) { const a = document.createElement("a"); a.href = "https://drive.google.com/file/d/" + id + "/view"; a.target = "_blank"; a.rel = "noopener"; document.body.appendChild(a); a.click(); a.remove(); return; }
+  savePdf(path, name, btn);
+}
+async function savePdf(path, name, btn) {
+  const dl = window.claude ? await window.claude.use("downloads") : null;
+  if (!dl) { toast("Téléchargement indisponible ici"); return; }
+  if (btn) btn.disabled = true;
+  try {
+    const r = await fetch(path); if (!r.ok) throw new Error("absent");
+    const blob = await r.blob();
+    await dl.save({ filename: name, data: blob }); toast("Fichier enregistré");
+  } catch (e) { if (!(e && e.code === "declined")) toast("Fichier indisponible pour l'instant"); }
+  finally { if (btn) btn.disabled = false; }
+}
+$("views").querySelectorAll("button").forEach(b => b.onclick = () => setView(b.dataset.v));
+document.addEventListener("keydown", e => {
+  if (e.target.matches("input")) return;
+  if ((e.ctrlKey || e.metaKey) && e.key === "z") { e.preventDefault(); undo(); }
+  else if (e.key === "Escape") { S.selected = -1; S.lasso = null; renderHint(); draw(); }
+  else if (e.key === "e") $("mLasso").click();
+  else if (e.key === "d") $("mPan").click();
+});
+$("bCsv").onclick = async () => {
+  if (!S.data) return;
+  const rows = [["Tournée", "Rue", "Numéro", "Suffixe"]];
+  const order = new Map(S.plan.sectors.map((s, k) => [s.c, k]));
+  const idx = S.data.pts.map((p, i) => i).sort((a, b) => (order.get(S.assign[a]) ?? 999) - (order.get(S.assign[b]) ?? 999) || a - b);
+  for (const i of idx) { const p = S.data.pts[i], s = sectorBy(S.assign[i]); rows.push([s ? s.name : "Sans tournée", S.data.voies[p[2]], p[3], p[4]]); }
+  const csv = "﻿" + rows.map(r => r.map(v => /[;"\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : v).join(";")).join("\r\n");
+  const dl = window.claude ? await window.claude.use("downloads") : null;
+  if (!dl) { toast("Export indisponible ici"); return; }
+  try { await dl.save({ filename: `Tournees ${S.data.commune}.csv`, data: csv }); toast("Fichier enregistré"); }
+  catch (e) { if (e.code !== "declined") toast("Export impossible pour l'instant"); }
+};
+
+/* ---------- Tournée porte à porte et bilan ---------- */
+const STAT = {
+  fait: ["Fait", "#2f8a57"], absent: ["Absent", "#b7791f"], repasse: ["À repasser", "#7d55c7"], refus: ["Refus", "#c42b2b"]
+};
+const TODO_COL = "#9aa3ad";
+Object.assign(S, { view: "plan", tour: null, visits: {}, vsubs: {}, vcomm: null, filter: "todo", canVisit: false, sheetIdx: -1 });
+const eur = n => (Math.round((n || 0) * 100) / 100).toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
+const todayKey = () => new Date().toISOString().slice(0, 10);
+function visitOf(code, i) { return (S.visits[code] || {})[i] || null; }
+function idxOfTour(code) { const L = []; for (let i = 0; i < S.assign.length; i++) if (S.assign[i] === code) L.push(i); return L; }
+function streetSort(L) {
+  return L.slice().sort((a, b) => {
+    const pa = S.data.pts[a], pb = S.data.pts[b];
+    return S.data.voies[pa[2]].localeCompare(S.data.voies[pb[2]], "fr") || (pa[3] % 2) - (pb[3] % 2) || pa[3] - pb[3];
+  });
+}
+function unsubVisits() { for (const k in S.vsubs) S.vsubs[k](); S.vsubs = {}; S.visits = {}; S.vcomm = null; }
+function subscribeVisits() {
+  if (!S.db || !S.data || !S.canVisit) return;
+  if (S.vcomm === S.communeId) return;
+  unsubVisits(); S.vcomm = S.communeId;
+  for (const s of S.plan.sectors) {
+    const code = s.c, comm = S.communeId;
+    try {
+      S.vsubs[code] = S.db.collection(`tournees/${comm}/${code}`).onSnapshot(snap => {
+        if (comm !== S.communeId) return;
+        const m = {}; for (const d of snap.docs) m[+d.id] = d.data();
+        S.visits[code] = m;
+        if (S.view !== "plan") { renderSide(); draw(); }
+      }, err => { if (err.code === "revoked") S.canVisit = false; });
+    } catch (e) {}
+  }
+}
+function setView(v) {
+  S.view = v; S.selected = -1; closeSheet();
+  document.body.dataset.view = v;
+  $("views").querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", b.dataset.v === v));
+  if (v !== "plan") {
+    if (!S.tour || !sectorBy(S.tour)) S.tour = S.plan.sectors[0]?.c || null;
+    S.mode = "pan"; subscribeVisits();
+  }
+  renderAll();
+}
+function renderSide() {
+  const ok = S.view === "plan";
+  ["sum", "sectors"].forEach(id => $(id).hidden = !ok);
+  document.querySelector(".listhead").hidden = !ok; document.querySelector(".foot").hidden = !ok;
+  $("tourPanel").hidden = ok;
+  if (ok) return;
+  if (!S.canVisit) {
+    $("tourPanel").innerHTML = `<div class="empty" style="padding:16px">Pour noter les passages et voir le bilan, il faut être invité par le bureau de l'amicale avec le droit de participer. Demande le lien à un membre du bureau.</div>`;
+    return;
+  }
+  if (S.view === "tour") renderTourPanel(); else renderBilan();
+}
+function tourStats(code, onlyToday) {
+  const t = todayKey(), V = S.visits[code] || {}, o = { n: idxOfTour(code).length, fait: 0, absent: 0, repasse: 0, refus: 0, cal: 0, esp: 0, chq: 0, cb: 0 };
+  for (const i in V) {
+    const v = V[i]; if (S.assign[i] !== code) continue;
+    if (onlyToday && (v.d || "").slice(0, 10) !== t) continue;
+    o[v.s] = (o[v.s] || 0) + 1;
+    if (v.s === "fait") { o.cal += +v.cal || 0; o.esp += +v.esp || 0; o.chq += +v.chq || 0; o.cb += +v.cb || 0; }
+  }
+  o.dons = o.esp + o.chq + o.cb; o.vus = o.fait + o.absent + o.repasse + o.refus;
+  return o;
+}
+function renderTourPanel() {
+  const s = sectorBy(S.tour); if (!s) { $("tourPanel").innerHTML = ""; return; }
+  const all = tourStats(S.tour), day = tourStats(S.tour, true);
+  const L = streetSort(idxOfTour(S.tour));
+  const st = i => (visitOf(S.tour, i) || {}).s || "todo";
+  const cnt = { todo: 0, repasse: 0, done: 0, all: L.length };
+  for (const i of L) { const k = st(i); if (k === "todo" || k === "absent") cnt.todo++; if (k === "repasse") cnt.repasse++; if (k === "fait" || k === "refus") cnt.done++; }
+  const keep = i => { const k = st(i); return S.filter === "all" || (S.filter === "todo" && (k === "todo" || k === "absent")) || (S.filter === "repasse" && k === "repasse") || (S.filter === "done" && (k === "fait" || k === "refus")); };
+  const pct = all.n ? Math.round(all.vus / all.n * 100) : 0;
+  let rows = "", last = null;
+  for (const i of L) {
+    if (!keep(i)) continue;
+    const p = S.data.pts[i], v = S.data.voies[p[2]], k = st(i), vis = visitOf(S.tour, i);
+    if (v !== last) { rows += `<li class="vstreet">${esc(v)}</li>`; last = v; }
+    const lab = k === "todo" ? "À faire" : STAT[k][0], col = k === "todo" ? TODO_COL : STAT[k][1];
+    const extra = vis && vis.s === "fait" ? `${vis.cal || 0} cal. · ${eur((+vis.esp || 0) + (+vis.chq || 0) + (+vis.cb || 0))}` : (vis && vis.note ? esc(vis.note) : "");
+    rows += `<li><button class="vrow" data-i="${i}"><span class="vnum">${p[3]}${p[4] ? " " + esc(p[4]) : ""}</span><span class="vx">${extra}</span><span class="vst" style="background:${col}">${lab}</span></button></li>`;
+  }
+  $("tourPanel").innerHTML = `
+    <div class="tpick">${S.plan.sectors.map(x => `<button data-c="${x.c}" aria-pressed="${x.c === S.tour}" style="--c:${colorOf(x)}">${esc(x.name)}</button>`).join("")}</div>
+    <div class="tsum">
+      <div class="prog"><i style="width:${pct}%"></i></div>
+      <p><b>${all.vus}</b> portes vues sur ${all.n} (${pct} %) · <b>${all.fait}</b> calendriers donnés à ${all.fait} portes</p>
+      <div class="today"><h3>Aujourd'hui, à remettre au trésorier</h3>
+        <div class="tgrid"><div><b>${day.cal}</b><span>calendriers</span></div><div><b>${eur(day.esp)}</b><span>espèces</span></div><div><b>${eur(day.chq)}</b><span>chèques</span></div><div><b>${eur(day.cb)}</b><span>carte</span></div></div>
+        <p class="ttot">Total du jour : <b>${eur(day.dons)}</b></p></div>
+    </div>
+    <div class="vfilt">${[["todo", "À faire"], ["repasse", "À repasser"], ["done", "Faites"], ["all", "Toutes"]].map(([k, l]) => `<button data-f="${k}" aria-pressed="${S.filter === k}">${l} <small>${cnt[k]}</small></button>`).join("")}</div>
+    <ul class="vlist">${rows || `<li class="empty">Rien dans cette liste.</li>`}</ul>`;
+  $("tourPanel").querySelectorAll(".tpick button").forEach(b => b.onclick = () => { S.tour = b.dataset.c; closeSheet(); renderSide(); draw(); centerOn(S.tour); });
+  $("tourPanel").querySelectorAll(".vfilt button").forEach(b => b.onclick = () => { S.filter = b.dataset.f; renderTourPanel(); });
+  $("tourPanel").querySelectorAll(".vrow").forEach(b => b.onclick = () => openSheet(+b.dataset.i, true));
+}
+function renderBilan() {
+  const rows = S.plan.sectors.map(s => ({ s, o: tourStats(s.c) }));
+  const T = rows.reduce((a, { o }) => { for (const k of ["n", "vus", "fait", "cal", "esp", "chq", "cb", "dons"]) a[k] = (a[k] || 0) + o[k]; return a; }, {});
+  const line = (name, col, o) => `<tr><td>${col ? `<span class="sw2" style="background:${col}"></span>` : ""}${esc(name)}</td><td>${o.vus}/${o.n}</td><td>${o.cal}</td><td>${eur(o.dons)}</td><td>${o.cal ? eur(o.dons / o.cal) : "–"}</td></tr>`;
+  const acc = T.vus ? Math.round(T.fait / T.vus * 100) : 0;
+  $("tourPanel").innerHTML = `
+    <div class="tsum"><div class="tgrid"><div><b>${T.cal}</b><span>calendriers</span></div><div><b>${eur(T.dons)}</b><span>dons</span></div><div><b>${T.cal ? eur(T.dons / T.cal) : "–"}</b><span>par calendrier</span></div><div><b>${acc} %</b><span>portes qui donnent</span></div></div>
+    <p class="ttot">Espèces ${eur(T.esp)} · Chèques ${eur(T.chq)} · Carte ${eur(T.cb)}</p></div>
+    <div class="btab"><table><thead><tr><th>Tournée</th><th>Portes vues</th><th>Cal.</th><th>Dons</th><th>Moy.</th></tr></thead>
+    <tbody>${rows.map(({ s, o }) => line(s.name, colorOf(s), o)).join("")}</tbody><tfoot>${line("Total " + S.data.commune, null, T)}</tfoot></table></div>
+    <div class="foot2"><button class="btn" id="bVcsv">Exporter les passages pour le trésorier</button></div>`;
+  $("bVcsv").onclick = exportVisits;
+}
+async function exportVisits() {
+  const rows = [["Date", "Tournée", "Rue", "Numéro", "Suffixe", "Statut", "Calendriers", "Espèces", "Chèques", "Carte", "Total", "Note"]];
+  for (const s of S.plan.sectors) {
+    const V = S.visits[s.c] || {};
+    for (const i of streetSort(Object.keys(V).map(Number))) {
+      const v = V[i], p = S.data.pts[i]; const tot = (+v.esp || 0) + (+v.chq || 0) + (+v.cb || 0);
+      const f = x => String(Math.round((+x || 0) * 100) / 100).replace(".", ",");
+      rows.push([(v.d || "").slice(0, 10), s.name, S.data.voies[p[2]], p[3], p[4], STAT[v.s] ? STAT[v.s][0] : v.s, v.cal || 0, f(v.esp), f(v.chq), f(v.cb), f(tot), v.note || ""]);
+    }
+  }
+  const csv = "﻿" + rows.map(r => r.map(x => { x = String(x); return /[;"\n]/.test(x) ? `"${x.replace(/"/g, '""')}"` : x; }).join(";")).join("\r\n");
+  const dl = window.claude ? await window.claude.use("downloads") : null;
+  if (!dl) { toast("Export indisponible ici"); return; }
+  try { await dl.save({ filename: `Passages ${S.data.commune} ${todayKey()}.csv`, data: csv }); toast("Fichier enregistré"); } catch (e) { if (e.code !== "declined") toast("Export impossible pour l'instant"); }
+}
+/* fiche d'une porte */
+function closeSheet() { S.sheetIdx = -1; const el = $("sheet"); if (el) el.hidden = true; }
+function openSheet(i, center) {
+  if (S.assign[i] !== S.tour) return;
+  S.sheetIdx = i; S.selected = i;
+  const p = S.data.pts[i], v = visitOf(S.tour, i) || {};
+  const s0 = v.s || "";
+  const el = $("sheet"); el.hidden = false;
+  el.innerHTML = `
+    <div class="shead"><div><div class="sadr">${esc(addrLabel(i))}</div><div class="ssub">${esc(sectorBy(S.tour).name)}${v.d ? " · noté le " + new Date(v.d).toLocaleDateString("fr-FR") : ""}</div></div><button class="x" id="sClose" aria-label="Fermer">×</button></div>
+    <div class="sstat">${Object.entries(STAT).map(([k, [l, c]]) => `<button data-s="${k}" aria-pressed="${s0 === k}" style="--c:${c}">${l}</button>`).join("")}</div>
+    <div class="sdon" ${s0 === "fait" ? "" : "hidden"}>
+      <label>Calendriers<div class="step"><button data-d="-1" type="button">−</button><input id="fCal" type="number" min="0" inputmode="numeric" value="${v.cal ?? 1}"><button data-d="1" type="button">+</button></div></label>
+      <div class="money"><label>Espèces €<input id="fEsp" type="number" min="0" step="0.5" inputmode="decimal" value="${v.esp || ""}"></label>
+      <label>Chèque €<input id="fChq" type="number" min="0" step="0.5" inputmode="decimal" value="${v.chq || ""}"></label>
+      <label>Carte €<input id="fCb" type="number" min="0" step="0.5" inputmode="decimal" value="${v.cb || ""}"></label></div>
+    </div>
+    <label class="snote">Note (repère, horaire, sonnette…)<input id="fNote" maxlength="120" value="${esc(v.note || "")}" placeholder="ex. sonnette côté garage"></label>
+    <div class="sact"><button class="btn primary" id="sSave">Enregistrer</button>${v.s ? `<button class="btn" id="sClear">Remettre à faire</button>` : ""}${v.s === "fait" ? `<button class="btn" id="sRecu">Reçu</button>` : ""}</div>`;
+  let st = s0;
+  el.querySelectorAll(".sstat button").forEach(b => b.onclick = () => {
+    st = b.dataset.s; el.querySelectorAll(".sstat button").forEach(x => x.setAttribute("aria-pressed", x === b));
+    el.querySelector(".sdon").hidden = st !== "fait";
+  });
+  el.querySelectorAll(".step button").forEach(b => b.onclick = () => { const f = $("fCal"); f.value = Math.max(0, (+f.value || 0) + +b.dataset.d); });
+  $("sClose").onclick = () => { closeSheet(); S.selected = -1; draw(); };
+  $("sSave").onclick = async () => {
+    if (!st) { toast("Choisis d'abord : fait, absent, à repasser ou refus"); return; }
+    const num = id => Math.max(0, Math.round((parseFloat(String($(id).value).replace(",", ".")) || 0) * 100) / 100);
+    const body = { s: st, note: $("fNote").value.trim(), d: new Date().toISOString() };
+    if (st === "fait") Object.assign(body, { cal: Math.round(num("fCal")), esp: num("fEsp"), chq: num("fChq"), cb: num("fCb") });
+    await saveVisit(i, body);
+  };
+  const c = $("sClear"); if (c) c.onclick = async () => { await saveVisit(i, null); };
+  const r = $("sRecu"); if (r) r.onclick = () => showReceipt(i);
+  if (center) { const p2 = S.data.pts[i]; if (S.scale < 1.2) { S.scale = 1.6; } S.tx = W / 2 - p2[0] * S.scale; S.ty = H / 2 + p2[1] * S.scale; }
+  draw();
+}
+async function saveVisit(i, body) {
+  const code = S.tour, ref = S.db.doc(`tournees/${S.communeId}/${code}/${i}`);
+  const prev = visitOf(code, i);
+  S.visits[code] = S.visits[code] || {};
+  if (body) S.visits[code][i] = body; else delete S.visits[code][i];
+  closeSheet(); S.selected = -1; renderSide(); draw();
+  try { if (body) await ref.set(body); else await ref.delete(); toast(body ? "Enregistré" : "Remis à faire"); }
+  catch (e) {
+    if (prev) S.visits[code][i] = prev; else delete S.visits[code][i];
+    renderSide(); draw();
+    toast(e && e.code === "invalid_argument" ? "Tu n'as pas le droit de noter les passages" : "Pas de réseau : passage non enregistré, réessaie");
+  }
+}
+function showReceipt(i) {
+  const v = visitOf(S.tour, i); if (!v) return;
+  const tot = (+v.esp || 0) + (+v.chq || 0) + (+v.cb || 0);
+  const modes = [["espèces", v.esp], ["chèque", v.chq], ["carte", v.cb]].filter(m => +m[1] > 0).map(m => `${m[0]} ${eur(+m[1])}`).join(", ");
+  const d = new Date(v.d || Date.now());
+  const no = `${S.data.commune.slice(0, 2).toUpperCase()}-${sectorBy(S.tour).name}-${i}-${d.toISOString().slice(0, 10).replace(/-/g, "")}`;
+  const el = $("recu"); el.hidden = false;
+  el.innerHTML = `<div class="rcard" id="rcard">
+      <img src="logo.png" alt="" width="64" height="59">
+      <h2>Amicale des sapeurs-pompiers de Gerzat</h2>
+      <p class="rno">Reçu n° ${esc(no)}</p>
+      <p>Reçu le ${d.toLocaleDateString("fr-FR")} au ${esc(addrLabel(i))}, ${esc(S.data.commune)},<br>la somme de <b>${eur(tot)}</b>${modes ? " (" + modes + ")" : ""}<br>pour ${v.cal || 0} calendrier${(v.cal || 0) > 1 ? "s" : ""}.</p>
+      <p class="rsmall">Merci pour votre soutien. Ce reçu n'ouvre pas droit à une réduction d'impôt.</p>
+    </div>
+    <div class="ract"><button class="btn primary" id="rSave">Enregistrer en image</button><button class="btn" id="rClose">Fermer</button></div>`;
+  $("rClose").onclick = () => { el.hidden = true; };
+  $("rSave").onclick = async () => {
+    const cv = document.createElement("canvas"), k = 2, w = 420, h = 300; cv.width = w * k; cv.height = h * k;
+    const g = cv.getContext("2d"); g.scale(k, k); g.fillStyle = "#fff"; g.fillRect(0, 0, w, h);
+    const img = el.querySelector("img"); try { g.drawImage(img, 20, 18, 64, 59); } catch (e) {}
+    g.fillStyle = "#b0181e"; g.font = "700 16px sans-serif"; g.fillText("Amicale des sapeurs-pompiers de Gerzat", 96, 40);
+    g.fillStyle = "#555"; g.font = "12px sans-serif"; g.fillText("Reçu n° " + no, 96, 62);
+    g.fillStyle = "#111"; g.font = "14px sans-serif";
+    const L = [`Reçu le ${d.toLocaleDateString("fr-FR")} au ${addrLabel(i)}, ${S.data.commune},`, `la somme de ${eur(tot)}${modes ? " (" + modes + ")" : ""}`, `pour ${v.cal || 0} calendrier${(v.cal || 0) > 1 ? "s" : ""}.`];
+    L.forEach((t, j) => g.fillText(t, 20, 120 + j * 24));
+    g.fillStyle = "#555"; g.font = "11px sans-serif"; g.fillText("Merci pour votre soutien. Ce reçu n'ouvre pas droit à une réduction d'impôt.", 20, 270);
+    const blob = await new Promise(r => cv.toBlob(r, "image/png"));
+    const dl = window.claude ? await window.claude.use("downloads") : null;
+    if (!dl) { toast("Enregistrement indisponible ici"); return; }
+    try { await dl.save({ filename: `Recu ${no}.png`, data: blob }); toast("Reçu enregistré"); } catch (e) { if (e.code !== "declined") toast("Enregistrement impossible"); }
+  };
+}
+
+/* ---------- Démarrage ---------- */
+new ResizeObserver(() => { const first = !W; resize(); if (first) fitView(); }).observe($("mapwrap"));
+if (document.fonts) document.fonts.ready.then(draw);
+matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", draw);
+new MutationObserver(draw).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+renderTabs(); renderChip();
+setStatus("load", "Connexion…");
+loadCommune(LINK && COMMUNES.some(c => c.id === LINK.commune) ? LINK.commune : "gerzat");
+(async () => {
+  let db = null;
+  try { db = window.claude ? await window.claude.use("db") : null; } catch (e) { db = null; }
+  if (!db) { S.local = true; if (S.data) loadSnapshot(); return; }
+  S.db = db;
+  try {
+    const u = await window.claude.use("user");
+    const w = u ? await u.can("data.write") : null;
+    const adm = u ? await u.canEdit() : false;
+    if (!adm) setReadonly(true);
+    S.canVisit = w !== false;
+  } catch (e) {}
+  if (S.data) subscribePlan();
+})();
+})();
+</script>
+
 </body></html>
