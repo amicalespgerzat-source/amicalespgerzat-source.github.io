@@ -1,0 +1,25 @@
+Appli de l'amicale des sapeurs-pompiers de Gerzat, version 11
+
+Mise en ligne sur GitHub (gratuit, une seule fois)
+
+1. Créer un compte sur github.com avec amicale.spgerzat@gmail.com.
+2. Créer un dépôt public dont le nom est exactement : nom du compte suivi de .github.io (bouton New repository).
+3. Dans le dépôt : Add file, Upload files. Glisser tout le contenu de ce dossier, puis Commit changes.
+4. Settings, Pages. Dans Branch, choisir main, puis Save.
+5. Attendre deux minutes. L'adresse apparaît en haut de la page Pages.
+
+Installation sur le téléphone
+
+Android, avec Chrome : ouvrir l'adresse et toucher Installer.
+iPhone, avec Safari : bouton Partager, puis Sur l'écran d'accueil.
+
+Ajouter une inscription
+
+Ouvrir index.html sur GitHub, toucher le crayon, chercher INSCRIPTIONS, copier un bloc et le remplir.
+L'inscription disparaît toute seule le lendemain de son dernier jour.
+Dans sw.js, augmenter le numéro de amicale-gerzat-v11 (v12, v13...) à chaque nouvelle version.
+
+Code d'accès
+
+Les boutons et les liens sont chiffrés avec le code. Pour changer le code, ou modifier un bouton, il faut refaire une version avec Claude.
+Les inscriptions et l'agenda restent modifiables directement dans index.html (chercher INSCRIPTIONS ou AGENDA). Pour rendre une date cliquable, coller le lien de son affiche dans le champ affiche.
