@@ -1,2 +1,1 @@
-// Adresse de l'Apps Script des coches partagées (laisser vide = coches gardées sur chaque téléphone)
-window.COCHES_URL = "";
+window.COCHES_URL = "https://script.google.com/macros/s/AKfycbzMsFYQ70bVIVwy0fbZWUHajTRa1CxcPJ2gnyrBZiXXJFxGdZrxwMS7zxcO1eZDcCLEnw/exec";
