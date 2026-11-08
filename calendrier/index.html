@@ -575,7 +575,7 @@ async function loadSnapshot() {
   const when = d && d.updatedAt ? new Date(d.updatedAt).toLocaleDateString("fr-FR", { day: "numeric", month: "long" }) : "";
   setStatus("ok", "Consultation" + (when ? ", version du " + when : ""));
   renderAll();
-  if (SYNC.url) { SYNC.last[id] = new Set(doneSet()); syncStatus(); SYNC.q.length ? syncPush() : syncPull(); }
+  if (SYNC.url) { SYNC.last[id] = new Set(doneSet()); syncStatus(); SYNC.q.length ? syncPush() : syncPull(); syncLive(id); }
 }
 function loadLocal() {
   try { const raw = localStorage.getItem(lsKey()); if (raw) applyPlan(JSON.parse(raw)); } catch (e) {}
@@ -1171,7 +1171,7 @@ function doneSet() {
   if (!DONE[k]) { let a = []; try { a = JSON.parse(localStorage.getItem(k) || "[]"); } catch (e) {} DONE[k] = new Set(a); }
   return DONE[k];
 }
-const SYNC = { url: (window.COCHES_URL || "").trim(), last: {}, q: [], busy: false, ok: null, t: null };
+const SYNC = { url: (window.COCHES_FB || "").trim().replace(/\/+$/, ""), last: {}, q: [], busy: false, ok: null, t: null, es: null, esC: null };
 try { SYNC.q = JSON.parse(localStorage.getItem("cg-q") || "[]"); } catch (e) {}
 function syncSaveQ() { try { localStorage.setItem("cg-q", JSON.stringify(SYNC.q)); } catch (e) {} }
 function syncStatus() {
@@ -1184,9 +1184,9 @@ async function syncPull() {
   if (!SYNC.url || SYNC.busy || !S.data) return;
   const c = S.communeId;
   try {
-    const r = await fetch(SYNC.url + "?c=" + c, { cache: "no-store" }); const j = await r.json();
-    if (!j.ok || c !== S.communeId || SYNC.busy) return;
-    const sv = new Set(j.keys.map(k => k.replace(/^k/, "")));
+    const r = await fetch(SYNC.url + "/coches/" + c + ".json", { cache: "no-store" }); if (!r.ok) throw new Error(r.status); const j = (await r.json()) || {};
+    if (c !== S.communeId || SYNC.busy) return;
+    const sv = new Set(Object.keys(j).filter(k => j[k] === true).map(k => k.replace(/^k/, "")));
     for (const op of SYNC.q) if (op.c === c) { op.on.forEach(k => sv.add(k)); op.off.forEach(k => sv.delete(k)); }
     const DS = doneSet(), same = DS.size === sv.size && [...sv].every(k => DS.has(k));
     if (!same) { DS.clear(); sv.forEach(k => DS.add(k)); try { localStorage.setItem("cg-done-" + c, JSON.stringify([...DS])); } catch (e) {} SYNC.last[c] = new Set(DS); if (S.view === "plan") { const u = document.querySelector(".rues ul"), t = u ? u.scrollTop : 0; renderPanel(); const u2 = document.querySelector(".rues ul"); if (u2) u2.scrollTop = t; renderHint(); } draw(); }
@@ -1200,8 +1200,9 @@ async function syncPush() {
   SYNC.busy = true;
   const op = SYNC.q[0];
   try {
-    const r = await fetch(SYNC.url, { method: "POST", body: JSON.stringify({ c: op.c, on: op.on.map(k => "k" + k), off: op.off.map(k => "k" + k) }) });
-    const j = await r.json(); if (!j.ok) throw new Error("refus");
+    const body = {}; op.on.forEach(k => body["k" + k] = true); op.off.forEach(k => body["k" + k] = null);
+    const r = await fetch(SYNC.url + "/coches/" + op.c + ".json", { method: "PATCH", body: JSON.stringify(body) });
+    if (!r.ok) throw new Error(r.status);
     SYNC.q.shift(); syncSaveQ(); SYNC.ok = true;
   } catch (e) { SYNC.ok = false; SYNC.busy = false; syncStatus(); setTimeout(syncPush, 15000); return; }
   SYNC.busy = false;
@@ -1216,8 +1217,19 @@ function syncDiff() {
   if (!on.length && !off.length) return;
   SYNC.q.push({ c, on, off }); syncSaveQ(); syncStatus(); syncPush();
 }
+function syncLive(c) {
+  if (!SYNC.url || !window.EventSource || SYNC.esC === c) return;
+  if (SYNC.es) SYNC.es.close();
+  SYNC.esC = c;
+  try {
+    SYNC.es = new EventSource(SYNC.url + "/coches/" + c + ".json");
+    const on = () => { clearTimeout(SYNC.t); SYNC.t = setTimeout(() => { if (!SYNC.busy && !SYNC.q.length) syncPull(); }, 400); };
+    SYNC.es.addEventListener("put", on); SYNC.es.addEventListener("patch", on);
+    SYNC.es.onerror = () => { SYNC.ok = false; syncStatus(); };
+  } catch (e) { SYNC.es = null; }
+}
 if (SYNC.url) {
-  setInterval(() => { if (!document.hidden) { SYNC.q.length ? syncPush() : syncPull(); } }, 20000);
+  setInterval(() => { if (!document.hidden) { SYNC.q.length ? syncPush() : syncPull(); } }, 30000);
   document.addEventListener("visibilitychange", () => { if (!document.hidden) syncPull(); });
 }
 function saveDone() {
