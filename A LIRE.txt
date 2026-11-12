@@ -1,4 +1,4 @@
-Appli de l'amicale des Sapeurs-Pompiers de Gerzat, version 29
+Appli de l'amicale des Sapeurs-Pompiers de Gerzat, version 30
 
 Mise en ligne sur GitHub (gratuit, une seule fois)
 
@@ -18,7 +18,7 @@ Ajouter une inscription
 Ouvrir index.html sur GitHub, toucher le crayon, chercher INSCRIPTIONS, copier un bloc et le remplir.
 L'inscription disparaît toute seule le lendemain de son dernier jour.
 Le bouton « Ajouter l'agenda de l'amicale à mon téléphone » abonne au fichier agenda/amicale.ics. Ce fichier est refait à chaque nouvelle version avec Claude : une date ajoutée à la main ici n'y arrive qu'à la version suivante.
-Dans sw.js, augmenter le numéro de amicale-gerzat-v29 (v30, v31...) à chaque nouvelle version.
+Dans sw.js, augmenter le numéro de amicale-gerzat-v30 (v31, v32...) à chaque nouvelle version.
 
 Code d'accès
 
