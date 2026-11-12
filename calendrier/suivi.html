@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Suivi des tournées · Calendrier Gerzat</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="favicon.png"><link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#b0181e">
+<script src="config.js"></script>
+<style>
+:root { --bg: #f3f4f6; --panel: #fff; --fg: #1d2329; --muted: #5f6b76; --line: #dfe3e8; --soft: #eef0f3; --accent: #c42b2b; --warn: #d98316; --ok: #2f8a57; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #14181c; --panel: #1b2025; --fg: #e5e8eb; --muted: #9aa4ad; --line: #2c343b; --soft: #222930; --accent: #ec5a4e; } }
+:root[data-theme="dark"] { --bg: #14181c; --panel: #1b2025; --fg: #e5e8eb; --muted: #9aa4ad; --line: #2c343b; --soft: #222930; --accent: #ec5a4e; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+header { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 16px; background: var(--panel); border-bottom: 1px solid var(--line); }
+header img { height: 32px; border-radius: 6px; }
+header h1 { margin: 0; font-size: 19px; flex: 1 1 auto; }
+a.btn { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); background: var(--panel); color: var(--fg); padding: 6px 10px; border-radius: 8px; font-weight: 600; font-size: 13px; text-decoration: none; }
+main { max-width: 900px; margin: 0 auto; padding: 14px 16px 40px; }
+.info { color: var(--muted); font-size: 13px; margin: 0 0 12px; }
+.info b { color: var(--fg); }
+.err { background: #fde8e6; color: #8a1f17; padding: 10px 12px; border-radius: 8px; margin: 0 0 12px; }
+section { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; margin: 0 0 14px; }
+section h2 { margin: 0 0 4px; font-size: 17px; display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+section h2 small { font-size: 13px; color: var(--muted); font-weight: 600; }
+table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+th { text-align: left; font-size: 12px; color: var(--muted); font-weight: 600; padding: 6px 4px; border-bottom: 1px solid var(--line); }
+td { padding: 7px 4px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+tr:last-child td { border-bottom: 0; }
+td.n, th.n { text-align: right; white-space: nowrap; }
+.sw { display: inline-block; width: 14px; height: 14px; border-radius: 4px; vertical-align: -2px; margin-right: 6px; }
+td.nm a { color: var(--fg); font-weight: 700; text-decoration: none; }
+td.pc { width: 34%; }
+.bar { position: relative; height: 10px; background: var(--soft); border-radius: 5px; overflow: hidden; }
+.bar i { position: absolute; top: 0; bottom: 0; }
+.bar i.rep { background: var(--warn); }
+.pc span { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; }
+.rp { color: var(--warn); font-weight: 700; }
+.fin td { font-weight: 700; }
+@media (max-width: 560px) { th.hide, td.hide { display: none; } td.pc { width: 40%; } }
+</style>
+</head><body>
+<header>
+  <img src="logo.png" alt="Amicale des sapeurs-pompiers de Gerzat">
+  <h1>Suivi des tournées</h1>
+  <a class="btn" href="./">Retour au plan</a>
+</header>
+<main>
+  <p class="info" id="info">Chargement…</p>
+  <div id="out"></div>
+</main>
+<script>
+(function () {
+"use strict";
+const COMMUNES = [["gerzat", "Gerzat"], ["aulnat", "Aulnat"], ["malintrat", "Malintrat"]];
+const PALETTE = ["#d1495b","#2e86ab","#e09f3e","#3a9a68","#8e5ec7","#e0662f","#1c9a9a","#c4508e","#6f8f22","#4f6bd8","#a8743a","#c9b81f","#5aa9d8","#9b3d3d","#55b88a","#7d6aa8"];
+const FB = (window.COCHES_FB || "").trim().replace(/\/+$/, "");
+const esc = t => String(t).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const fmt = n => n.toLocaleString("fr-FR");
+let BASE = null;
+
+async function getJson(u) { const r = await fetch(u, { cache: "no-store" }); if (!r.ok) throw new Error(u + " " + r.status); return r.json(); }
+
+async function loadBase() {
+  const snap = await getJson("snapshot.json");
+  const out = {};
+  for (const [id] of COMMUNES) {
+    const d = await getJson(id + ".json"), sp = snap[id];
+    const A = typeof sp.assign === "string" ? sp.assign : sp.assign.join("");
+    const keyToC = new Map(), tot = {};
+    d.pts.forEach((p, i) => { const c = A[i]; if (!c || c === ".") return; keyToC.set(p[2] + ":" + p[3] + ":" + (p[4] || ""), c); tot[c] = (tot[c] || 0) + 1; });
+    out[id] = { sectors: sp.sectors, keyToC, tot };
+  }
+  return out;
+}
+
+async function refresh() {
+  const info = document.getElementById("info"), outEl = document.getElementById("out");
+  if (!FB) { info.innerHTML = ""; outEl.innerHTML = '<p class="err">Les coches partagées ne sont pas activées (config.js vide).</p>'; return; }
+  try {
+    if (!BASE) BASE = await loadBase();
+    let html = "", gT = 0, gD = 0, gR = 0;
+    for (const [id, name] of COMMUNES) {
+      const B = BASE[id];
+      const j = (await getJson(FB + "/coches/" + id + ".json")) || {};
+      const d = {}, r = {};
+      for (const k in j) {
+        const c = B.keyToC.get(k.replace(/^k/, "")); if (!c) continue;
+        if (j[k] === true) d[c] = (d[c] || 0) + 1; else if (j[k] === "r") r[c] = (r[c] || 0) + 1;
+      }
+      let cT = 0, cD = 0, cR = 0;
+      const rows = B.sectors.map(s => {
+        const n = B.tot[s.c] || 0, nd = d[s.c] || 0, nr = r[s.c] || 0;
+        cT += n; cD += nd; cR += nr;
+        const pd = n ? 100 * nd / n : 0, pr = n ? 100 * nr / n : 0, col = PALETTE[(s.color || 0) % PALETTE.length];
+        return `<tr><td class="nm"><span class="sw" style="background:${col}"></span><a href="./#${id}-${encodeURIComponent(s.name)}">${esc(s.name)}</a></td>
+          <td class="n hide">${fmt(n)}</td><td class="n">${fmt(nd)}</td><td class="n${nr ? " rp" : ""}">${fmt(nr)}</td>
+          <td class="pc"><div class="bar"><i style="left:0;width:${pd.toFixed(1)}%;background:${col}"></i><i class="rep" style="left:${pd.toFixed(1)}%;width:${pr.toFixed(1)}%"></i></div><span>${Math.round(pd)} %${n && nd === n ? " · terminée" : ""}</span></td></tr>`;
+      }).join("");
+      gT += cT; gD += cD; gR += cR;
+      html += `<section><h2>${name} <small>${Math.round(cT ? 100 * cD / cT : 0)} % faites · ${fmt(cR)} à repasser</small></h2>
+        <table><thead><tr><th>Tournée</th><th class="n hide">Adresses</th><th class="n">Faites</th><th class="n">À repasser</th><th>Avancement</th></tr></thead><tbody>${rows}</tbody></table></section>`;
+    }
+    outEl.innerHTML = html;
+    info.innerHTML = `Toutes communes : <b>${Math.round(gT ? 100 * gD / gT : 0)} %</b> des adresses faites (${fmt(gD)} sur ${fmt(gT)}), <b>${fmt(gR)}</b> à repasser. Mis à jour à ${new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}, rafraîchi toutes les 30 secondes.`;
+  } catch (e) {
+    info.innerHTML = `<span class="err">Impossible de lire les coches pour l'instant (réseau ?). Nouvel essai dans 30 secondes.</span>`;
+  }
+}
+refresh();
+setInterval(() => { if (!document.hidden) refresh(); }, 30000);
+document.addEventListener("visibilitychange", () => { if (!document.hidden) refresh(); });
+})();
+</script>
+</body></html>

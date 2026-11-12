@@ -1,0 +1,17 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Amicale SP Gerzat//Appli//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:2026-12-05-arbre-de-noel@amicalespgerzat-source.github.io
+DTSTAMP:20261112T080307Z
+DTSTART:20261205T160000
+DTEND:20261205T180000
+SUMMARY:Arbre de Noël (amicale)
+LOCATION:à la caserne
+DESCRIPTION:dès 16 h\nGoûter\, distribution des cadeaux et film d'animat
+ ion.\nAffiche : https://drive.google.com/file/d/1c4ay2kV7QhvJTj1iJYlSg1bBI
+ hqPSeF-/view
+END:VEVENT
+END:VCALENDAR

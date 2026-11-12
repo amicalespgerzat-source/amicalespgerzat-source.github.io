@@ -64,7 +64,12 @@ header.top {
   padding-block: 10px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
   background: var(--panel); border-bottom: 1px solid var(--line);
 }
-.brand { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
+.brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.brand .lg { height: 30px; width: auto; border-radius: 6px; display: block; }
+.topbtns { display: flex; gap: 6px; flex-wrap: wrap; }
+.tbtn { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); background: var(--panel); color: var(--fg); padding: 6px 10px; border-radius: 8px; font-weight: 600; font-size: 13px; text-decoration: none; }
+.tbtn svg { width: 16px; height: 16px; flex: none; }
+.tbtn:hover { background: var(--soft); }
 .brand h1 { margin: 0; font-size: 19px; font-weight: 700; letter-spacing: .2px; text-wrap: balance; }
 .brand .year { font-family: var(--font-map); font-weight: 600; font-size: 13px; color: var(--accent); letter-spacing: .6px; text-transform: uppercase; }
 .tabs { display: flex; gap: 4px; background: var(--soft); padding: 3px; border-radius: 8px; }
@@ -155,6 +160,7 @@ aside.panel { background: var(--panel); border-left: 1px solid var(--line); min-
 .bar { grid-column: 2 / 4; height: 6px; background: var(--soft); border-radius: 3px; position: relative; overflow: hidden; }
 .srow.on .bar { background: var(--panel); }
 .bar i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; }
+.bar i.rep { background: var(--warn); border-radius: 0 3px 3px 0; }
 .bar b { position: absolute; top: -2px; bottom: -2px; width: 2px; background: var(--fg); opacity: .5; }
 .detail { padding: 6px 10px 14px 40px; display: grid; gap: 10px; }
 .detail label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; display: grid; gap: 3px; }
@@ -168,7 +174,23 @@ aside.panel { background: var(--panel); border-left: 1px solid var(--line); min-
 .rues ul { list-style: none; margin: 0; padding: 0; max-height: 420px; overflow-y: auto; }
 .ckprog { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13px; margin: 2px 0 6px; }
 .ckprog .bar { flex: 1 1 100%; order: 3; display: block; min-width: 80px; height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; }
-.ckprog .bar i { display: block; height: 100%; }
+.ckprog .bar i { position: absolute; top: 0; bottom: 0; }
+.filt { display: flex; gap: 4px; flex-wrap: wrap; margin: 0 0 8px; }
+.filt button { border: 1px solid var(--line); background: var(--panel); color: var(--muted); border-radius: 999px; padding: 5px 10px; font-size: 12.5px; font-weight: 600; }
+.filt button b { font-variant-numeric: tabular-nums; }
+.filt button.on { background: var(--fg); border-color: var(--fg); color: var(--panel); }
+.chips button.d2 { background: var(--warn); border-color: var(--warn); color: #fff; }
+.rues .c i { font-style: normal; color: var(--warn); font-weight: 700; }
+.replist { margin: 10px 0 0; border-top: 1px solid var(--line); padding-top: 8px; }
+.replist h3 { margin: 0 0 6px; font-size: 14px; color: var(--warn); }
+.replist ul { list-style: none; margin: 0; padding: 0; max-height: 190px; overflow: auto; }
+.replist li { display: flex; align-items: center; gap: 8px; padding: 3px 0; font-size: 13.5px; }
+.replist li .nm { flex: 1; min-width: 0; text-align: left; }
+.nextad { position: absolute; left: 10px; right: 64px; bottom: 26px; z-index: 6; background: var(--panel); border: 1px solid var(--line); border-left: 5px solid var(--accent); border-radius: 10px; box-shadow: 0 6px 20px rgba(0,0,0,.18); padding: 8px 10px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.nextad .t { flex: 1 1 140px; min-width: 0; font-size: 14px; line-height: 1.25; }
+.nextad .t b { display: block; font-size: 15px; }
+.nextad .t small { color: var(--muted); }
+.nextad .btn { padding: 7px 10px; font-size: 13.5px; }
 .rues li.ck { grid-template-columns: 26px minmax(0,1fr) auto; align-items: start; }
 .rues li .box { width: 22px; height: 22px; border: 2px solid var(--muted); border-radius: 5px; background: var(--panel); display: grid; place-items: center; padding: 0; color: #fff; font-weight: 800; font-size: 14px; line-height: 1; }
 .rues li .box[aria-pressed="true"] { border-color: transparent; }
@@ -298,9 +320,14 @@ body[data-view="tour"] #hint, body[data-view="tour"] #addr, body[data-view="bila
 
 <div class="app">
   <header class="top">
-    <div class="brand"><h1>CalendrierGerzat</h1></div>
+    <div class="brand"><img class="lg" src="logo.png" alt="Amicale des sapeurs-pompiers de Gerzat"><h1>CalendrierGerzat</h1></div>
     <nav class="tabs" id="tabs" aria-label="Commune"></nav>
     <nav class="tabs views" id="views" hidden></nav>
+    <div class="topbtns">
+      <a class="tbtn" id="bApp" href="https://amicalespgerzat-source.github.io/" title="Revenir à l'application de l'amicale"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>Appli</a>
+      <a class="tbtn" id="bGuide" target="_blank" rel="noopener" href="pdf/mode-emploi.pdf" title="Mode d'emploi en PDF"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h9a3 3 0 0 1 3 3v13a2.5 2.5 0 0 0-2.5-2.5H4z"/><path d="M20 4h-1a3 3 0 0 0-3 3v13a2.5 2.5 0 0 1 2.5-2.5H20z"/></svg>Mode d'emploi</a>
+      <a class="tbtn" id="bSuivi" href="suivi.html" title="Avancement de toutes les tournées"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Suivi</a>
+    </div>
     <div class="status" id="status" data-s="load"><span class="dotst"></span><span id="statusTxt">Chargement…</span></div>
   </header>
   <main class="work">
@@ -325,6 +352,7 @@ body[data-view="tour"] #hint, body[data-view="tour"] #addr, body[data-view="bila
       <div class="hint" id="hint" hidden></div>
       <div class="addr" id="addr" hidden></div>
       <div class="nodata" id="nodata" hidden></div>
+      <div class="nextad" id="nextAd" hidden></div>
       <div class="osm" id="osm" hidden>Plan © contributeurs OpenStreetMap</div>
     </div>
     <aside class="panel" id="panel">
@@ -332,7 +360,6 @@ body[data-view="tour"] #hint, body[data-view="tour"] #addr, body[data-view="bila
       <div class="sum" id="sum"></div>
       <div class="listhead"><h2>Tournées</h2><button class="linkbtn" id="bAdd">+ Ajouter une tournée</button></div>
       <div class="pdfrow"><a class="btn pdfbtn" id="bPlanPdf" target="_blank" rel="noopener" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg><span>Plan A3</span></a><a class="btn pdfbtn" id="bLegPdf" target="_blank" rel="noopener" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg><span>Légende et rues A4</span></a></div>
-      <a class="guidelink" id="bGuide" target="_blank" rel="noopener" href="pdf/mode-emploi.pdf">Mode d'emploi (PDF) : plans, carnets, recherche, cochage, Google Maps</a>
       <ul class="sectors" id="sectors"></ul>
       <div id="tourPanel" hidden></div>
       <div class="foot">
@@ -368,7 +395,7 @@ const canvas = $("map"), ctx = canvas.getContext("2d");
 const S = {
   communeId: "gerzat", data: null, plan: null, assign: null, // assign: Array of codes ('.' = libre)
   scale: 0.2, tx: 0, ty: 0, mode: "pan", active: null, erase: false,
-  selected: -1, flash: -1, open: null, history: [], lasso: null, confirmDel: null, expand: new Set(), confirmReset: null,
+  selected: -1, flash: -1, afilt: "all", open: null, history: [], lasso: null, confirmDel: null, expand: new Set(), confirmReset: null,
   db: null, unsub: null, local: false, saveTimer: null, saving: false, pendingSave: false, lastSaved: null,
   cache: {}, dirty: false
 };
@@ -583,7 +610,7 @@ async function loadSnapshot() {
   const when = d && d.updatedAt ? new Date(d.updatedAt).toLocaleDateString("fr-FR", { day: "numeric", month: "long" }) : "";
   setStatus("ok", "Consultation" + (when ? ", version du " + when : ""));
   renderAll();
-  if (SYNC.url) { SYNC.last[id] = new Set(doneSet()); syncStatus(); SYNC.q.length ? syncPush() : syncPull(); syncLive(id); }
+  if (SYNC.url) { SYNC.last[id] = new Map(doneMap()); syncStatus(); SYNC.q.length ? syncPush() : syncPull(); syncLive(id); }
 }
 function loadLocal() {
   try { const raw = localStorage.getItem(lsKey()); if (raw) applyPlan(JSON.parse(raw)); } catch (e) {}
@@ -688,19 +715,19 @@ function renderPanel() {
   if (!ns) {
     list.innerHTML = `<li class="empty">Aucune tournée pour l'instant. Ajoute la première avec le bouton ci-dessus, puis entoure sa zone sur la carte.</li>`;
   } else {
-    const maxv = Math.max(...Object.values(m), 1);
+    const DM = doneMap(), dn = {}, rp = {};
+    S.data.pts.forEach((p, i) => { const c = S.assign[i]; if (c === ".") return; const v = DM.get(akey(i)); if (v === 1) dn[c] = (dn[c] || 0) + 1; else if (v === 2) rp[c] = (rp[c] || 0) + 1; });
     list.innerHTML = S.plan.sectors.map(s => {
       const n = m[s.c] || 0, col = colorOf(s);
-      const diff = avg ? Math.round((n - avg) / avg * 100) : 0;
-      const cls = Math.abs(diff) <= 15 ? "ok" : Math.abs(diff) <= 30 ? "warn" : "bad";
-      const dtxt = n ? (diff > 0 ? "+" : "") + diff + " %" : "vide";
+      const d = dn[s.c] || 0, rr = rp[s.c] || 0;
+      const pd = n ? 100 * d / n : 0, pr = n ? 100 * rr / n : 0;
       const on = S.active === s.c && !S.erase;
       let html = `<li class="srow${on ? " on" : ""}" data-c="${s.c}">
         <button class="pick" data-c="${s.c}" aria-expanded="${S.open === s.c}">
           <span class="sw" style="background:${col}"></span>
           <span class="nm">${esc(s.name)}</span>
-          <span class="ct">${fmt(n)}<small class="lbl">adresse${n > 1 ? "s" : ""}</small></span>
-          <span class="bar"><i style="width:${n / maxv * 100}%;background:${col}"></i></span>
+          <span class="ct">${Math.round(pd)}&nbsp;%<small class="lbl">${fmt(n)} adr.${rr ? ` · ${rr} à repasser` : ""}</small></span>
+          <span class="bar" title="${d} faites sur ${n}"><i style="width:${pd.toFixed(1)}%;background:${col}"></i><i class="rep" style="left:${pd.toFixed(1)}%;width:${pr.toFixed(1)}%"></i></span>
         </button>`;
       if (S.open === s.c) html += detailHtml(s, n);
       return html + "</li>";
@@ -718,21 +745,42 @@ function detailHtml(s, n) {
   const st0 = n ? streetsOf(s.c) : [], ord = n ? routeOrder(s.c) : [];
   const st = ord.map(v => st0.find(r => r.v === v)).filter(Boolean);
   const colors = PALETTE.map((p, i) => `<button data-col="${i}" aria-pressed="${s.color === i}" style="background:${p}" aria-label="Couleur ${i + 1}"></button>`).join("");
-  const col = colorOf(s), DS = doneSet(), byV = new Map();
+  const col = colorOf(s), DM = doneMap(), byV = new Map();
   if (n) S.data.pts.forEach((p, i) => { if (S.assign[i] === s.c) { if (!byV.has(p[2])) byV.set(p[2], []); byV.get(p[2]).push(i); } });
-  let nDone = 0; for (const L of byV.values()) for (const i of L) if (DS.has(akey(i))) nDone++;
+  let nDone = 0, nRep = 0;
+  for (const L of byV.values()) for (const i of L) { const v = DM.get(akey(i)); if (v === 1) nDone++; else if (v === 2) nRep++; }
+  const F = S.afilt, nTodo = n - nDone - nRep, reps = [];
+  const keepA = i => F === "all" || (F === "todo" ? !DM.get(akey(i)) : F === "rep" ? DM.get(akey(i)) === 2 : DM.get(akey(i)) === 1);
+  const fb = (k, lab, cnt) => `<button class="fb${F === k ? " on" : ""}" data-f="${k}">${lab} <b>${fmt(cnt)}</b></button>`;
+  const pd = n ? 100 * nDone / n : 0, pr = n ? 100 * nRep / n : 0;
+  let rows = "", shown = 0;
+  st.forEach((r, k) => {
+    const ids = (byV.get(r.v) || []).slice().sort((a, b) => { const pa = S.data.pts[a], pb = S.data.pts[b]; return (pa[3] % 2) - (pb[3] % 2) || pa[3] - pb[3] || String(pa[4] || "").localeCompare(String(pb[4] || "")); });
+    let d = 0, nr = 0;
+    ids.forEach(i => { const v = DM.get(akey(i)); if (v === 1) d++; else if (v === 2) { nr++; reps.push(i); } });
+    const vis = F === "all" ? ids : ids.filter(keepA);
+    if (!vis.length) return;
+    shown++;
+    const all = d === ids.length && d > 0, open = S.expand.has(r.v);
+    const odd = vis.filter(i => S.data.pts[i][3] % 2), even = vis.filter(i => !(S.data.pts[i][3] % 2));
+    const chip = i => {
+      const q = S.data.pts[i], v = DM.get(akey(i)) || 0;
+      return `<button data-i="${i}" class="${i === S.flash ? "hl " : ""}${v === 1 ? "d1" : v === 2 ? "d2" : ""}" aria-pressed="${v === 1}" title="${q[3]}${q[4] ? " " + esc(q[4]) : ""} : ${STLAB[v]}" style="${v === 1 ? "background:" + col : ""}">${q[3]}${q[4] ? " " + esc(q[4]) : ""}</button>`;
+    };
+    const sel = vis.includes(S.flash)
+      ? (() => { const q = S.data.pts[S.flash], v = DM.get(akey(S.flash)) || 0; return `<div class="selact"><span class="st">${esc(String(q[3]) + (q[4] ? " " + q[4] : ""))} : <b>${STLAB[v]}</b></span><button class="btn seemap" data-v="${r.v}" type="button">Voir sur le plan</button></div>`; })()
+      : `<button class="linkbtn seemap" data-v="${r.v}" type="button">Voir la rue sur le plan</button>`;
+    const chips = even.length && odd.length ? odd.map(chip).join("") + '<span class="sep"></span>' + even.map(chip).join("") : vis.map(chip).join("");
+    rows += `<li class="ck${all ? " done" : ""}"><button class="box" data-v="${r.v}" aria-pressed="${all ? "true" : d ? "mixed" : "false"}" aria-label="Rue faite" style="${all ? "background:" + col : ""}">${all ? "✓" : ""}</button><div class="rn" data-v="${r.v}"><div class="r"><span class="o" style="background:${col}">${k + 1}</span>${esc(r.name)}</div><div class="n">${esc(r.detail)}</div>${open ? `<div class="chips">${chips}</div>${sel}` : ""}</div><span class="c">${d}/${r.n}${nr ? ` <i>${nr}</i>` : ""}</span></li>`;
+  });
+  if (!shown) rows = `<li class="empty">Aucune adresse ${F === "todo" ? "à faire" : F === "rep" ? "à repasser" : "faite"} dans cette tournée.</li>`;
+  const repHtml = reps.length ? `<div class="replist"><h3>À repasser (${reps.length})</h3><ul>${reps.map(i => `<li><button class="linkbtn nm rgo" data-i="${i}" type="button">${esc(addrLabel(i))}</button><button class="btn rok" data-i="${i}" type="button">Fait</button></li>`).join("")}</ul></div>` : "";
   const rues = n
     ? `<div class="rues"><h3>${st.length} rue${st.length > 1 ? "s" : ""}, dans l'ordre de passage <button class="linkbtn" id="dCopy">Copier la liste</button></h3>
-      <div class="ckprog"><span><b>${nDone}</b> / ${n} adresses cochées</span><span class="bar"><i style="width:${(100 * nDone / n).toFixed(1)}%;background:${col}"></i></span>${nDone ? `<button class="linkbtn" id="dReset">${S.confirmReset === s.c ? (SYNC.url ? "Confirmer : tout décocher pour tout le monde" : "Confirmer : tout décocher") : "Tout décocher"}</button>` : ""}</div>
-      <p class="n" style="margin:0 0 6px;color:var(--muted);font-size:12px">Touche une rue pour voir ses numéros, puis un numéro pour le cocher ou le voir sur le plan. ${SYNC.url ? "Les coches sont partagées avec toute l'équipe." : "Les coches restent sur ce téléphone."}</p>
-      <ul>${st.map((r, k) => {
-        const ids = (byV.get(r.v) || []).slice().sort((a, b) => { const pa = S.data.pts[a], pb = S.data.pts[b]; return (pa[3] % 2) - (pb[3] % 2) || pa[3] - pb[3] || String(pa[4] || "").localeCompare(String(pb[4] || "")); });
-        const d = ids.filter(i => DS.has(akey(i))).length, all = d === ids.length && d > 0;
-        const open = S.expand.has(r.v);
-        const odd = ids.filter(i => S.data.pts[i][3] % 2), even = ids.filter(i => !(S.data.pts[i][3] % 2));
-        const chip = i => { const p = S.data.pts[i], on = DS.has(akey(i)); return `<button data-i="${i}"${i === S.flash ? ' class="hl"' : ""} aria-pressed="${on}" style="${on ? "background:" + col : ""}">${p[3]}${p[4] ? " " + esc(p[4]) : ""}</button>`; };
-        return `<li class="ck${all ? " done" : ""}"><button class="box" data-v="${r.v}" aria-pressed="${all ? "true" : d ? "mixed" : "false"}" aria-label="Rue faite" style="${all ? "background:" + col : ""}">${all ? "✓" : ""}</button><div class="rn" data-v="${r.v}"><div class="r"><span class="o" style="background:${col}">${k + 1}</span>${esc(r.name)}</div><div class="n">${esc(r.detail)}</div>${open ? `<div class="chips">${even.length && odd.length ? odd.map(chip).join("") + '<span class="sep"></span>' + even.map(chip).join("") : ids.map(chip).join("")}</div>${ids.includes(S.flash) ? (() => { const q = S.data.pts[S.flash], lab = esc(String(q[3]) + (q[4] ? " " + q[4] : "")), on = DS.has(akey(S.flash)); return `<div class="selact"><button class="btn${on ? "" : " primary"} ckone" type="button">${on ? "Décocher" : "Cocher"} le ${lab}</button><button class="btn seemap" data-v="${r.v}" type="button">Voir sur le plan</button></div>`; })() : `<button class="linkbtn seemap" data-v="${r.v}" type="button">Voir la rue sur le plan</button>`}` : ""}</div><span class="c">${d}/${r.n}</span></li>`;
-      }).join("")}</ul></div>`
+      <div class="ckprog"><span><b>${nDone}</b> / ${n} adresses faites${nRep ? `, <b>${nRep}</b> à repasser` : ""}</span><span class="bar"><i style="width:${pd.toFixed(1)}%;background:${col}"></i><i class="rep" style="left:${pd.toFixed(1)}%;width:${pr.toFixed(1)}%"></i></span>${nDone || nRep ? `<button class="linkbtn" id="dReset">${S.confirmReset === s.c ? (SYNC.url ? "Confirmer : tout décocher pour tout le monde" : "Confirmer : tout décocher") : "Tout décocher"}</button>` : ""}</div>
+      <div class="filt" role="group" aria-label="Filtrer les adresses">${fb("all", "Tout", n)}${fb("todo", "À faire", nTodo)}${fb("rep", "À repasser", nRep)}${fb("done", "Faites", nDone)}</div>
+      <p class="n" style="margin:0 0 6px;color:var(--muted);font-size:12px">Touche une rue pour voir ses numéros. Touche un numéro : une fois pour <b>fait</b>, deux fois pour <b>à repasser</b>, trois fois pour effacer. ${SYNC.url ? "Les coches sont partagées avec toute l'équipe." : "Les coches restent sur ce téléphone."}</p>
+      <ul>${rows}</ul>${repHtml}</div>`
     : `<div class="rues"><p class="n" style="margin:0;color:var(--muted)">Pas encore d'adresse. Passe en mode Entourer et dessine autour de la zone de ${esc(s.name)}.</p></div>`;
   const del = S.confirmDel === s.c
     ? `<div class="confirm">Supprimer ${esc(s.name)} ? Ses ${fmt(n)} adresses redeviennent libres.<div class="rowbtns"><button class="btn danger" id="dDelYes">Supprimer</button><button class="btn" id="dDelNo">Garder</button></div></div>`
@@ -740,7 +788,7 @@ function detailHtml(s, n) {
   return `<div class="detail">
     <label>Nom<input id="dName" value="${esc(s.name)}" maxlength="20"></label>
     <div class="colors" role="group" aria-label="Couleur">${colors}</div>
-    <div class="pdfrow2"><a class="btn pdfbtn" id="dPdf" target="_blank" rel="noopener" href="${driveUrl(`tplan-${S.communeId}-${s.c}`)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Plan de la tournée A4</a><a class="btn pdfbtn" id="dCarnet" target="_blank" rel="noopener" href="${driveUrl(`carnet-${S.communeId}-${s.c}`)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Carnet à plier A4</a></div>
+    <div class="pdfrow2"${DRIVE[`tplan-${S.communeId}-${s.c}`] ? "" : " hidden"}><a class="btn pdfbtn" id="dPdf" target="_blank" rel="noopener" href="${driveUrl(`tplan-${S.communeId}-${s.c}`)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Plan de la tournée A4</a><a class="btn pdfbtn" id="dCarnet" target="_blank" rel="noopener" href="${driveUrl(`carnet-${S.communeId}-${s.c}`)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Carnet à plier A4</a></div>
     <div class="tlink">Lien de la tournée, pour un SMS ou un mail : <a href="${esc(tourUrl(s))}" target="_blank" rel="noopener">ouvrir</a> · <button class="linkbtn" id="dLink" type="button">copier le lien</button></div>
     ${rues}${del}</div>`;
 }
@@ -762,14 +810,23 @@ function bindDetail() {
   const keep = () => { const u = document.querySelector(".rues ul"); const t = u ? u.scrollTop : 0; renderPanel(); draw(); const u2 = document.querySelector(".rues ul"); if (u2) u2.scrollTop = t; };
   document.querySelectorAll(".rues .rn").forEach(el => el.onclick = () => { const v = +el.dataset.v; S.expand.has(v) ? S.expand.delete(v) : S.expand.add(v); keep(); });
   document.querySelectorAll(".rues .box").forEach(el => el.onclick = () => {
-    const v = +el.dataset.v, DS = doneSet(), ids = []; S.data.pts.forEach((p, i) => { if (S.assign[i] === s.c && p[2] === v) ids.push(i); });
-    const all = ids.every(i => DS.has(akey(i)));
-    ids.forEach(i => all ? DS.delete(akey(i)) : DS.add(akey(i))); saveDone(); keep();
+    const v = +el.dataset.v, ids = []; S.data.pts.forEach((p, i) => { if (S.assign[i] === s.c && p[2] === v) ids.push(i); });
+    const all = ids.every(i => stOf(i) === 1);
+    ids.forEach(i => setSt(i, all ? 0 : 1)); saveDone(); if (S.selected >= 0) renderHint(); keep();
   });
-  document.querySelectorAll(".chips button").forEach(el => el.onclick = e => { e.stopPropagation(); const i = +el.dataset.i; S.flash = S.flash === i ? -1 : i; keep(); });
-  document.querySelectorAll(".rues .ckone").forEach(el => el.onclick = e => {
-    e.stopPropagation(); const i = S.flash; if (i < 0) return; const k = akey(i), DS = doneSet(); DS.has(k) ? DS.delete(k) : DS.add(k); saveDone();
-    if (S.selected === i) renderHint(); keep(); toast(addrLabel(i) + (DS.has(k) ? " coché" : " décoché"));
+  document.querySelectorAll(".chips button").forEach(el => el.onclick = e => {
+    e.stopPropagation();
+    const i = +el.dataset.i, v = nextSt(stOf(i));
+    setSt(i, v); saveDone(); S.flash = i;
+    if (S.selected === i) renderHint();
+    keep(); toast(addrLabel(i) + " : " + STLAB[v]);
+  });
+  document.querySelectorAll(".filt button").forEach(el => el.onclick = () => { S.afilt = el.dataset.f; renderPanel(); });
+  document.querySelectorAll(".replist .rgo").forEach(el => el.onclick = () => {
+    const i = +el.dataset.i; S.selected = i; S.flash = i; S.found = null; S.expand.add(S.data.pts[i][2]); centerAddr(i);
+  });
+  document.querySelectorAll(".replist .rok").forEach(el => el.onclick = () => {
+    const i = +el.dataset.i; setSt(i, 1); saveDone(); if (S.selected === i) renderHint(); keep(); toast(addrLabel(i) + " : fait");
   });
   document.querySelectorAll(".rues .seemap").forEach(el => el.onclick = e => {
     e.stopPropagation();
@@ -782,7 +839,7 @@ function bindDetail() {
   });
   const rs = $("dReset"); if (rs) rs.onclick = () => {
     if (S.confirmReset !== s.c) { S.confirmReset = s.c; keep(); return; }
-    S.confirmReset = null; const DS = doneSet(); S.data.pts.forEach((p, i) => { if (S.assign[i] === s.c) DS.delete(akey(i)); }); saveDone(); keep();
+    S.confirmReset = null; S.data.pts.forEach((p, i) => { if (S.assign[i] === s.c) setSt(i, 0); }); saveDone(); if (S.selected >= 0) renderHint(); keep();
   };
   const lk = $("dLink"); if (lk) lk.onclick = () => {
     const done = t => { lk.textContent = t; setTimeout(() => { lk.textContent = "copier le lien"; }, 2500); };
@@ -791,6 +848,56 @@ function bindDetail() {
   const d = $("dDel"); if (d) d.onclick = () => { S.confirmDel = s.c; renderPanel(); };
   const y = $("dDelYes"); if (y) y.onclick = () => deleteSector(s.c);
   const no = $("dDelNo"); if (no) no.onclick = () => { S.confirmDel = null; renderPanel(); };
+}
+/* ---------- Prochaine adresse ---------- */
+const NEXT = { i: -1, key: null };
+function nextAddr() {
+  if (!GPS.pos || !S.data) return -1;
+  const x = (GPS.pos.lon - S.data.lon0) * S.data.kx, y = (GPS.pos.lat - S.data.lat0) * S.data.ky;
+  // Ordre de passage : la rue où l'on est (adresse la plus proche de la tournée), puis les rues suivantes du carnet.
+  // Dans une rue, l'adresse pas encore faite la plus proche.
+  const DM = doneMap(), P = S.data.pts, d2 = i => (P[i][0] - x) ** 2 + (P[i][1] - y) ** 2;
+  let near = -1, nd = Infinity;
+  for (let i = 0; i < P.length; i++) {
+    if (S.open ? S.assign[i] !== S.open : S.assign[i] === ".") continue;
+    const d = d2(i); if (d < nd) { nd = d; near = i; }
+  }
+  if (near < 0 || nd > 2000 * 2000) return -1;
+  const c = S.assign[near], byV = new Map();
+  for (let i = 0; i < P.length; i++) if (S.assign[i] === c && !DM.get(akey(i))) { if (!byV.has(P[i][2])) byV.set(P[i][2], []); byV.get(P[i][2]).push(i); }
+  if (!byV.size) return -1;
+  const ord = routeOrder(c), k0 = Math.max(0, ord.indexOf(P[near][2]));
+  for (let k = 0; k < ord.length; k++) {
+    const L = byV.get(ord[(k0 + k) % ord.length]); if (!L) continue;
+    let best = L[0]; for (const i of L) if (d2(i) < d2(best)) best = i;
+    return best;
+  }
+  return -1;
+}
+function renderNext() {
+  const el = $("nextAd");
+  const i = S.selected < 0 ? nextAddr() : -1;
+  if (i < 0) { NEXT.i = -1; NEXT.key = null; el.hidden = true; return; }
+  const p = S.data.pts[i], x = (GPS.pos.lon - S.data.lon0) * S.data.kx, y = (GPS.pos.lat - S.data.lat0) * S.data.ky;
+  const dist = Math.round(Math.hypot(p[0] - x, p[1] - y)), key = i + "|" + Math.round(dist / 5) + "|" + (S.open || "");
+  NEXT.i = i;
+  if (NEXT.key === key && !el.hidden) return;
+  NEXT.key = key; el.hidden = false;
+  const so = sectorBy(S.assign[i]), rk = so ? routeOrder(so.c).indexOf(p[2]) + 1 : 0;
+  el.innerHTML = `<div class="t"><small>Prochaine adresse${so ? " de " + esc(so.name) : ""}${rk ? ", rue n° " + rk : ""}, à ${dist} m</small><b>${esc(addrLabel(i))}</b></div><button class="btn primary" id="nFait" type="button">Fait</button><button class="btn" id="nRep" type="button">À repasser</button>`;
+  const setv = v => {
+    setSt(i, v); saveDone(); NEXT.key = null;
+    const u = document.querySelector(".rues ul"), t = u ? u.scrollTop : 0; renderPanel(); const u2 = document.querySelector(".rues ul"); if (u2) u2.scrollTop = t;
+    draw(); toast(addrLabel(i) + " : " + STLAB[v]);
+  };
+  $("nFait").onclick = () => setv(1);
+  $("nRep").onclick = () => setv(2);
+}
+function centerAddr(i) {
+  const p = S.data.pts[i];
+  fitTo({ x0: p[0] - 90, x1: p[0] + 90, y0: p[1] - 90, y1: p[1] + 90 }, 70);
+  renderPanel(); renderHint(); draw();
+  $("mapwrap").scrollIntoView({ behavior: "smooth", block: "start" });
 }
 function renderLight() { renderChip(); draw(); const row = document.querySelector(`.srow[data-c="${S.open}"] .nm`); const s = sectorBy(S.open); if (row && s) row.textContent = s.name; }
 function renderChip() {
@@ -813,9 +920,9 @@ function renderHint() {
     const t = S.erase ? null : sectorBy(S.active);
     const verb = S.erase ? "Retirer" : t ? "Mettre dans " + esc(t.name) : null;
     const par = p[3] % 2 === 0 ? "pair" : "impair";
-    const on = doneSet().has(akey(i));
-    const ck = cur ? `<div class="ckrow"><button class="btn${on ? "" : " primary"}" id="aCk">${on ? "Décocher" : "Cocher"} ce numéro</button><button class="btn" id="aSee">Voir dans la liste</button></div>` : "";
-    a.innerHTML = `<div class="head"><div><div class="num">${esc(addrLabel(i))}${on ? " ✓" : ""}</div><div class="cur">${cur ? "Tournée " + esc(cur.name) : "Sans tournée"}</div></div><button class="x" id="aClose" aria-label="Fermer">×</button></div>
+    const vst = stOf(i);
+    const ck = cur ? `<div class="ckrow"><button class="btn${vst === 1 ? "" : " primary"}" id="aCk1">${vst === 1 ? "Annuler « fait »" : "Fait"}</button><button class="btn" id="aCk2">${vst === 2 ? "Annuler" : "À repasser"}</button><button class="btn" id="aSee">Voir dans la liste</button></div>` : "";
+    a.innerHTML = `<div class="head"><div><div class="num">${esc(addrLabel(i))}${vst === 1 ? " ✓" : vst === 2 ? " ↻" : ""}</div><div class="cur">${cur ? "Tournée " + esc(cur.name) : "Sans tournée"}</div></div><button class="x" id="aClose" aria-label="Fermer">×</button></div>
       ${ck}${S.readonly ? "" : verb ? `<div class="acts">
         <button class="btn primary" data-a="one">${S.erase ? "Retirer ce numéro" : "Ce numéro"}</button>
         <button class="btn" data-a="street">Toute la rue</button>
@@ -823,11 +930,13 @@ function renderHint() {
         <button class="btn" data-a="sidefrom">Côté ${par}, à partir d'ici</button>
       </div>` : `<p class="cur" style="margin:8px 0 0">Choisis une tournée à droite pour y mettre cette adresse.</p>`}`;
     $("aClose").onclick = () => { S.selected = -1; S.flash = -1; renderHint(); renderPanel(); draw(); };
-    const ak = $("aCk"); if (ak) ak.onclick = () => {
-      const DS = doneSet(), k = akey(i); DS.has(k) ? DS.delete(k) : DS.add(k); saveDone();
+    const setv = nv => {
+      setSt(i, nv); saveDone();
       const u = document.querySelector(".rues ul"), t = u ? u.scrollTop : 0; renderPanel(); const u2 = document.querySelector(".rues ul"); if (u2) u2.scrollTop = t;
-      renderHint(); draw(); toast(DS.has(k) ? addrLabel(i) + " coché" : addrLabel(i) + " décoché");
+      renderHint(); draw(); toast(addrLabel(i) + " : " + STLAB[nv]);
     };
+    const a1 = $("aCk1"); if (a1) a1.onclick = () => setv(vst === 1 ? 0 : 1);
+    const a2 = $("aCk2"); if (a2) a2.onclick = () => setv(vst === 2 ? 0 : 2);
     const as = $("aSee"); if (as) as.onclick = () => { const el = document.querySelector(`.chips button[data-i="${i}"]`); if (el) el.scrollIntoView({ behavior: "smooth", block: "center" }); };
     a.querySelectorAll("[data-a]").forEach(b => b.onclick = () => {
       const kind = b.dataset.a, list = [];
@@ -1029,27 +1138,32 @@ function draw() {
     ctx.beginPath(); ctx.roundRect ? ctx.roundRect(X - w / 2, Y - 14, w, 28, 6) : ctx.rect(X - w / 2, Y - 14, w, 28); ctx.fill();
     ctx.fillStyle = "#fff"; ctx.fillText(s.name, X, Y + 1); ctx.globalAlpha = 1;
   }
-  // adresses cochées
+  // adresses cochées (fait) et à repasser
   if (S.view === "plan" && S.data) {
-    const DS = doneSet();
-    if (DS.size) {
+    const DM = doneMap();
+    if (DM.size) {
       const rr = Math.max(r, 3);
-      ctx.fillStyle = "#ffffff"; ctx.strokeStyle = "#3b4148"; ctx.lineWidth = 1.2;
-      ctx.beginPath();
-      for (let i = 0; i < pts.length; i++) {
-        if (!DS.has(akey(i))) continue;
-        const X = sx(pts[i][0]), Y = sy(pts[i][1]); if (X < -10 || Y < -10 || X > W + 10 || Y > H + 10) continue;
-        ctx.moveTo(X + rr, Y); ctx.arc(X, Y, rr, 0, 6.2832);
-      }
-      ctx.fill(); ctx.stroke();
-      if (rr >= 4.5) {
-        ctx.beginPath(); ctx.lineWidth = 1.6;
+      for (const st of [1, 2]) {
+        const vis = [];
         for (let i = 0; i < pts.length; i++) {
-          if (!DS.has(akey(i))) continue;
+          if (DM.get(akey(i)) !== st) continue;
           const X = sx(pts[i][0]), Y = sy(pts[i][1]); if (X < -10 || Y < -10 || X > W + 10 || Y > H + 10) continue;
-          ctx.moveTo(X - rr * 0.5, Y); ctx.lineTo(X - rr * 0.1, Y + rr * 0.45); ctx.lineTo(X + rr * 0.55, Y - rr * 0.45);
+          vis.push(X, Y);
         }
-        ctx.stroke();
+        if (!vis.length) continue;
+        ctx.fillStyle = st === 1 ? "#ffffff" : "#e08a1e"; ctx.strokeStyle = st === 1 ? "#3b4148" : "#8a5209"; ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        for (let k = 0; k < vis.length; k += 2) { ctx.moveTo(vis[k] + rr, vis[k + 1]); ctx.arc(vis[k], vis[k + 1], rr, 0, 6.2832); }
+        ctx.fill(); ctx.stroke();
+        if (rr >= 4.5) {
+          ctx.beginPath(); ctx.lineWidth = 1.6; ctx.strokeStyle = st === 1 ? "#3b4148" : "#ffffff";
+          for (let k = 0; k < vis.length; k += 2) {
+            const X = vis[k], Y = vis[k + 1];
+            if (st === 1) { ctx.moveTo(X - rr * 0.5, Y); ctx.lineTo(X - rr * 0.1, Y + rr * 0.45); ctx.lineTo(X + rr * 0.55, Y - rr * 0.45); }
+            else { ctx.moveTo(X, Y - rr * 0.5); ctx.lineTo(X, Y + rr * 0.12); ctx.moveTo(X, Y + rr * 0.42); ctx.lineTo(X, Y + rr * 0.5); }
+          }
+          ctx.stroke();
+        }
       }
     }
   }
@@ -1077,6 +1191,12 @@ function draw() {
     ctx.beginPath(); ctx.arc(X, Y, R, 0, 6.2832); ctx.fillStyle = "rgba(37,110,230,.14)"; ctx.fill();
     ctx.lineWidth = 1; ctx.strokeStyle = "rgba(37,110,230,.5)"; ctx.stroke();
     ctx.beginPath(); ctx.arc(X, Y, 8, 0, 6.2832); ctx.fillStyle = "#256ee6"; ctx.fill(); ctx.lineWidth = 3; ctx.strokeStyle = "#fff"; ctx.stroke();
+  }
+  // prochaine adresse (depuis ma position)
+  if (GPS.pos || NEXT.i >= 0) renderNext();
+  if (GPS.pos && NEXT.i >= 0) {
+    const p = pts[NEXT.i]; ctx.lineWidth = 3; ctx.strokeStyle = cssVar("--accent");
+    ctx.beginPath(); ctx.arc(sx(p[0]), sy(p[1]), r + 8, 0, 6.2832); ctx.stroke();
   }
   // adresse choisie
   if (S.selected >= 0) {
@@ -1171,22 +1291,37 @@ function finishLasso() {
   if (n) toast(`${n} adresse${n > 1 ? "s" : ""} ${S.erase ? "retirée" + (n > 1 ? "s" : "") : "dans " + sectorBy(S.active).name}`);
 }
 
-/* ---------- Cochage (sur cet appareil) ---------- */
+/* ---------- Cochage : 0 rien, 1 fait, 2 à repasser ---------- */
 const DONE = {};
 function akey(i) { const p = S.data.pts[i]; return p[2] + ":" + p[3] + ":" + (p[4] || ""); }
-function doneSet() {
-  const k = "cg-done-" + S.communeId;
-  if (!DONE[k]) { let a = []; try { a = JSON.parse(localStorage.getItem(k) || "[]"); } catch (e) {} DONE[k] = new Set(a); }
+function doneMap(c) {
+  const k = "cg-done-" + (c || S.communeId);
+  if (!DONE[k]) {
+    const m = new Map();
+    let raw = null; try { raw = JSON.parse(localStorage.getItem(k) || "null"); } catch (e) {}
+    if (Array.isArray(raw)) raw.forEach(x => m.set(String(x), 1));
+    else if (raw && typeof raw === "object") for (const key in raw) { const v = raw[key] === 2 ? 2 : 1; m.set(key, v); }
+    DONE[k] = m;
+  }
   return DONE[k];
 }
+function stOf(i) { return doneMap().get(akey(i)) || 0; }
+function setSt(i, v) { const m = doneMap(), k = akey(i); v ? m.set(k, v) : m.delete(k); }
+function nextSt(v) { return v === 1 ? 2 : v === 2 ? 0 : 1; }
+const STLAB = { 0: "à faire", 1: "fait", 2: "à repasser" };
 const SYNC = { url: (window.COCHES_FB || "").trim().replace(/\/+$/, ""), last: {}, q: [], busy: false, ok: null, t: null, es: null, esC: null };
-try { SYNC.q = JSON.parse(localStorage.getItem("cg-q") || "[]"); } catch (e) {}
+try { SYNC.q = JSON.parse(localStorage.getItem("cg-q") || "[]").map(op => op.set ? op : { c: op.c, set: Object.fromEntries([...(op.on || []).map(k => [k, 1]), ...(op.off || []).map(k => [k, 0])]) }); } catch (e) { SYNC.q = []; }
 function syncSaveQ() { try { localStorage.setItem("cg-q", JSON.stringify(SYNC.q)); } catch (e) {} }
+function fbVal(v) { return v === 1 ? true : v === 2 ? "r" : null; }
 function syncStatus() {
   if (!SYNC.url) return;
   const el = $("statusTxt"); if (!el) return;
   const base = el.textContent.replace(/ · .*$/, "");
-  el.textContent = base + (SYNC.ok === false ? " · coches hors ligne" : SYNC.q.length ? " · envoi des coches…" : " · coches partagées");
+  el.textContent = base + (SYNC.ok === false ? " · hors ligne, coches gardées" : SYNC.q.length ? " · envoi des coches…" : " · coches partagées");
+}
+function rerenderKeep() {
+  if (S.view !== "plan") return;
+  const u = document.querySelector(".rues ul"), t = u ? u.scrollTop : 0; renderPanel(); const u2 = document.querySelector(".rues ul"); if (u2) u2.scrollTop = t; renderHint();
 }
 async function syncPull() {
   if (!SYNC.url || SYNC.busy || !S.data) return;
@@ -1194,11 +1329,15 @@ async function syncPull() {
   try {
     const r = await fetch(SYNC.url + "/coches/" + c + ".json", { cache: "no-store" }); if (!r.ok) throw new Error(r.status); const j = (await r.json()) || {};
     if (c !== S.communeId || SYNC.busy) return;
-    const sv = new Set(Object.keys(j).filter(k => j[k] === true).map(k => k.replace(/^k/, "")));
-    for (const op of SYNC.q) if (op.c === c) { op.on.forEach(k => sv.add(k)); op.off.forEach(k => sv.delete(k)); }
-    const DS = doneSet(), same = DS.size === sv.size && [...sv].every(k => DS.has(k));
-    if (!same) { DS.clear(); sv.forEach(k => DS.add(k)); try { localStorage.setItem("cg-done-" + c, JSON.stringify([...DS])); } catch (e) {} SYNC.last[c] = new Set(DS); if (S.view === "plan") { const u = document.querySelector(".rues ul"), t = u ? u.scrollTop : 0; renderPanel(); const u2 = document.querySelector(".rues ul"); if (u2) u2.scrollTop = t; renderHint(); } draw(); }
-    else SYNC.last[c] = new Set(DS);
+    const sv = new Map();
+    for (const k in j) { const v = j[k] === true ? 1 : j[k] === "r" ? 2 : 0; if (v) sv.set(k.replace(/^k/, ""), v); }
+    for (const op of SYNC.q) if (op.c === c) for (const k in op.set) { const v = op.set[k]; v ? sv.set(k, v) : sv.delete(k); }
+    const DM = doneMap(c), same = DM.size === sv.size && [...sv].every(([k, v]) => DM.get(k) === v);
+    if (!same) {
+      DM.clear(); sv.forEach((v, k) => DM.set(k, v));
+      try { localStorage.setItem("cg-done-" + c, JSON.stringify(Object.fromEntries(DM))); } catch (e) {}
+      SYNC.last[c] = new Map(DM); NEXT.key = null; rerenderKeep(); draw();
+    } else SYNC.last[c] = new Map(DM);
     SYNC.ok = true;
   } catch (e) { SYNC.ok = false; }
   syncStatus();
@@ -1208,7 +1347,7 @@ async function syncPush() {
   SYNC.busy = true;
   const op = SYNC.q[0];
   try {
-    const body = {}; op.on.forEach(k => body["k" + k] = true); op.off.forEach(k => body["k" + k] = null);
+    const body = {}; for (const k in op.set) body["k" + k] = fbVal(op.set[k]);
     const r = await fetch(SYNC.url + "/coches/" + op.c + ".json", { method: "PATCH", body: JSON.stringify(body) });
     if (!r.ok) throw new Error(r.status);
     SYNC.q.shift(); syncSaveQ(); SYNC.ok = true;
@@ -1219,11 +1358,13 @@ async function syncPush() {
 }
 function syncDiff() {
   if (!SYNC.url) return;
-  const c = S.communeId, DS = doneSet(), last = SYNC.last[c] || new Set();
-  const on = [...DS].filter(k => !last.has(k)), off = [...last].filter(k => !DS.has(k));
-  SYNC.last[c] = new Set(DS);
-  if (!on.length && !off.length) return;
-  SYNC.q.push({ c, on, off }); syncSaveQ(); syncStatus(); syncPush();
+  const c = S.communeId, DM = doneMap(), last = SYNC.last[c] || new Map(), set = {};
+  let n = 0;
+  DM.forEach((v, k) => { if (last.get(k) !== v) { set[k] = v; n++; } });
+  last.forEach((v, k) => { if (!DM.has(k)) { set[k] = 0; n++; } });
+  SYNC.last[c] = new Map(DM);
+  if (!n) return;
+  SYNC.q.push({ c, set }); syncSaveQ(); syncStatus(); syncPush();
 }
 function syncLive(c) {
   if (!SYNC.url || !window.EventSource || SYNC.esC === c) return;
@@ -1239,11 +1380,17 @@ function syncLive(c) {
 if (SYNC.url) {
   setInterval(() => { if (!document.hidden) { SYNC.q.length ? syncPush() : syncPull(); } }, 30000);
   document.addEventListener("visibilitychange", () => { if (!document.hidden) syncPull(); });
+  window.addEventListener("online", () => { SYNC.q.length ? syncPush() : syncPull(); });
 }
 function saveDone() {
   syncDiff();
-  try { localStorage.setItem("cg-done-" + S.communeId, JSON.stringify([...doneSet()])); }
+  try { localStorage.setItem("cg-done-" + S.communeId, JSON.stringify(Object.fromEntries(doneMap()))); }
   catch (e) { if (!saveDone.w) { saveDone.w = 1; gpsMsg("Les coches ne peuvent pas être gardées sur cet appareil (navigation privée ?). Elles restent jusqu'à la fermeture de la page."); } }
+}
+function stCounts(c) {
+  const m = doneMap(), o = { n: 0, d: 0, r: 0 };
+  S.data.pts.forEach((p, i) => { if (S.assign[i] !== c) return; o.n++; const v = m.get(akey(i)); if (v === 1) o.d++; else if (v === 2) o.r++; });
+  return o;
 }
 
 /* ---------- Ordre de passage ---------- */
@@ -1376,7 +1523,7 @@ $("bPoi").setAttribute("aria-pressed", SHOWPOI.on);
 $("zIn").onclick = () => zoomAt(1.5, W / 2, H / 2);
 $("zOut").onclick = () => zoomAt(1 / 1.5, W / 2, H / 2);
 $("bAdd").onclick = () => { if (S.data) newSector(); };
-const DRIVE = {"plan-malintrat": "1jiUMW-V1HsVyf0Qtre0HW2H2Xsh2Gca6", "legende-malintrat": "1pz8_6ftV6eBJio6TklZTrARSCJTxZUDp", "plan-aulnat": "13BlUlJUtSRmR0xK-aqpshY939o14Uxri", "legende-aulnat": "179bJ0CAgivyyJlK9RIUalFUYPzAcSjVB", "plan-gerzat": "1LXL7gmY_GgqDP_w0NWCsyi46A8CV1ShE", "legende-gerzat": "1c53eoaft3pxKMfyFxsS0XhpO5HYnT-ih", "guide": "1pf7BaBkzvITTP5dZbWurjhLsZXtSaHZv", "tplan-malintrat-A": "1LdSuREcYa_05YvV6R2titdKsOnkrxovB", "tplan-aulnat-F": "1jybqS-P16Q3ARt5cRqdu8wh1iRGXAhGV", "tplan-aulnat-C": "1QT_0w2_4kGvorZx-W3Uvjx3tBSQRfWkm", "tplan-aulnat-E": "1ezuapqL_Fx-BVXwpFVhH8jFlp9_theTX", "tplan-aulnat-B": "1YST8EC8_FcnqcXH4zqLGHUxTwpPop702", "tplan-gerzat-K": "1PUcctB1EMoIoVCOygXiBS1ha-HhmOkLp", "tplan-gerzat-J": "1NWEogNzcDEas4E57RLf9KcFokd02Yzfo", "tplan-malintrat-B": "1-DO-fbIyk62IXguw2lmLo59VB9OybLfD", "tplan-aulnat-D": "11zR0YlP1jxGXsrqeoiHbIxUsnDiRo0FF", "tplan-gerzat-E": "1I7-yI-_Cm3bn0JHlLjZJTmOfdvPw41Ht", "tplan-aulnat-A": "1ahTApstQ2tbaHS1vJLEi8QQZNZtJ-iF6", "tplan-gerzat-M": "1NfQz1wLH6e2Xys55WfChSEr-UEjoxgcY", "tplan-gerzat-D": "1deSgLGxrP4j5IGSWvv1v3tKQmV-7VyPv", "tplan-gerzat-L": "1dlR1Cm9s751AdfGUF6LbwnOetG3vhDN0", "tplan-gerzat-A": "19r7OOc_6nnMy-VYQOW6ZnKZs0ZP6LeV6", "tplan-gerzat-I": "1QukPkpUHaFfbfManLYV5IMa3UoPRKxs5", "tplan-gerzat-H": "1hEIFh-baDiahgvgc9HB8nfqMu2CDuNUf", "tplan-gerzat-F": "1an27Gz6WrUxicNhbhK2E20DjNgelJmdY", "tplan-gerzat-G": "1uE1X3liptqv54FVIls4LIS4ShmrKPPz1", "tplan-gerzat-C": "1WbYjZXDogey7cOZjshAjgrhnsavkpvcK", "tplan-gerzat-B": "1xtnmsXfcNvBrJRTluDmqVCPc0DmzjEhw", "carnet-malintrat-B": "1ma4nklNZk6F0MiaaOy8MCPWml7PpGzVd", "carnet-malintrat-A": "1mov_DF2JMnr7rCXcKnQeZFWcO1uqM5kZ", "carnet-aulnat-F": "15F2ZMIC73odhh6pdCuE6nBbViqUZblQU", "carnet-aulnat-E": "1of-HzYWYJ0w1-bBmVvfgLiIq3P-FEAsB", "carnet-aulnat-D": "1ofogv9EqR_K1y_fuI9qwUf0JfkWsShSm", "carnet-aulnat-C": "13CTv94UvsO87op4qnhqTA-1i7fbbUYHM", "carnet-aulnat-B": "1YxfgB3OZH3v6JegwlTgz641mTG4I6w_S", "carnet-aulnat-A": "1hoF0SYf3aNE2y6rQAqoDgiA2GssAAjur", "carnet-gerzat-H": "1--fp0YnXjrr0E3mXHc_lL-FJEvPgqKbg", "carnet-gerzat-M": "1F8UK9e5-QMLI37Un_Cf_gSi6862HIGbD", "carnet-gerzat-F": "179GVnvDiK0HAX4oD1L1e1LHggz7fThum", "carnet-gerzat-L": "1RXuJKrlsDPsYoMx42b5fam07W3VSCzDT", "carnet-gerzat-K": "1tJ33zwHSNIwKYwu7UKs1kHkT1UJVZOge", "carnet-gerzat-E": "1djnbssKc1o19SQErtXsBC2doGS1GWw7E", "carnet-gerzat-J": "1QVT5i3Wx7RfD4F-gLtAUYgkIMUmTFMo3", "carnet-gerzat-I": "1dyvGaYTudpk-4K422kljPXKmvVG5J9O2", "carnet-gerzat-G": "1BPOYnGN71yC58nccE6H27wi9YYQfpAfu", "carnet-gerzat-D": "1Q0Jy4fWn3dCmxDkSnyuXLSNwlD7Ox9SM", "carnet-gerzat-C": "1ZkG4iIeYKkGBAB7IJxNQOE3pWO6qzhNe", "carnet-gerzat-B": "1Pxpo7q0zaQvc9fLTxwOHUCCDU89oX3gR", "carnet-gerzat-A": "1OOKgRZnUVSFqQ2aSykvi58YAYNKxicMb"};
+const DRIVE = {"plan-gerzat": "1hl_0HzSOs7TcN1fR02wzXQ5jkZSDR9ZC", "plan-aulnat": "16ffcqNG-FuV_J3XI1ibAjXLUY0cHstCZ", "legende-aulnat": "1htD_FTUm8nXSBqfviw8ENC_aQneK-Y-s", "legende-gerzat": "1XpO6q5PVzgF_QapY2sVTNJIddCHZLl2R", "legende-malintrat": "1AWVI4RAGvYHxybTcrjJzvFuQO1F82dE-", "plan-malintrat": "17AWhbB8fVQTH808Xsb7rk9RGkCoyVAS0", "tplan-gerzat-L": "1D12jVQlcsuiU-10QmHPJy7VF0vEeVz7L", "tplan-gerzat-M": "1mAeEajAeoHEv3FXeS8-9mX2-fCXgvNgd", "tplan-malintrat-A": "1oVAJMZ18jxer8iO5Hil3jqT0-RdN7CLc", "tplan-gerzat-G": "1pY6rtb_KtmJBJt4PneS5ZMzKLaXheRYw", "tplan-malintrat-B": "1tAoJgoh7cwdLfxB0yWr5WA5wgJF13Ls_", "tplan-gerzat-J": "1P3O0aq39cVMfwKfzPO8sV5zTN_85lhIh", "tplan-gerzat-F": "149WhIIOWKqeJcvkRH6oPL-g3TizPENzv", "tplan-gerzat-E": "1PHbMytDJ3qvJ6YgS6Iz6CJlcNKQObYec", "tplan-gerzat-I": "116B6WEdhq0AfmE2oh4gNXci3cBZ72Yei", "tplan-gerzat-D": "1W7IoW_jod_YQJiNiwzPHZZpwCmkAE3Qa", "tplan-gerzat-H": "1NrbROMyM9B4je5cPvTq5WuFihfhCiu7q", "tplan-gerzat-K": "1ZAMmIk1WC8nrJzvvDQu76DLXa1T7dRm3", "tplan-gerzat-C": "1MkNVYwsxjvyMR_1B3RLF3GPM0Ixjk2He", "tplan-gerzat-B": "1V94pomRsiIP3yN8CD7Do9PAZlejlyAcC", "tplan-gerzat-A": "1PLo04JE17MvF6QGwGspCUJ34L_AVKofV", "tplan-aulnat-D": "1_TgmwZrdlOam1hRoEzfBooI05SZ16ZCZ", "tplan-aulnat-C": "1gy4FNCEIdwuTjR2yQDb9i2B9zAkg3R7m", "tplan-aulnat-B": "1iGt0ZJNPbY-HWXfCkQ3vf3EnfPDTCcYD", "tplan-aulnat-A": "1H_KfTt2rfXBIt4QmAzSSL-qWI_OQT_2U", "tplan-aulnat-F": "1MdJNyP9Bfikwn5oVU9QBUcWsAta5Nr6K", "tplan-aulnat-G": "15bXR7RvtZ6rZsb-V8hNTzU3ivAXFp8HJ", "tplan-aulnat-E": "1hTISffMoThxMh3lOna75AQyDQJPJhAsB", "carnet-aulnat-G": "1WVxXHaAbw6KhaHikPcdXgWGhCFPauP5z", "carnet-aulnat-E": "1JQpiZzz6xRa05-ZpF57pKZ3paBCEHsd9", "carnet-aulnat-B": "1Lo68dCtZEqvc9WKY8UHtg6nfu0ZiGXKJ", "carnet-malintrat-A": "1pFaQhB63GToNfF_vad2BI7L-2aoo9e03", "carnet-gerzat-J": "1Szm46qyl6gaAMLndx1Z0VBLXXsvP_WrR", "carnet-gerzat-M": "17bEP0xRAVvL5qtpbM90kpkFFuPH2_9Wq", "carnet-gerzat-I": "1Q4oSDPi90EC6dfwKf_g3IalQ6TdWMPuI", "carnet-gerzat-H": "1CRDndhOCknl5zXe5reFQn4eRvcHuaoCi", "carnet-gerzat-K": "1t7wZSFE9OMOH1jR7msF4fEJh17GNIge9", "carnet-gerzat-L": "1aFWFEP3lYJ0Jzuu60AmWyXrsxneAd4Jj", "carnet-malintrat-B": "1o9Yxa2FGbHk_Vs89LtdsNeHm1OAb9ufo", "carnet-gerzat-G": "1Zmqk9XNJaymgqbJo1MMogjsM6QfBMO4l", "carnet-gerzat-D": "1fNt2wHs32_33tt2M9UNCZ4VCIAkmQd0w", "carnet-aulnat-A": "1_GrUYIGXRaExH2Bf8e9Bb0vNpbEbrlMd", "carnet-aulnat-F": "1uUOH6JCRg8PTRg5FGa-oNP75NVsXr09C", "carnet-gerzat-F": "1HsK6agl7z5Trko7nPg2_ZzaieZDwmMa9", "carnet-gerzat-E": "1zCShbAQtjaTWlM--Pn7wBEdpxpC527Ai", "carnet-gerzat-C": "1FcdUlPvw7msqlaDbH5Ec-kNC2kOOkVBU", "carnet-aulnat-D": "1S4l-OlBbktPFdls4mKYastDKY0iY-SBX", "carnet-gerzat-B": "1AF89OdZX9EXXfYFTy1Z7BCDLW5r3NcAG", "carnet-gerzat-A": "1ElRGhIlLJfeMKjv9ukROVRYWM2QwvVCu", "carnet-aulnat-C": "1dWsPzKlSm4f61J-sWUSZK1sElMO3CCNC", "guide": "1s77drBS93i2D1cO9ke9O7mZzF92zq3O1"};
 function tourUrl(s) { return "https://amicalespgerzat-source.github.io/calendrier/#" + S.communeId + "-" + encodeURIComponent(s.name); }
 function shareUrl(s) { return "https://amicalespgerzat-source.github.io/calendrier/" + S.communeId + "-" + encodeURIComponent(s.name); }
 function driveUrl(key) { return DRIVE[key] ? "https://drive.google.com/file/d/" + DRIVE[key] + "/view" : "#"; }
@@ -1653,4 +1800,7 @@ loadCommune(LINK && COMMUNES.some(c => c.id === LINK.commune) ? LINK.commune : "
 })();
 </script>
 
+<script>
+if ("serviceWorker" in navigator) window.addEventListener("load", () => { navigator.serviceWorker.register("sw.js", { scope: "./" }).catch(() => {}); });
+</script>
 </body></html>

@@ -1,0 +1,16 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Amicale SP Gerzat//Appli//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:2027-01-23-sainte-barbe@amicalespgerzat-source.github.io
+DTSTAMP:20261112T080307Z
+DTSTART:20270123T173000
+DTEND:20270123T193000
+SUMMARY:Sainte-Barbe (amicale)
+LOCATION:dépôt de gerbes à la caserne
+DESCRIPTION:17 h 30\nCérémonie à 18 h à la caserne\, puis repas à la 
+ salle Le Galion.
+END:VEVENT
+END:VCALENDAR

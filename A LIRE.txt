@@ -1,4 +1,4 @@
-Appli de l'amicale des Sapeurs-Pompiers de Gerzat, version 22
+Appli de l'amicale des Sapeurs-Pompiers de Gerzat, version 28
 
 Mise en ligne sur GitHub (gratuit, une seule fois)
 
@@ -17,9 +17,15 @@ Ajouter une inscription
 
 Ouvrir index.html sur GitHub, toucher le crayon, chercher INSCRIPTIONS, copier un bloc et le remplir.
 L'inscription disparaît toute seule le lendemain de son dernier jour.
-Dans sw.js, augmenter le numéro de amicale-gerzat-v22 (v23, v24...) à chaque nouvelle version.
+Le bouton « Ajouter à mon agenda » marche tout de suite, avec Google Agenda. Sur iPhone, il ouvre un fichier du dossier agenda/, créé quand on refait une version avec Claude.
+Dans sw.js, augmenter le numéro de amicale-gerzat-v28 (v29, v30...) à chaque nouvelle version.
 
 Code d'accès
 
 Les boutons et les liens sont chiffrés avec le code. Pour changer le code, ou modifier un bouton, il faut refaire une version avec Claude.
 Les inscriptions et l'agenda restent modifiables directement dans index.html (chercher INSCRIPTIONS ou AGENDA). Pour rendre une date cliquable, coller le lien de son affiche dans le champ affiche.
+
+Installation obligatoire sur téléphone
+
+Sur un téléphone, l'appli ne s'ouvre que depuis son icône. Dans le navigateur, elle n'affiche que la marche à suivre pour l'installer.
+Pour couper ce blocage : dans index.html, chercher FORCER_INSTALLATION et remplacer true par false.
