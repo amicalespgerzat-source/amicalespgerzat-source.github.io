@@ -1,0 +1,31 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Amicale SP Gerzat//Appli//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Amicale SP Gerzat
+X-WR-TIMEZONE:Europe/Paris
+REFRESH-INTERVAL;VALUE=DURATION:PT12H
+X-PUBLISHED-TTL:PT12H
+BEGIN:VEVENT
+UID:2026-12-05-arbre-de-noel@amicalespgerzat-source.github.io
+DTSTAMP:20261112T173305Z
+DTSTART:20261205T160000
+DTEND:20261205T180000
+SUMMARY:Arbre de Noël
+LOCATION:à la caserne
+DESCRIPTION:dès 16 h\nGoûter\, distribution des cadeaux et film d'animat
+ ion.\nAffiche : https://drive.google.com/file/d/1c4ay2kV7QhvJTj1iJYlSg1bBI
+ hqPSeF-/view
+END:VEVENT
+BEGIN:VEVENT
+UID:2027-01-23-sainte-barbe@amicalespgerzat-source.github.io
+DTSTAMP:20261112T173305Z
+DTSTART:20270123T173000
+DTEND:20270123T193000
+SUMMARY:Sainte-Barbe
+LOCATION:dépôt de gerbes à la caserne
+DESCRIPTION:17 h 30\nCérémonie à 18 h à la caserne\, puis repas à la 
+ salle Le Galion.
+END:VEVENT
+END:VCALENDAR
