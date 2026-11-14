@@ -108,6 +108,18 @@ h2 { font: 800 27px/1 var(--titre); text-transform: uppercase; letter-spacing: .
 .rebours span { display: grid; gap: 2px; min-width: 0; }
 .rebours strong { font: 800 27px/1 var(--titre); text-transform: uppercase; letter-spacing: .02em; }
 .rebours small { font-size: 16px; }
+.rebours .compte-j { flex: none; min-width: 66px; justify-items: center; gap: 3px; }
+.rebours .compte-j b { min-width: 0; }
+.rebours .compte-j i { font-style: normal; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--citron); }
+.rebours em { font-style: normal; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; opacity: .8; }
+.ins { display: flex; align-items: center; gap: 12px; padding: 8px 12px 8px 8px; background: var(--carte); border: 1px solid var(--trait); border-radius: 8px; color: var(--encre); text-decoration: none; }
+.ins .jour { width: 54px; padding: 5px 0 6px; font-size: 11.5px; }
+.ins .jour strong { font-size: 30px; }
+.ins-txt { flex: 1; min-width: 0; display: grid; gap: 3px; }
+.ins-txt strong { font: 800 23px/1 var(--titre); text-transform: uppercase; letter-spacing: .02em; }
+.ins-txt small { justify-self: start; background: var(--citron); color: var(--sur-citron); padding: 1px 8px; border-radius: 4px; font-size: 14.5px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.ins-txt small.vite { background: var(--rouge); color: var(--sur-rouge); }
+.ins .fl { flex: none; width: 18px; height: 18px; color: var(--bleu); }
 .tournee { background: var(--carte); border: 1px solid var(--trait); border-radius: 8px; padding: 14px; display: grid; gap: 10px; }
 .tournee h3 { margin: 0; font-weight: 600; font-size: 19px; }
 .tournee p { color: var(--doux); font-size: 16px; }
@@ -493,13 +505,12 @@ function demarrer() {
   }
 
   if (dates.length) {
-    const p = dates[0], n = ecart(lire(p.date));
-    document.getElementById("rebours-n").textContent = n;
-    document.getElementById("rebours-titre").textContent = p.titre;
-    document.getElementById("rebours-txt").textContent =
-      n === 0 ? "C'est aujourd'hui" : n === 1 ? "C'est demain" : "Dans " + n + " jours";
-    if (n < 2) document.getElementById("rebours-n").textContent = n === 0 ? "J" : "J-1";
-    document.getElementById("rebours").hidden = false;
+    const p = dates[0], n = ecart(lire(p.date)), r = document.getElementById("rebours");
+    const quand = net(lire(p.date), { weekday: "long", day: "numeric", month: "long" });
+    r.innerHTML =
+      '<span class="compte-j"><b>' + (n === 0 ? "J" : n) + '</b><i>' + (n === 0 ? "aujourd'hui" : n === 1 ? "jour" : "jours") + '</i></span>' +
+      '<span><em>Prochain événement</em><strong>' + esc(p.titre) + '</strong><small>' + esc(quand.charAt(0).toUpperCase() + quand.slice(1) + (p.heure ? ", " + p.heure : "")) + '</small></span>';
+    r.hidden = false;
   }
 
   /* Ma tournée */
@@ -556,27 +567,18 @@ function demarrer() {
   }
 
   zone.style.display = "grid";
-  zone.style.gap = "12px";
+  zone.style.gap = "8px";
   zone.innerHTML = ouvertes.map(e => {
     const d = lire(e.date);
     const fin = lire(e.dernierJour);
-    const limite = new Date(fin); limite.setDate(limite.getDate() + 1);
     const n = ecart(fin);
     const reste = n === 0 ? "Dernier jour" : "Encore " + (n + 1) + " jours";
-    const bouton = e.lien
-      ? '<a class="btn" target="_blank" rel="noopener" href="' + esc(e.lien) + '">S\'inscrire</a>'
-      : '<span class="btn attente">Lien d\'inscription bientôt ici</span>';
-    return '<article class="evt">' +
-      '<div class="evt-haut">' +
-        '<div class="jour">' + esc(net(d, { weekday: "short" })) + '<strong>' + d.getDate() + '</strong>' + esc(net(d, { month: "short" })) + '</div>' +
-        '<div class="evt-txt"><h3>' + esc(e.titre) + '</h3><p>' + esc(e.heure) + ', ' + esc(e.lieu) + '</p></div>' +
-      '</div>' +
-      '<div class="infos"><p>' + esc(e.detail) + '</p><p>' + esc(e.tarif) + ' ' + esc(e.public) + '.</p></div>' +
-      '<div class="pied-evt"><span>Avant le ' + esc(net(limite, { day: "numeric", month: "long" })) + '</span><span class="reste' + (n < 7 ? " vite" : "") + '">' + reste + '</span></div>' +
-      bouton +
-      (e.affiche ? '<a class="btn2" target="_blank" rel="noopener" href="' + esc(e.affiche) + '">Voir l\'affiche</a>' : '') +
-      (e.inscrits ? voirInscrits(e) : '') +
-    '</article>';
+    /* Accueil : version courte, un clic ouvre l'agenda (bouton S'inscrire, affiche, inscrits) */
+    return '<a class="ins" href="#agenda">' +
+      '<div class="jour">' + esc(net(d, { weekday: "short" })) + '<strong>' + d.getDate() + '</strong>' + esc(net(d, { month: "short" })) + '</div>' +
+      '<span class="ins-txt"><strong>' + esc(e.titre) + '</strong><small' + (n < 7 ? ' class="vite"' : '') + '>' + reste + '</small></span>' +
+      FLECHE +
+    '</a>';
   }).join("");
 })();
 }
