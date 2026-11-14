@@ -6,7 +6,7 @@
 # chiffrée avec le code de l'appli : le dépôt est public, les noms n'y sont jamais en clair.
 # Secrets GitHub : HELLOASSO_ID, HELLOASSO_SECRET (HelloAsso, Mon compte, Intégrations et API)
 # et CODE_AMICALE (le code de l'appli).
-import base64, datetime, json, os, pathlib, re, sys, urllib.parse, urllib.request
+import base64, datetime, json, os, pathlib, re, sys, urllib.error, urllib.parse, urllib.request
 from zoneinfo import ZoneInfo
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
@@ -46,14 +46,18 @@ if not (ID and SECRET and CODE):
 
 
 def demande(url, donnees=None, jeton=None):
-    entetes = {"Accept": "application/json"}
+    entetes = {"Accept": "application/json", "User-Agent": "AmicaleSPGerzat/1.0 (amicale.spgerzat@gmail.com)"}
     if jeton:
         entetes["Authorization"] = "Bearer " + jeton
     if donnees is not None:
         donnees = urllib.parse.urlencode(donnees).encode()
         entetes["Content-Type"] = "application/x-www-form-urlencoded"
-    with urllib.request.urlopen(urllib.request.Request(url, data=donnees, headers=entetes), timeout=30) as r:
-        return json.loads(r.read().decode("utf-8") or "{}")
+    try:
+        with urllib.request.urlopen(urllib.request.Request(url, data=donnees, headers=entetes), timeout=30) as r:
+            return json.loads(r.read().decode("utf-8") or "{}")
+    except urllib.error.HTTPError as err:
+        print("HelloAsso a refusé :", err.code, url.split("?")[0], (err.read() or b"").decode("utf-8", "replace")[:300])
+        sys.exit(1)
 
 
 jeton = demande(API + "/oauth2/token", {"grant_type": "client_credentials", "client_id": ID, "client_secret": SECRET})["access_token"]
