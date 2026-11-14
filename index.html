@@ -285,7 +285,8 @@ footer a { color: var(--bleu); font-weight: 500; overflow-wrap: anywhere; }
 /* Pour ajouter une inscription : copier un bloc, remplir, mettre le lien entre guillemets.
    dernierJour : dernier jour pour s'inscrire. Le bloc disparaît tout seul le lendemain.
    Sans lien, l'appli affiche "Lien d'inscription bientôt ici".
-   inscrits : lien CSV publié de la liste des inscrits (Google Sheets, Publier sur le Web). Vide : pas de bouton "Voir les inscrits". */
+   inscrits : lien CSV publié de la liste des inscrits (Google Sheets, Publier sur le Web),
+   ou pour HelloAsso "agenda/inscrits-NOM.json" (rempli tout seul chaque heure par GitHub). Vide : pas de bouton "Voir les inscrits". */
 /* Pour ajouter une date à l'agenda : copier un bloc de AGENDA et le remplir.
    Une date passée disparaît toute seule. Les inscriptions s'ajoutent toutes seules à l'agenda.
    affiche : lien de l'affiche. Avec un lien, un clic sur la date l'ouvre. Sans lien, la date n'est pas cliquable. */
@@ -309,6 +310,7 @@ const INSCRIPTIONS = [
     public: "Réservé aux amicalistes",
     dernierJour: "2026-11-22",
     lien: "https://www.helloasso.com/associations/amicale-des-sapeurs-pompiers-de-gerzat/evenements/arbre-de-noel-2026",
+    inscrits: "agenda/inscrits-arbre-de-noel-2026.json",
     affiche: "https://drive.google.com/file/d/1c4ay2kV7QhvJTj1iJYlSg1bBIhqPSeF-/view"
   },
   {
@@ -433,11 +435,27 @@ function demarrer() {
     ol.innerHTML = "";
     fenetre.hidden = false;
     try {
-      const r = await fetch(b.dataset.inscrits + "&t=" + Date.now(), { cache: "no-store" });
-      if (!r.ok) throw new Error(r.status);
-      const lignes = csv(await r.text());
-      const gens = lignes.slice(4).filter(l => l[0] && l[0] !== "Personne pour le moment");
-      compte.textContent = gens.length ? (lignes[1] && lignes[1][0]) || "" : "Pas encore d'inscrit.";
+      const src = b.dataset.inscrits;
+      let gens, texte;
+      if (/\.json$/.test(src)) {
+        /* Liste HelloAsso, chiffrée avec le code de l'appli */
+        const r = await fetch(src + "?t=" + Date.now(), { cache: "no-store" });
+        if (r.status === 404) { compte.textContent = "La liste arrive bientôt."; return; }
+        if (!r.ok) throw new Error(r.status);
+        const c = await r.json(), bits = s => Uint8Array.from(atob(s), x => x.charCodeAt(0));
+        const base = await crypto.subtle.importKey("raw", new TextEncoder().encode(localStorage.getItem("amicale-code") || ""), "PBKDF2", false, ["deriveKey"]);
+        const k = await crypto.subtle.deriveKey({ name: "PBKDF2", salt: bits(c.s), iterations: c.n, hash: "SHA-256" }, base, { name: "AES-GCM", length: 256 }, false, ["decrypt"]);
+        const liste = JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({ name: "AES-GCM", iv: bits(c.i) }, k, bits(c.d))));
+        gens = liste.lignes || [];
+        texte = (liste.compte || "") + (liste.maj ? " Mis à jour le " + liste.maj + "." : "");
+      } else {
+        const r = await fetch(src + "&t=" + Date.now(), { cache: "no-store" });
+        if (!r.ok) throw new Error(r.status);
+        const lignes = csv(await r.text());
+        gens = lignes.slice(4).filter(l => l[0] && l[0] !== "Personne pour le moment");
+        texte = (lignes[1] && lignes[1][0]) || "";
+      }
+      compte.textContent = gens.length ? texte : "Pas encore d'inscrit.";
       ol.innerHTML = gens.length
         ? gens.map(l => '<li><b>' + esc(l[0]) + '</b>' + (l[1] ? '<span>' + esc(l[1]) + '</span>' : '') + (l[2] ? '<span>Avec ' + esc(l[2]) + '</span>' : '') + '</li>').join("")
         : '';
