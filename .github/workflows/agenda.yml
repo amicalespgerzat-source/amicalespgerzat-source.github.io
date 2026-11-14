@@ -1,17 +1,31 @@
-# Agenda de l'amicale : refait agenda/amicale.ics tout seul
-# à chaque modification de index.html sur GitHub.
-# A mettre dans le dépôt sous le nom .github/workflows/agenda.yml
+# Agenda et notifications de l'amicale
+# Lance .github/amicale.py :
+#  - à chaque modification de index.html (agenda abonné + annonce des nouvelles dates) ;
+#  - chaque soir vers 18 h, heure de Paris (rappels 15 jours avant et la veille).
+# La clé OneSignal est dans les secrets du dépôt, sous le nom ONESIGNAL_CLE.
 name: Agenda de l'amicale
 
 on:
   push:
     branches: [main]
     paths: [index.html]
+  schedule:
+    - cron: "0 16 * * *"
+    - cron: "0 17 * * *"
   workflow_dispatch:
+    inputs:
+      essai:
+        description: "Envoyer une notification de test à tous les abonnés"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
   pages: write
+
+concurrency:
+  group: amicale
+  cancel-in-progress: false
 
 jobs:
   agenda:
@@ -19,87 +33,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Refaire agenda/amicale.ics à partir de index.html
-        run: |
-          python3 - <<'PY'
-          import re, unicodedata, datetime, pathlib
-          page = pathlib.Path("index.html").read_text(encoding="utf-8")
-
-          def tableau(nom):
-              m = re.search(r"const " + nom + r" = \[(.*?)\n\];", page, re.S)
-              if not m:
-                  return []
-              return [dict(re.findall(r'(\w+):\s*"((?:[^"\\]|\\.)*)"', o)) for o in re.findall(r"\{(.*?)\}", m.group(1), re.S)]
-
-          def slug(e):
-              t = unicodedata.normalize("NFD", e["date"] + "-" + e["titre"])
-              t = "".join(c for c in t if unicodedata.category(c) != "Mn")
-              return re.sub(r"[^A-Za-z0-9]+", "-", t).strip("-").lower()
-
-          def echap(t):
-              return t.replace("\\", "\\\\").replace(";", "\\;").replace(",", "\\,").replace("\n", "\\n")
-
-          def plier(l):
-              b = l.encode("utf-8"); morceaux = []
-              while len(b) > 74:
-                  k = 74
-                  while (b[k] & 0xC0) == 0x80: k -= 1
-                  morceaux.append(b[:k].decode("utf-8")); b = b[k:]
-              morceaux.append(b.decode("utf-8"))
-              return "\r\n ".join(morceaux)
-
-          maintenant = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-
-          def evenement(e):
-              a, m, j = map(int, e["date"].split("-"))
-              h = re.search(r"(\d{1,2})\s*h\s*(\d{2})?", e.get("heure", ""))
-              f = "%Y%m%dT%H%M%S"
-              if h:
-                  d = datetime.datetime(a, m, j, int(h.group(1)), int(h.group(2) or 0))
-                  quand = ["DTSTART:" + d.strftime(f), "DTEND:" + (d + datetime.timedelta(hours=2)).strftime(f)]
-              else:
-                  d = datetime.date(a, m, j)
-                  quand = ["DTSTART;VALUE=DATE:" + d.strftime("%Y%m%d"), "DTEND;VALUE=DATE:" + (d + datetime.timedelta(days=1)).strftime("%Y%m%d")]
-              desc = "\n".join(x for x in [e.get("heure", ""), e.get("detail", ""), ("Affiche : " + e["affiche"]) if e.get("affiche") else ""] if x)
-              return ["BEGIN:VEVENT", "UID:" + slug(e) + "@amicalespgerzat-source.github.io", "DTSTAMP:" + maintenant] + quand + [
-                      "SUMMARY:" + echap(e["titre"]), "LOCATION:" + echap(e.get("lieu", "")),
-                      "DESCRIPTION:" + echap(desc), "END:VEVENT"]
-
-          evenements = {}
-          for e in tableau("AGENDA") + tableau("INSCRIPTIONS"):
-              try:
-                  datetime.date(*map(int, e["date"].split("-")))
-                  evenements[slug(e)] = e
-              except Exception as err:
-                  print("Date ignorée, mal écrite :", e.get("titre"), e.get("date"), err)
-
-          lignes = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Amicale SP Gerzat//Appli//FR", "CALSCALE:GREGORIAN", "METHOD:PUBLISH",
-                    "X-WR-CALNAME:Amicale SP Gerzat", "X-WR-TIMEZONE:Europe/Paris",
-                    "REFRESH-INTERVAL;VALUE=DURATION:PT12H", "X-PUBLISHED-TTL:PT12H"]
-          for k in sorted(evenements):
-              lignes += evenement(evenements[k])
-          lignes.append("END:VCALENDAR")
-          nouveau = "\r\n".join(plier(l) for l in lignes) + "\r\n"
-
-          fichier = pathlib.Path("agenda/amicale.ics")
-          sans_date = lambda t: re.sub(r"DTSTAMP:\S+", "", t)
-          ancien = fichier.read_bytes().decode("utf-8") if fichier.exists() else ""
-          if sans_date(ancien) == sans_date(nouveau):
-              print("Agenda déjà à jour.")
-          else:
-              fichier.parent.mkdir(exist_ok=True)
-              fichier.write_bytes(nouveau.encode("utf-8"))
-              print("Agenda mis à jour :", len(evenements), "dates.")
-          PY
+      - name: Agenda et notifications
+        env:
+          ONESIGNAL_CLE: ${{ secrets.ONESIGNAL_CLE }}
+          TEST_ENVOI: ${{ inputs.essai }}
+        run: python3 .github/amicale.py
 
       - name: Enregistrer et mettre en ligne
+        if: always()
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if git diff --quiet -- agenda/amicale.ics; then exit 0; fi
+          git add agenda/amicale.ics agenda/notifications.json
+          if git diff --cached --quiet; then exit 0; fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add agenda/amicale.ics
-          git commit -m "Agenda mis à jour automatiquement"
+          git commit -m "Agenda et notifications mis à jour automatiquement"
+          git pull --rebase
           git push
           gh api -X POST "repos/${{ github.repository }}/pages/builds" || true
