@@ -127,6 +127,7 @@ h2 { font: 800 27px/1 var(--titre); text-transform: uppercase; letter-spacing: .
 .tournee select { width: 100%; min-height: 46px; padding: 0 10px; border: 1.5px solid var(--trait); border-radius: 6px; background: var(--carte); color: var(--encre); font: 500 17px var(--texte); }
 .tournee .changer { justify-self: start; min-height: 40px; padding: 0 2px; border: 0; background: none; color: var(--bleu); font: 600 16px var(--texte); cursor: pointer; }
 .date .limite { color: var(--bleu); font-weight: 600; }
+.date .limite.fini { color: var(--doux); }
 .date .evt-txt { flex: 1; }
 .date.lien { text-decoration: none; color: inherit; }
 .date.lien:active { background: var(--fond); }
@@ -416,7 +417,7 @@ function demarrer() {
     .filter(e => ecart(lire(e.date)) >= 0)
     .sort((a, b) => a.date.localeCompare(b.date));
   /* Liste des inscrits : lue en direct dans le Google Sheets publié */
-  const voirInscrits = e => '<button class="btn2" type="button" data-inscrits="' + esc(e.inscrits) + '" data-titre="' + esc(e.titre) + '">Voir les inscrits</button>';
+  const voirInscrits = e => '<button class="btn" type="button" data-inscrits="' + esc(e.inscrits) + '" data-titre="' + esc(e.titre) + '">Inscrits</button>';
   const csv = texte => {
     const lignes = []; let l = [], c = "", q = false;
     for (let i = 0; i < texte.length; i++) {
@@ -488,12 +489,13 @@ function demarrer() {
           '<div class="evt-txt"><h3>' + esc(e.titre) + '</h3><p>' + esc(e.heure) + ', ' + esc(e.lieu) + '</p>' +
           (e.detail ? '<p>' + esc(e.detail) + '</p>' : '') +
           (e.tarif ? '<p>' + esc(e.tarif) + (e.public ? ' ' + esc(e.public) : '') + '.</p>' : '') +
-          (ouverte ? '<p class="limite">Inscription avant le ' + esc(avant(e)) + '</p>' : '') +
+          (e.dernierJour ? (ouverte ? '<p class="limite">Inscription avant le ' + esc(avant(e)) + '</p>' : '<p class="limite fini">Inscriptions terminées</p>') : '') +
           '</div>';
         const carte = '<article class="date">' + corps + '</article>';
         const boutons = [];
-        if (e.affiche) boutons.push('<a class="btn2" target="_blank" rel="noopener" href="' + esc(e.affiche) + '">Voir l\'affiche</a>');
+        /* Ordre voulu par Thomas : S'inscrire, Affiche, Inscrits, tous en rouge */
         if (ouverte && e.lien) boutons.push('<a class="btn" target="_blank" rel="noopener" href="' + esc(e.lien) + '">S\'inscrire</a>');
+        if (e.affiche) boutons.push('<a class="btn" target="_blank" rel="noopener" href="' + esc(e.affiche) + '">Affiche</a>');
         if (e.inscrits) boutons.push(voirInscrits(e));
         return '<div class="bloc">' + carte + (boutons.length ? '<div class="actions">' + boutons.join("") + '</div>' : '') + '</div>';
       }).join("") + '</div>'
@@ -508,7 +510,7 @@ function demarrer() {
     const p = dates[0], n = ecart(lire(p.date)), r = document.getElementById("rebours");
     const quand = net(lire(p.date), { weekday: "long", day: "numeric", month: "long" });
     r.innerHTML =
-      '<span class="compte-j"><b>' + (n === 0 ? "J" : n) + '</b><i>' + (n === 0 ? "aujourd'hui" : n === 1 ? "jour" : "jours") + '</i></span>' +
+      '<span class="compte-j">' + (n > 0 ? '<i>dans</i>' : '') + '<b>' + (n === 0 ? "J" : n) + '</b><i>' + (n === 0 ? "aujourd'hui" : n === 1 ? "jour" : "jours") + '</i></span>' +
       '<span><em>Prochain événement</em><strong>' + esc(p.titre) + '</strong><small>' + esc(quand.charAt(0).toUpperCase() + quand.slice(1) + (p.heure ? ", " + p.heure : "")) + '</small></span>';
     r.hidden = false;
   }
