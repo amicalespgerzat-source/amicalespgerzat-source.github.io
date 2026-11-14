@@ -210,14 +210,6 @@ footer a { color: var(--bleu); font-weight: 500; overflow-wrap: anywhere; }
    Une date passée disparaît toute seule. Les inscriptions s'ajoutent toutes seules à l'agenda.
    affiche : lien de l'affiche. Avec un lien, un clic sur la date l'ouvre. Sans lien, la date n'est pas cliquable. */
 const AGENDA = [
-  {
-    titre: "Sainte-Barbe",
-    date: "2027-01-23",
-    heure: "17 h 30",
-    lieu: "dépôt de gerbes à la caserne",
-    detail: "Cérémonie à 18 h à la caserne, puis repas à la salle Le Galion.",
-    affiche: ""
-  }
 ];
 
 /* Lien du formulaire de la boîte à idées. Vide : le bouton n'apparaît pas. */
@@ -238,6 +230,18 @@ const INSCRIPTIONS = [
     dernierJour: "2026-11-22",
     lien: "https://www.helloasso.com/associations/amicale-des-sapeurs-pompiers-de-gerzat/evenements/arbre-de-noel-2026",
     affiche: "https://drive.google.com/file/d/1c4ay2kV7QhvJTj1iJYlSg1bBIhqPSeF-/view"
+  },
+  {
+    titre: "Sainte-Barbe",
+    date: "2027-01-23",
+    heure: "rendez-vous 16 h 30",
+    lieu: "dépôt de gerbes à la caserne",
+    detail: "Dépôt de gerbes à 17 h 30, cérémonie et pot de l'amitié à 18 h à la caserne, puis repas à la salle Le Galion.",
+    tarif: "Pris en charge par l'amicale",
+    public: "pour tous les sapeurs-pompiers de Gerzat et leur conjoint ou conjointe",
+    dernierJour: "2026-12-29",
+    lien: "https://docs.google.com/forms/d/e/1FAIpQLScwvxXlCNw2t7-bbPux2ko2WJJX-OTDl7Q0GwxmMFnRqcS4wA/viewform",
+    affiche: ""
   }
 ];
 
@@ -328,7 +332,7 @@ function demarrer() {
       "Ça ouvre Google Agenda : touchez Ajouter. Toutes les dates arrivent dans votre agenda, et les nouvelles s'ajoutent ensuite toutes seules.";
   }
   const dates = AGENDA.concat(INSCRIPTIONS.map(e => ({
-      titre: e.titre, date: e.date, heure: e.heure, lieu: e.lieu, detail: e.detail, dernierJour: e.dernierJour, affiche: e.affiche, lien: e.lien
+      titre: e.titre, date: e.date, heure: e.heure, lieu: e.lieu, detail: e.detail, tarif: e.tarif, public: e.public, dernierJour: e.dernierJour, affiche: e.affiche, lien: e.lien
     })))
     .filter(e => ecart(lire(e.date)) >= 0)
     .sort((a, b) => a.date.localeCompare(b.date));
@@ -344,6 +348,7 @@ function demarrer() {
           '<div class="jour">' + esc(net(d, { weekday: "short" })) + '<strong>' + d.getDate() + '</strong>' + esc(net(d, { month: "short" })) + '</div>' +
           '<div class="evt-txt"><h3>' + esc(e.titre) + '</h3><p>' + esc(e.heure) + ', ' + esc(e.lieu) + '</p>' +
           (e.detail ? '<p>' + esc(e.detail) + '</p>' : '') +
+          (e.tarif ? '<p>' + esc(e.tarif) + (e.public ? ' ' + esc(e.public) : '') + '.</p>' : '') +
           (ouverte ? '<p class="limite">Inscription avant le ' + esc(avant(e)) + '</p>' : '') +
           '</div>';
         const carte = '<article class="date">' + corps + '</article>';
