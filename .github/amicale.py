@@ -2,7 +2,8 @@
 # Lancé par GitHub (.github/workflows/agenda.yml). Deux travaux :
 # 1. refaire agenda/amicale.ics, l'agenda auquel les téléphones sont abonnés ;
 # 2. envoyer les notifications automatiques de chaque date :
-#    à l'ajout, 15 jours avant (vers 18 h) et la veille (vers 18 h).
+#    à l'ajout, 15 jours avant (vers 18 h), la veille (vers 18 h),
+#    et pour une inscription, une semaine avant la fin (vers 18 h).
 # Ce qui a déjà été envoyé est noté dans agenda/notifications.json.
 # Les dates viennent des tableaux AGENDA et INSCRIPTIONS de index.html.
 import datetime, json, os, pathlib, re, sys, unicodedata, urllib.request
@@ -170,7 +171,7 @@ for k in sorted(evenements, key=lambda k: evenements[k]["_date"]):
     n = (e["_date"] - aujourdhui).days
     if n < 0:
         continue
-    deja_aujourdhui = any(suivi.get(k + ":" + q) == aujourdhui.isoformat() for q in ("nouveau", "j15", "veille"))
+    deja_aujourdhui = any(suivi.get(k + ":" + q) == aujourdhui.isoformat() for q in ("nouveau", "j15", "relance", "veille"))
 
     # A l'ajout
     if (k + ":nouveau") not in suivi and n >= 1:
@@ -187,15 +188,32 @@ for k in sorted(evenements, key=lambda k: evenements[k]["_date"]):
     annonce = suivi.get(k + ":nouveau", "2000-01-01")
     recente = (e["_date"] - lire(annonce)).days <= 15
     if (k + ":j15") not in suivi and 2 <= n <= 15 and not recente:
-        ok = envoyer(k + ":j15", f"{e['titre']} dans {n} jours",
-                     phrase(jour(e["_date"]), e.get("heure", ""), e.get("lieu", "")) + inscription(e))
+        quand = "deux semaines" if n >= 14 else f"{n} jours"
+        ok = envoyer(k + ":j15", e["titre"],
+                     f"C'est dans {quand} ! " + phrase(jour(e["_date"]), e.get("heure", ""), e.get("lieu", "")) + inscription(e))
         probleme |= not ok
         continue
 
+    # Inscription : une semaine avant la fin, sauf si elle vient d'être annoncée
+    if e.get("dernierJour") and e.get("lien") and (k + ":relance") not in suivi:
+        try:
+            fermeture = lire(e["dernierJour"]) + datetime.timedelta(days=1)
+        except Exception:
+            fermeture = None
+        if fermeture:
+            reste = (fermeture - aujourdhui).days
+            if 2 <= reste <= 7 and (fermeture - lire(annonce)).days > 7:
+                debut = "Plus qu'une semaine pour t'inscrire ! " if reste == 7 else f"Plus que {reste} jours pour t'inscrire ! "
+                ok = envoyer(k + ":relance", e["titre"],
+                             debut + phrase(jour(e["_date"]), e.get("heure", "")) +
+                             " Inscription dans l'appli avant le " + jour(fermeture) + ".")
+                probleme |= not ok
+                continue
+
     # La veille
     if (k + ":veille") not in suivi and n == 1:
-        ok = envoyer(k + ":veille", e["titre"] + " demain",
-                     phrase(e.get("heure", ""), e.get("lieu", "")) + (" " + e["detail"] if e.get("detail") else ""))
+        ok = envoyer(k + ":veille", e["titre"],
+                     "N'oublie pas, c'est demain ! " + phrase(e.get("heure", ""), e.get("lieu", "")) + (" " + e["detail"] if e.get("detail") else ""))
         probleme |= not ok
 
 # On oublie les dates passées depuis plus de 30 jours
