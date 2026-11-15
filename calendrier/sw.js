@@ -1,6 +1,6 @@
 // Calendrier Gerzat : garde une copie de la page et des plans pour marcher sans réseau.
 // Réseau d'abord (toujours la dernière version), copie locale si pas de réseau.
-const CACHE = "calendrier-V13";
+const CACHE = "calendrier-V14";
 const PRE = ["./", "index.html", "config.js", "suivi.html", "logo.png", "favicon.png", "apple-touch-icon.png", "snapshot.json",
   "gerzat.json", "gerzat-plan.json", "gerzat-zones.json", "gerzat-poi.json",
   "aulnat.json", "aulnat-plan.json", "aulnat-zones.json", "aulnat-poi.json",
