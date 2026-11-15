@@ -221,6 +221,8 @@ footer a { color: var(--bleu); font-weight: 500; overflow-wrap: anywhere; }
 #vue-materiel .etapes p, #vue-materiel .etapes .btn { grid-column: 1 / -1; }
 .photo-mat { display: block; width: 100%; height: 160px; object-fit: contain; background: #fff; border-radius: 6px; }
 .titre-liste { margin-top: 22px; margin-bottom: -10px; }
+.avis { padding: 10px 12px; background: var(--carte); border-left: 4px solid var(--rouge); border-radius: 6px; font-size: 16px; line-height: 1.3; }
+.bulle .avis-petit { font-size: 14.5px; line-height: 1.3; color: var(--doux); }
 </style>
 
 <header class="tete">
@@ -237,6 +239,7 @@ footer a { color: var(--bleu); font-weight: 500; overflow-wrap: anywhere; }
 <main class="w" id="vue-installer" hidden>
   <section aria-labelledby="t-inst">
     <h2 id="t-inst">Bienvenue</h2>
+    <p class="avis">Cette appli est réservée aux amicalistes de l'Amicale des Sapeurs-Pompiers de Gerzat. Elle ne doit pas être utilisée ni partagée en dehors de ce cadre.</p>
     <p>Sur téléphone, l'appli s'utilise depuis son icône. Installez-la, c'est gratuit et ça prend une minute. Déjà installée ? Ouvrez-la depuis son icône.</p>
     <p class="attente-choix" id="i-installee" hidden>C'est installé. Ouvrez maintenant l'appli avec l'icône de l'amicale sur votre écran d'accueil.</p>
     <ol class="etapes">
@@ -295,6 +298,7 @@ footer a { color: var(--bleu); font-weight: 500; overflow-wrap: anywhere; }
   <div class="bulle" role="dialog" aria-modal="true" aria-labelledby="bulle-titre">
     <h2 id="bulle-titre">Le code</h2>
     <p>Le code de l'appli, c'est <strong>le code du portail</strong>.</p>
+    <p class="avis-petit">Cette appli est réservée aux amicalistes de l'Amicale des Sapeurs-Pompiers de Gerzat. Elle ne doit pas être utilisée ni partagée en dehors de ce cadre.</p>
     <button class="btn" id="bulle-ok" type="button">OK</button>
   </div>
 </div>
