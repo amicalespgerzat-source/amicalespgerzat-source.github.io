@@ -1046,6 +1046,7 @@ function zoomAt(f, X, Y) {
 }
 function hexA(hex, a) { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16 & 255},${n >> 8 & 255},${n & 255},${a})`; }
 
+const ZOOM_ETAT = 0.6; // en dessous, le plan montre seulement les couleurs des tournées
 function draw() {
   if (!W) return;
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
@@ -1183,33 +1184,35 @@ function draw() {
     ctx.beginPath(); ctx.roundRect ? ctx.roundRect(X - w / 2, Y - 14, w, 28, 6) : ctx.rect(X - w / 2, Y - 14, w, 28); ctx.fill();
     ctx.fillStyle = "#fff"; ctx.fillText(s.name, X, Y + 1); ctx.globalAlpha = 1;
   }
-  // adresses cochées (fait) et à repasser
-  if (S.view === "plan" && S.data) {
-    const DM = doneMap();
-    if (DM.size) {
-      const rr = Math.max(r, 3);
-      for (const st of [1, 2]) {
-        const vis = [];
-        for (let i = 0; i < pts.length; i++) {
-          if (DM.get(akey(i)) !== st) continue;
-          const X = sx(pts[i][0]), Y = sy(pts[i][1]); if (X < -10 || Y < -10 || X > W + 10 || Y > H + 10) continue;
-          vis.push(X, Y);
-        }
-        if (!vis.length) continue;
-        ctx.fillStyle = st === 1 ? "#ffffff" : "#e08a1e"; ctx.strokeStyle = st === 1 ? "#3b4148" : "#8a5209"; ctx.lineWidth = 1.2;
-        ctx.beginPath();
-        for (let k = 0; k < vis.length; k += 2) { ctx.moveTo(vis[k] + rr, vis[k + 1]); ctx.arc(vis[k], vis[k + 1], rr, 0, 6.2832); }
-        ctx.fill(); ctx.stroke();
-        if (rr >= 4.5) {
-          ctx.beginPath(); ctx.lineWidth = 1.6; ctx.strokeStyle = st === 1 ? "#3b4148" : "#ffffff";
-          for (let k = 0; k < vis.length; k += 2) {
-            const X = vis[k], Y = vis[k + 1];
-            if (st === 1) { ctx.moveTo(X - rr * 0.5, Y); ctx.lineTo(X - rr * 0.1, Y + rr * 0.45); ctx.lineTo(X + rr * 0.55, Y - rr * 0.45); }
-            else { ctx.moveTo(X, Y - rr * 0.5); ctx.lineTo(X, Y + rr * 0.12); ctx.moveTo(X, Y + rr * 0.42); ctx.lineTo(X, Y + rr * 0.5); }
-          }
-          ctx.stroke();
-        }
+  // état des adresses, seulement quand on zoome sur les rues : vert = fait, orange = à repasser, gris = pas encore fait
+  if (S.view === "plan" && S.data && sc >= ZOOM_ETAT) {
+    const DM = doneMap(), rr = Math.max(r * 1.2, 4.6);
+    const STY = { 0: ["#8f98a3", "#ffffff"], 1: ["#2f9e55", "#ffffff"], 2: ["#f08c00", "#ffffff"] };
+    for (const st of [0, 1, 2]) for (const dim of [true, false]) {
+      const vis = [];
+      for (let i = 0; i < pts.length; i++) {
+        if (A[i] === ".") continue;
+        if ((DM.get(akey(i)) || 0) !== st) continue;
+        if (!!(focus && focus !== A[i]) !== dim) continue;
+        const X = sx(pts[i][0]), Y = sy(pts[i][1]); if (X < -10 || Y < -10 || X > W + 10 || Y > H + 10) continue;
+        vis.push(X, Y);
       }
+      if (!vis.length) continue;
+      ctx.globalAlpha = dim ? 0.45 : 1;
+      ctx.fillStyle = STY[st][0]; ctx.strokeStyle = STY[st][1]; ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      for (let k = 0; k < vis.length; k += 2) { ctx.moveTo(vis[k] + rr, vis[k + 1]); ctx.arc(vis[k], vis[k + 1], rr, 0, 6.2832); }
+      ctx.fill(); ctx.stroke();
+      if (st && rr >= 4.5) {
+        ctx.beginPath(); ctx.lineWidth = 1.6; ctx.strokeStyle = "#ffffff";
+        for (let k = 0; k < vis.length; k += 2) {
+          const X = vis[k], Y = vis[k + 1];
+          if (st === 1) { ctx.moveTo(X - rr * 0.5, Y); ctx.lineTo(X - rr * 0.1, Y + rr * 0.45); ctx.lineTo(X + rr * 0.55, Y - rr * 0.45); }
+          else { ctx.moveTo(X, Y - rr * 0.5); ctx.lineTo(X, Y + rr * 0.12); ctx.moveTo(X, Y + rr * 0.42); ctx.lineTo(X, Y + rr * 0.5); }
+        }
+        ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
     }
   }
   // ordre de passage de la tournée ouverte
