@@ -4,6 +4,9 @@
 # 2. envoyer les notifications automatiques de chaque date :
 #    à l'ajout, 15 jours avant (vers 18 h), la veille (vers 18 h),
 #    et pour une inscription, une semaine avant la fin (vers 18 h).
+# Pas de notification le samedi ni le dimanche, sauf celle de la veille :
+# un rappel qui tomberait le week-end part le vendredi d'avant,
+# une nouvelle date ajoutée le week-end est annoncée le lundi.
 # Ce qui a déjà été envoyé est noté dans agenda/notifications.json.
 # Les dates viennent des tableaux AGENDA et INSCRIPTIONS de index.html.
 import datetime, json, os, pathlib, re, sys, unicodedata, urllib.request
@@ -163,6 +166,13 @@ if os.environ.get("TEST_ENVOI") == "true":    # bouton Run workflow, case coché
         sys.exit(1)
 
 journee = 8 <= maintenant.hour < 21          # pas de notification la nuit
+week_end = aujourdhui.weekday() >= 5          # samedi ou dimanche
+
+
+def avancer(d):
+    """Un rappel prévu le samedi ou le dimanche part le vendredi d'avant."""
+    return d - datetime.timedelta(days=max(0, d.weekday() - 4))
+
 soir = maintenant.hour >= 18 and EVENEMENT != "push"
 probleme = False
 
@@ -175,7 +185,7 @@ for k in sorted(evenements, key=lambda k: evenements[k]["_date"]):
 
     # A l'ajout
     if (k + ":nouveau") not in suivi and n >= 1:
-        if journee:
+        if journee and not week_end:
             ok = envoyer(k + ":nouveau", "Nouvelle date : " + e["titre"],
                          phrase(jour(e["_date"]), e.get("heure", ""), e.get("lieu", "")) + inscription(e))
             probleme |= not ok
@@ -184,10 +194,20 @@ for k in sorted(evenements, key=lambda k: evenements[k]["_date"]):
     if deja_aujourdhui or not soir:
         continue
 
+    # La veille, même le week-end
+    if (k + ":veille") not in suivi and n == 1:
+        ok = envoyer(k + ":veille", e["titre"],
+                     "N'oublie pas, c'est demain ! " + phrase(e.get("heure", ""), e.get("lieu", "")) + (" " + e["detail"] if e.get("detail") else ""))
+        probleme |= not ok
+        continue
+
+    if week_end:
+        continue
+
     # 15 jours avant, sauf si la date vient d'être annoncée
     annonce = suivi.get(k + ":nouveau", "2000-01-01")
     recente = (e["_date"] - lire(annonce)).days <= 15
-    if (k + ":j15") not in suivi and 2 <= n <= 15 and not recente:
+    if (k + ":j15") not in suivi and n >= 2 and aujourdhui >= avancer(e["_date"] - datetime.timedelta(days=15)) and not recente:
         quand = "deux semaines" if n >= 14 else f"{n} jours"
         ok = envoyer(k + ":j15", e["titre"],
                      f"C'est dans {quand} ! " + phrase(jour(e["_date"]), e.get("heure", ""), e.get("lieu", "")) + inscription(e))
@@ -202,19 +222,13 @@ for k in sorted(evenements, key=lambda k: evenements[k]["_date"]):
             fermeture = None
         if fermeture:
             reste = (fermeture - aujourdhui).days
-            if 2 <= reste <= 7 and (fermeture - lire(annonce)).days > 7:
-                debut = "Plus qu'une semaine pour t'inscrire ! " if reste == 7 else f"Plus que {reste} jours pour t'inscrire ! "
+            if reste >= 2 and aujourdhui >= avancer(fermeture - datetime.timedelta(days=7)) and (fermeture - lire(annonce)).days > 7:
+                debut = "Plus qu'une semaine pour t'inscrire ! " if reste >= 7 else f"Plus que {reste} jours pour t'inscrire ! "
                 ok = envoyer(k + ":relance", e["titre"],
                              debut + phrase(jour(e["_date"]), e.get("heure", "")) +
                              " Inscription dans l'appli avant le " + jour(fermeture) + ".")
                 probleme |= not ok
                 continue
-
-    # La veille
-    if (k + ":veille") not in suivi and n == 1:
-        ok = envoyer(k + ":veille", e["titre"],
-                     "N'oublie pas, c'est demain ! " + phrase(e.get("heure", ""), e.get("lieu", "")) + (" " + e["detail"] if e.get("detail") else ""))
-        probleme |= not ok
 
 # On oublie les dates passées depuis plus de 30 jours
 garder = {}
