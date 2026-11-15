@@ -566,6 +566,13 @@ function demarrer() {
     montrer();
   }
 
+  /* Bienvenue : rappel que l'appli est réservée aux amicalistes */
+  {
+    const h = document.querySelector("#vue-bienvenue h2");
+    if (h && !document.getElementById("avis-bienvenue"))
+      h.insertAdjacentHTML("afterend", '<p class="avis" id="avis-bienvenue">Cette appli est réservée aux amicalistes de l\'Amicale des Sapeurs-Pompiers de Gerzat. Elle ne doit pas être utilisée ni partagée en dehors de ce cadre.</p>');
+  }
+
   /* Matériel : photo de la table mange-debout en haut du bloc tarifs */
   {
     const t = document.querySelector("#vue-materiel .tarifs");
