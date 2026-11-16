@@ -54,6 +54,12 @@ a.btn { background: var(--rouge); color: #fff; border: 2px solid rgba(255,255,25
 section h2 { font: 800 26px/1 var(--font-titre); text-transform: uppercase; letter-spacing: .03em; align-items: baseline; }
 section h2 small { font-family: Barlow, system-ui, sans-serif; }
 td.nm a { font: 800 21px/1 var(--font-titre); letter-spacing: .02em; }
+/* Bilan de fin de campagne : bouton de téléchargement du tableau */
+.bilan { display: flex; align-items: center; gap: 10px 14px; flex-wrap: wrap; margin: 0 0 14px; }
+.bilan button { display: inline-flex; align-items: center; gap: 8px; background: var(--rouge); color: #fff; border: 0; border-radius: 999px; padding: 9px 16px; font: 800 18px/1 var(--font-titre); text-transform: uppercase; letter-spacing: .04em; cursor: pointer; }
+.bilan button:hover { background: #b81d24; }
+.bilan button svg { width: 18px; height: 18px; }
+.bilan small { color: var(--muted); font-size: 13px; }
 </style>
 </head><body>
 <header>
@@ -63,6 +69,10 @@ td.nm a { font: 800 21px/1 var(--font-titre); letter-spacing: .02em; }
 </header>
 <main>
   <p class="info" id="info">Chargement…</p>
+  <div class="bilan" id="bilanBox" hidden>
+    <button id="bilan" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Télécharger le bilan</button>
+    <small>Tableau par tournée (adresses, faites, à repasser), à ouvrir dans Excel ou Google Sheets. Aucun nom.</small>
+  </div>
   <div id="out"></div>
 </main>
 <script>
@@ -74,6 +84,7 @@ const FB = (window.COCHES_FB || "").trim().replace(/\/+$/, "");
 const esc = t => String(t).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const fmt = n => n.toLocaleString("fr-FR");
 let BASE = null;
+let BILAN = null;   // dernières valeurs lues, pour le bilan à télécharger
 
 async function getJson(u) { const r = await fetch(u, { cache: "no-store" }); if (!r.ok) throw new Error(u + " " + r.status); return r.json(); }
 
@@ -96,6 +107,7 @@ async function refresh() {
   try {
     if (!BASE) BASE = await loadBase();
     let html = "", gT = 0, gD = 0, gR = 0;
+    const lignes = [];
     for (const [id, name] of COMMUNES) {
       const B = BASE[id];
       const j = (await getJson(FB + "/coches/" + id + ".json")) || {};
@@ -108,21 +120,43 @@ async function refresh() {
       const rows = B.sectors.map(s => {
         const n = B.tot[s.c] || 0, nd = d[s.c] || 0, nr = r[s.c] || 0;
         cT += n; cD += nd; cR += nr;
+        lignes.push([name, s.name, n, nd, nr]);
         const pd = n ? 100 * nd / n : 0, pr = n ? 100 * nr / n : 0, col = PALETTE[(s.color || 0) % PALETTE.length];
         return `<tr><td class="nm"><span class="sw" style="background:${col}"></span><a href="./#${id}-${encodeURIComponent(s.name)}">${esc(s.name)}</a></td>
           <td class="n hide">${fmt(n)}</td><td class="n">${fmt(nd)}</td><td class="n${nr ? " rp" : ""}">${fmt(nr)}</td>
           <td class="pc"><div class="bar"><i style="left:0;width:${pd.toFixed(1)}%;background:#2f9e55"></i><i class="rep" style="left:${pd.toFixed(1)}%;width:${pr.toFixed(1)}%"></i></div><span>${Math.round(pd)} %${n && nd === n ? " · terminée" : ""}</span></td></tr>`;
       }).join("");
       gT += cT; gD += cD; gR += cR;
+      lignes.push([name, "Total " + name, cT, cD, cR]);
       html += `<section><h2>${name} <small>${Math.round(cT ? 100 * cD / cT : 0)} % faites · ${fmt(cR)} à repasser</small></h2>
         <table><thead><tr><th>Tournée</th><th class="n hide">Adresses</th><th class="n">Faites</th><th class="n">À repasser</th><th>Avancement</th></tr></thead><tbody>${rows}</tbody></table></section>`;
     }
     outEl.innerHTML = html;
+    lignes.push(["Toutes communes", "Total", gT, gD, gR]);
+    BILAN = { lignes, quand: new Date() };
+    document.getElementById("bilanBox").hidden = false;
     info.innerHTML = `Toutes communes : <b>${Math.round(gT ? 100 * gD / gT : 0)} %</b> des adresses faites (${fmt(gD)} sur ${fmt(gT)}), <b>${fmt(gR)}</b> à repasser. Mis à jour à ${new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}, rafraîchi toutes les 30 secondes.`;
   } catch (e) {
     info.innerHTML = `<span class="err">Impossible de lire les coches pour l'instant (réseau ?). Nouvel essai dans 30 secondes.</span>`;
   }
 }
+/* Bilan de fin de campagne : fichier CSV (point-virgule, pour Excel et Google Sheets en français) */
+function telechargerBilan() {
+  if (!BILAN) return;
+  const q = v => { const t = String(v); return /[;"\n]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t; };
+  const pc = (a, n) => n ? (100 * a / n).toFixed(1).replace(".", ",") : "0";
+  const rows = [["Commune", "Tournée", "Adresses", "Faites", "À repasser", "Pas faites", "% faites", "% à repasser"]];
+  for (const [c, t, n, d, r] of BILAN.lignes) rows.push([c, t, n, d, r, Math.max(0, n - d - r), pc(d, n), pc(r, n)]);
+  const w = BILAN.quand, jour = w.toLocaleDateString("fr-FR"), heure = w.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+  rows.push([], ["Bilan de la tournée des calendriers, Amicale des sapeurs-pompiers de Gerzat"], ["Coches lues le " + jour + " à " + heure]);
+  const csv = "\ufeff" + rows.map(r => r.map(q).join(";")).join("\r\n") + "\r\n";
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+  a.download = "Bilan calendriers " + jour.replace(/\//g, "-") + ".csv";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+}
+document.getElementById("bilan").onclick = telechargerBilan;
 refresh();
 setInterval(() => { if (!document.hidden) refresh(); }, 30000);
 document.addEventListener("visibilitychange", () => { if (!document.hidden) refresh(); });
