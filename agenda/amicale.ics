@@ -9,7 +9,7 @@ REFRESH-INTERVAL;VALUE=DURATION:PT12H
 X-PUBLISHED-TTL:PT12H
 BEGIN:VEVENT
 UID:2026-12-05-arbre-de-noel@amicalespgerzat-source.github.io
-DTSTAMP:20261117T123626Z
+DTSTAMP:20261117T160539Z
 DTSTART:20261205T160000
 DTEND:20261205T180000
 SUMMARY:Arbre de Noël
@@ -20,15 +20,15 @@ DESCRIPTION:dès 16 h\nGoûter\, distribution des cadeaux et film d'animat
 END:VEVENT
 BEGIN:VEVENT
 UID:2027-01-23-sainte-barbe@amicalespgerzat-source.github.io
-DTSTAMP:20261117T123626Z
+DTSTAMP:20261117T160539Z
 DTSTART:20270123T163000
 DTEND:20270123T183000
 SUMMARY:Sainte-Barbe
 LOCATION:à la caserne
 DESCRIPTION:rendez-vous 16 h 30\n14 h : installation de la salle Le Galion
- \, pour ceux qui peuvent aider. 16 h 30 : préparation de la cérémonie. 
- 17 h 30 : dépôt de gerbes. 18 h : pot de l'amitié à la caserne\, puis 
- repas à la salle Le Galion.\nAffiche : https://amicalespgerzat-source.git
- hub.io/affiches/sainte-barbe-2027.jpg
+ \, pour ceux qui peuvent aider.\n16 h 30 : préparation de la cérémonie.
+ \n17 h 30 : dépôt de gerbes.\n18 h : pot de l'amitié à la caserne\,\nP
+ uis repas à la salle Le Galion.\nAffiche : https://amicalespgerzat-source
+ .github.io/affiches/sainte-barbe-2027.jpg
 END:VEVENT
 END:VCALENDAR
