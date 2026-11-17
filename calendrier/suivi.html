@@ -58,6 +58,7 @@ td.nm a { font: 800 21px/1 var(--font-titre); letter-spacing: .02em; }
 .bilan { display: flex; align-items: center; gap: 10px 14px; flex-wrap: wrap; margin: 0 0 14px; }
 .bilan button { display: inline-flex; align-items: center; gap: 8px; background: var(--rouge); color: #fff; border: 0; border-radius: 999px; padding: 9px 16px; font: 800 18px/1 var(--font-titre); text-transform: uppercase; letter-spacing: .04em; cursor: pointer; }
 .bilan button:hover { background: #b81d24; }
+.bilan button:disabled { opacity: .6; cursor: wait; }
 .bilan button svg { width: 18px; height: 18px; }
 .bilan small { color: var(--muted); font-size: 13px; }
 </style>
@@ -70,8 +71,9 @@ td.nm a { font: 800 21px/1 var(--font-titre); letter-spacing: .02em; }
 <main>
   <p class="info" id="info">Chargement…</p>
   <div class="bilan" id="bilanBox" hidden>
-    <button id="bilan" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Télécharger le bilan</button>
-    <small>Tableau par tournée (adresses, faites, à repasser), à ouvrir dans Excel ou Google Sheets. Aucun nom.</small>
+    <button id="bilanXlsx" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Bilan Excel</button>
+    <button id="bilanPdf" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Bilan PDF</button>
+    <small id="bilanTxt">Bilan détaillé par tournée, mis en page. Aucun nom.</small>
   </div>
   <div id="out"></div>
 </main>
@@ -120,7 +122,7 @@ async function refresh() {
       const rows = B.sectors.map(s => {
         const n = B.tot[s.c] || 0, nd = d[s.c] || 0, nr = r[s.c] || 0;
         cT += n; cD += nd; cR += nr;
-        lignes.push([name, s.name, n, nd, nr]);
+        lignes.push([name, s.name, n, nd, nr, PALETTE[(s.color || 0) % PALETTE.length]]);
         const pd = n ? 100 * nd / n : 0, pr = n ? 100 * nr / n : 0, col = PALETTE[(s.color || 0) % PALETTE.length];
         return `<tr><td class="nm"><span class="sw" style="background:${col}"></span><a href="./#${id}-${encodeURIComponent(s.name)}">${esc(s.name)}</a></td>
           <td class="n hide">${fmt(n)}</td><td class="n">${fmt(nd)}</td><td class="n${nr ? " rp" : ""}">${fmt(nr)}</td>
@@ -140,23 +142,238 @@ async function refresh() {
     info.innerHTML = `<span class="err">Impossible de lire les coches pour l'instant (réseau ?). Nouvel essai dans 30 secondes.</span>`;
   }
 }
-/* Bilan de fin de campagne : fichier CSV (point-virgule, pour Excel et Google Sheets en français) */
-function telechargerBilan() {
-  if (!BILAN) return;
-  const q = v => { const t = String(v); return /[;"\n]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t; };
-  const pc = (a, n) => n ? (100 * a / n).toFixed(1).replace(".", ",") : "0";
-  const rows = [["Commune", "Tournée", "Adresses", "Faites", "À repasser", "Pas faites", "% faites", "% à repasser"]];
-  for (const [c, t, n, d, r] of BILAN.lignes) rows.push([c, t, n, d, r, Math.max(0, n - d - r), pc(d, n), pc(r, n)]);
-  const w = BILAN.quand, jour = w.toLocaleDateString("fr-FR"), heure = w.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
-  rows.push([], ["Bilan de la tournée des calendriers, Amicale des sapeurs-pompiers de Gerzat"], ["Coches lues le " + jour + " à " + heure]);
-  const csv = "\ufeff" + rows.map(r => r.map(q).join(";")).join("\r\n") + "\r\n";
+/* Bilan de fin de campagne : Excel et PDF mis en page, fabriqués dans le navigateur avec les coches lues */
+const LIBS = {
+  xlsx: ["https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"],
+  pdf: ["https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js", "https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"]
+};
+const charge = {};
+function script(u) {
+  return charge[u] || (charge[u] = new Promise((ok, ko) => { const s = document.createElement("script"); s.src = u; s.onload = ok; s.onerror = () => { delete charge[u]; ko(new Error(u)); }; document.head.appendChild(s); }));
+}
+async function libs(k) { for (const u of LIBS[k]) await script(u); }
+const nb = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+const NUIT = "14244B", ROUGE = "D3222A", CITRON = "D8E021", VERT = "2F9E55", ORANGE = "F08C00", GRIS = "EEF2F9";
+/* Données du bilan : communes, tournées, totaux */
+function donnees() {
+  const communes = [];
+  let cur = null;
+  for (const [c, t, n, d, r, col] of BILAN.lignes) {
+    if (c === "Toutes communes") continue;
+    if (!cur || cur.nom !== c) { cur = { nom: c, tournees: [], tot: null }; communes.push(cur); }
+    const l = { nom: t, n, d, r, p: Math.max(0, n - d - r), col: col || "#999999" };
+    if (t === "Total " + c) cur.tot = l; else cur.tournees.push(l);
+  }
+  const g = BILAN.lignes[BILAN.lignes.length - 1];
+  const tot = { nom: "Toutes communes", n: g[2], d: g[3], r: g[4], p: Math.max(0, g[2] - g[3] - g[4]) };
+  const w = BILAN.quand;
+  return { communes, tot, jour: w.toLocaleDateString("fr-FR"), heure: w.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }) };
+}
+async function logo() {
+  const r = await fetch("logo.png"); const b = await r.blob();
+  return new Promise(ok => { const f = new FileReader(); f.onload = () => ok(f.result); f.readAsDataURL(b); });
+}
+function enregistrer(blob, nom) {
   const a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
-  a.download = "Bilan calendriers " + jour.replace(/\//g, "-") + ".csv";
+  a.href = URL.createObjectURL(blob); a.download = nom;
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 10000);
 }
-document.getElementById("bilan").onclick = telechargerBilan;
+async function bilanExcel() {
+  await libs("xlsx");
+  const D = donnees(), img = await logo();
+  const wb = new ExcelJS.Workbook();
+  wb.creator = "Amicale des sapeurs-pompiers de Gerzat";
+  const idLogo = wb.addImage({ base64: img, extension: "png" });
+  const fin = { style: "thin", color: { argb: "FFD6DEEC" } };
+  const bord = { top: fin, left: fin, bottom: fin, right: fin };
+  const tete = (ws, row) => row.eachCell(c => {
+    c.font = { bold: true, color: { argb: "FFFFFFFF" }, size: 11 };
+    c.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF" + NUIT } };
+    c.alignment = { vertical: "middle", horizontal: c.col > 2 ? "center" : "left", wrapText: true };
+    c.border = bord;
+  });
+  const entete = (ws, titre, larg) => {
+    ws.addImage(idLogo, { tl: { col: 0.15, row: 0.15 }, ext: { width: 62, height: 62 } });
+    ws.mergeCells(1, 2, 1, larg); ws.mergeCells(2, 2, 2, larg); ws.mergeCells(3, 2, 3, larg);
+    ws.getCell(1, 2).value = "Bilan de la tournée des calendriers";
+    ws.getCell(1, 2).font = { bold: true, size: 18, color: { argb: "FF" + NUIT } };
+    ws.getCell(2, 2).value = titre + ", Amicale des sapeurs-pompiers de Gerzat";
+    ws.getCell(2, 2).font = { size: 12, color: { argb: "FF55617C" } };
+    ws.getCell(3, 2).value = "Coches lues le " + D.jour + " à " + D.heure;
+    ws.getCell(3, 2).font = { italic: true, size: 10, color: { argb: "FF55617C" } };
+    ws.getRow(1).height = 26; ws.getRow(2).height = 18; ws.getRow(3).height = 16; ws.getRow(4).height = 8;
+  };
+  const ligne = (ws, vals, opt) => {
+    const row = ws.addRow(vals);
+    row.height = 20;
+    row.eachCell({ includeEmpty: true }, c => {
+      c.border = bord; c.alignment = { vertical: "middle", horizontal: c.col > 2 ? "right" : "left" };
+      if (opt.gras) c.font = { bold: true };
+      if (opt.fond) c.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF" + opt.fond } };
+    });
+    return row;
+  };
+  const pcts = (row, cP, cR) => { row.getCell(cP).numFmt = "0%"; row.getCell(cR).numFmt = "0%"; };
+
+  /* Feuille 1 : synthèse par commune */
+  const s1 = wb.addWorksheet("Synthèse", { views: [{ showGridLines: false }], pageSetup: { orientation: "portrait", fitToPage: true, fitToWidth: 1, fitToHeight: 0 } });
+  s1.columns = [{ width: 11 }, { width: 22 }, { width: 12 }, { width: 12 }, { width: 13 }, { width: 12 }, { width: 12 }, { width: 14 }];
+  entete(s1, "Synthèse par commune", 8);
+  tete(s1, s1.addRow(["", "Commune", "Adresses", "Faites", "À repasser", "Pas faites", "% faites", "% à repasser"]));
+  s1.getRow(5).height = 30;
+  s1.getCell(5, 1).fill = { type: "pattern", pattern: "none" }; s1.getCell(5, 1).border = {};
+  const l0 = 6;
+  for (const c of D.communes) { const t = c.tot; const r = ligne(s1, ["", c.nom, t.n, t.d, t.r, t.p, t.n ? t.d / t.n : 0, t.n ? t.r / t.n : 0], {}); pcts(r, 7, 8); r.getCell(2).font = { bold: true }; }
+  const rt = ligne(s1, ["", "Toutes communes", D.tot.n, D.tot.d, D.tot.r, D.tot.p, D.tot.n ? D.tot.d / D.tot.n : 0, D.tot.n ? D.tot.r / D.tot.n : 0], { gras: true, fond: "FFF6C2" });
+  pcts(rt, 7, 8);
+  [3, 4, 5, 6].forEach(k => { for (let i = l0; i <= rt.number; i++) s1.getCell(i, k).numFmt = "# ##0"; });
+  for (let i = l0; i <= rt.number; i++) { s1.getCell(i, 1).border = {}; s1.getCell(i, 1).fill = { type: "pattern", pattern: "none" }; }
+
+  /* Feuille 2 : détail par tournée */
+  const s2 = wb.addWorksheet("Détail par tournée", { views: [{ showGridLines: false, state: "frozen", ySplit: 5 }], pageSetup: { orientation: "portrait", fitToPage: true, fitToWidth: 1, fitToHeight: 0, printTitlesRow: "5:5" } });
+  s2.columns = [{ width: 11 }, { width: 22 }, { width: 12 }, { width: 12 }, { width: 13 }, { width: 12 }, { width: 12 }, { width: 14 }];
+  entete(s2, "Détail par tournée", 8);
+  tete(s2, s2.addRow(["Commune", "Tournée", "Adresses", "Faites", "À repasser", "Pas faites", "% faites", "% à repasser"]));
+  s2.getRow(5).height = 30;
+  let debut = 6;
+  for (const c of D.communes) {
+    const d0 = s2.rowCount + 1;
+    for (const t of c.tournees) {
+      const r = ligne(s2, [c.nom, t.nom, t.n, t.d, t.r, t.p, t.n ? t.d / t.n : 0, t.n ? t.r / t.n : 0], {});
+      pcts(r, 7, 8);
+      r.getCell(2).fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF" + t.col.replace("#", "").toUpperCase() } };
+      r.getCell(2).font = { bold: true, color: { argb: "FFFFFFFF" } };
+      if (t.r) r.getCell(5).font = { bold: true, color: { argb: "FF" + ORANGE } };
+    }
+    const t = c.tot;
+    const rt2 = ligne(s2, [c.nom, "Total " + c.nom, t.n, t.d, t.r, t.p, t.n ? t.d / t.n : 0, t.n ? t.r / t.n : 0], { gras: true, fond: GRIS });
+    pcts(rt2, 7, 8);
+    s2.mergeCells(d0, 1, rt2.number, 1);
+    const cc = s2.getCell(d0, 1); cc.alignment = { vertical: "middle", horizontal: "center", textRotation: 0 }; cc.font = { bold: true, color: { argb: "FF" + NUIT } };
+  }
+  const rg = ligne(s2, ["", "Toutes communes", D.tot.n, D.tot.d, D.tot.r, D.tot.p, D.tot.n ? D.tot.d / D.tot.n : 0, D.tot.n ? D.tot.r / D.tot.n : 0], { gras: true, fond: "FFF6C2" });
+  pcts(rg, 7, 8);
+  [3, 4, 5, 6].forEach(k => { for (let i = debut; i <= rg.number; i++) s2.getCell(i, k).numFmt = "# ##0"; });
+  s2.addRow([]); s2.addRow(["Aucun nom d'habitant ni de donateur dans ce document."]).getCell(1).font = { italic: true, size: 9, color: { argb: "FF55617C" } };
+
+  const buf = await wb.xlsx.writeBuffer();
+  enregistrer(new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), "Bilan calendriers " + D.jour.replace(/\//g, "-") + ".xlsx");
+}
+async function bilanPdf() {
+  await libs("pdf");
+  const D = donnees(), img = await logo();
+  const doc = new jspdf.jsPDF({ unit: "mm", format: "a4" });
+  const W = 210, M = 14;
+  const rgb = h => [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+  const hx = c => c.replace("#", "");
+  const pc = (a, n) => n ? Math.round(100 * a / n) + " %" : "0 %";
+  /* Bandeau */
+  doc.setFillColor(...rgb(NUIT)); doc.rect(0, 0, W, 34, "F");
+  for (let x = -10, i = 0; x < W + 10; x += 6, i++) { doc.setFillColor(...rgb(i % 2 ? CITRON : ROUGE)); doc.rect(x, 34, 6, 2.2, "F"); }
+  doc.addImage(img, "PNG", M, 5, 24, 24);
+  doc.setTextColor(255, 255, 255); doc.setFont("helvetica", "bold"); doc.setFontSize(20);
+  doc.text("BILAN DE LA TOURNÉE DES CALENDRIERS", M + 30, 16);
+  doc.setFont("helvetica", "normal"); doc.setFontSize(11);
+  doc.text("Amicale des sapeurs-pompiers de Gerzat", M + 30, 23);
+  doc.text("Coches lues le " + D.jour + " à " + D.heure, M + 30, 29);
+  /* Chiffres clés */
+  let y = 46;
+  const cases = [["Adresses", nb(D.tot.n), NUIT], ["Faites", nb(D.tot.d) + "  (" + pc(D.tot.d, D.tot.n) + ")", VERT], ["À repasser", nb(D.tot.r), ORANGE], ["Pas faites", nb(D.tot.p), ROUGE]];
+  const cw = (W - 2 * M - 3 * 4) / 4;
+  cases.forEach(([t, v, c], i) => {
+    const x = M + i * (cw + 4);
+    doc.setFillColor(...rgb(GRIS)); doc.roundedRect(x, y, cw, 22, 2, 2, "F");
+    doc.setFillColor(...rgb(c)); doc.rect(x, y, 1.6, 22, "F");
+    doc.setTextColor(85, 97, 124); doc.setFont("helvetica", "normal"); doc.setFontSize(9); doc.text(t.toUpperCase(), x + 5, y + 7);
+    doc.setTextColor(...rgb(c)); doc.setFont("helvetica", "bold"); doc.setFontSize(14); doc.text(v, x + 5, y + 16);
+  });
+  /* Barre d'avancement générale */
+  y += 28;
+  const bw = W - 2 * M;
+  doc.setFillColor(...rgb(GRIS)); doc.roundedRect(M, y, bw, 5, 2.5, 2.5, "F");
+  const fd = D.tot.n ? D.tot.d / D.tot.n : 0, fr = D.tot.n ? D.tot.r / D.tot.n : 0;
+  if (fd) { doc.setFillColor(...rgb(VERT)); doc.rect(M, y, bw * fd, 5, "F"); }
+  if (fr) { doc.setFillColor(...rgb(ORANGE)); doc.rect(M + bw * fd, y, bw * fr, 5, "F"); }
+  y += 12;
+  /* Synthèse par commune */
+  const titre = (t) => { doc.setTextColor(...rgb(NUIT)); doc.setFont("helvetica", "bold"); doc.setFontSize(13); doc.text(t.toUpperCase(), M, y); y += 3; };
+  const styles = {
+    theme: "grid", margin: { left: M, right: M, bottom: 18 },
+    styles: { font: "helvetica", fontSize: 9.5, cellPadding: 2.2, lineColor: rgb("D6DEEC"), lineWidth: 0.2, textColor: rgb("131D35") },
+    headStyles: { fillColor: rgb(NUIT), textColor: 255, fontStyle: "bold", halign: "center" },
+    columnStyles: { 0: { halign: "left" }, 1: { halign: "right" }, 2: { halign: "right" }, 3: { halign: "right" }, 4: { halign: "right" }, 5: { halign: "left", cellWidth: 46 } }
+  };
+  const barre = (data, lignesInfo) => {
+    if (data.section !== "body" || data.column.index !== 5) return;
+    const l = lignesInfo[data.row.index]; if (!l) return;
+    const c = data.cell, x = c.x + 2, w = c.width - 16, h = 3, yy = c.y + c.height / 2 - h / 2;
+    doc.setFillColor(...rgb(GRIS)); doc.rect(x, yy, w, h, "F");
+    const a = l.n ? l.d / l.n : 0, b = l.n ? l.r / l.n : 0;
+    if (a) { doc.setFillColor(...rgb(VERT)); doc.rect(x, yy, w * a, h, "F"); }
+    if (b) { doc.setFillColor(...rgb(ORANGE)); doc.rect(x + w * a, yy, w * b, h, "F"); }
+    doc.setFontSize(8.5); doc.setTextColor(19, 29, 53); doc.setFont("helvetica", l.gras ? "bold" : "normal");
+    doc.text(pc(l.d, l.n), c.x + c.width - 2, c.y + c.height / 2 + 1.2, { align: "right" });
+  };
+  titre("Synthèse par commune");
+  const infoS = D.communes.map(c => c.tot).concat([Object.assign({ gras: true }, D.tot)]);
+  doc.autoTable(Object.assign({}, styles, {
+    startY: y,
+    head: [["Commune", "Adresses", "Faites", "À repasser", "Pas faites", "Avancement"]],
+    body: D.communes.map(c => [c.nom, nb(c.tot.n), nb(c.tot.d), nb(c.tot.r), nb(c.tot.p), ""]).concat([["Toutes communes", nb(D.tot.n), nb(D.tot.d), nb(D.tot.r), nb(D.tot.p), ""]]),
+    didParseCell: d => { if (d.section === "body" && d.row.index === infoS.length - 1) { d.cell.styles.fontStyle = "bold"; d.cell.styles.fillColor = rgb("FFF6C2"); } if (d.section === "body" && d.column.index === 0) d.cell.styles.fontStyle = "bold"; },
+    didDrawCell: d => barre(d, infoS)
+  }));
+  y = doc.lastAutoTable.finalY + 10;
+  /* Détail par commune */
+  for (const c of D.communes) {
+    if (y > 250) { doc.addPage(); y = 20; }
+    titre("Détail : " + c.nom);
+    const info = c.tournees.concat([Object.assign({ gras: true }, c.tot)]);
+    doc.autoTable(Object.assign({}, styles, {
+      startY: y,
+      head: [["Tournée", "Adresses", "Faites", "À repasser", "Pas faites", "Avancement"]],
+      body: c.tournees.map(t => [t.nom, nb(t.n), nb(t.d), nb(t.r), nb(t.p), ""]).concat([["Total " + c.nom, nb(c.tot.n), nb(c.tot.d), nb(c.tot.r), nb(c.tot.p), ""]]),
+      didParseCell: d => {
+        if (d.section !== "body") return;
+        const l = info[d.row.index];
+        if (l.gras) { d.cell.styles.fontStyle = "bold"; d.cell.styles.fillColor = rgb(GRIS); }
+        if (d.column.index === 0 && !l.gras) d.cell.styles.cellPadding = { left: 8, top: 2.2, bottom: 2.2, right: 2 };
+        if (d.column.index === 3 && l.r && !l.gras) { d.cell.styles.textColor = rgb(ORANGE); d.cell.styles.fontStyle = "bold"; }
+      },
+      didDrawCell: d => {
+        if (d.section === "body" && d.column.index === 0) { const l = info[d.row.index]; if (!l.gras) { doc.setFillColor(...rgb(hx(l.col))); doc.roundedRect(d.cell.x + 2, d.cell.y + d.cell.height / 2 - 2, 4, 4, 0.8, 0.8, "F"); } }
+        barre(d, info);
+      }
+    }));
+    y = doc.lastAutoTable.finalY + 10;
+  }
+  /* Légende et pied de page */
+  if (y > 270) { doc.addPage(); y = 20; }
+  doc.setFontSize(8.5); doc.setFont("helvetica", "normal"); doc.setTextColor(85, 97, 124);
+  doc.setFillColor(...rgb(VERT)); doc.rect(M, y - 2.5, 3, 3, "F"); doc.text("Faites", M + 5, y);
+  doc.setFillColor(...rgb(ORANGE)); doc.rect(M + 22, y - 2.5, 3, 3, "F"); doc.text("À repasser", M + 27, y);
+  doc.text("Aucun nom d'habitant ni de donateur dans ce document.", W - M, y, { align: "right" });
+  const pages = doc.getNumberOfPages();
+  for (let i = 1; i <= pages; i++) {
+    doc.setPage(i);
+    doc.setDrawColor(...rgb("D6DEEC")); doc.setLineWidth(0.3); doc.line(M, 285, W - M, 285);
+    doc.setFontSize(8); doc.setTextColor(85, 97, 124);
+    doc.text("Amicale des sapeurs-pompiers de Gerzat, bilan des calendriers du " + D.jour, M, 290);
+    doc.text("Page " + i + " sur " + pages, W - M, 290, { align: "right" });
+  }
+  enregistrer(doc.output("blob"), "Bilan calendriers " + D.jour.replace(/\//g, "-") + ".pdf");
+}
+async function lancer(bouton, f) {
+  if (!BILAN) return;
+  const txt = document.getElementById("bilanTxt"), avant = txt.textContent;
+  bouton.disabled = true; txt.textContent = "Préparation du fichier…";
+  try { await f(); txt.textContent = avant; }
+  catch (e) { txt.textContent = "Fichier impossible à préparer (réseau ?). Réessayez."; }
+  bouton.disabled = false;
+}
+document.getElementById("bilanXlsx").onclick = e => lancer(e.currentTarget, bilanExcel);
+document.getElementById("bilanPdf").onclick = e => lancer(e.currentTarget, bilanPdf);
 refresh();
 setInterval(() => { if (!document.hidden) refresh(); }, 30000);
 document.addEventListener("visibilitychange", () => { if (!document.hidden) refresh(); });
