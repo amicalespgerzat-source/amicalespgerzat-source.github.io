@@ -1,5 +1,5 @@
 // Changer le numéro à chaque nouvelle version de l'appli
-const CACHE = "amicale-gerzat-v40";
+const CACHE = "amicale-gerzat-v41";
 const FICHIERS = [
   "./",
   "index.html",
