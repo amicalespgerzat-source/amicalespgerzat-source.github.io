@@ -1,6 +1,6 @@
 // Calendrier Gerzat : garde une copie de la page et des plans pour marcher sans réseau.
-// Réseau d'abord (toujours la dernière version), copie locale si pas de réseau.
-const CACHE = "calendrier-V18";
+// Réseau d'abord (toujours la dernière version, no-cache pour ne pas attendre 10 minutes), copie locale si pas de réseau.
+const CACHE = "calendrier-V19";
 const PRE = ["./", "index.html", "config.js", "suivi.html", "logo.png", "favicon.png", "apple-touch-icon.png", "snapshot.json",
   "gerzat.json", "gerzat-plan.json", "gerzat-zones.json", "gerzat-poi.json",
   "aulnat.json", "aulnat-plan.json", "aulnat-zones.json", "aulnat-poi.json",
@@ -18,7 +18,7 @@ self.addEventListener("fetch", e => {
   const u = new URL(e.request.url);
   if (e.request.method !== "GET" || u.origin !== location.origin) return;
   e.respondWith(
-    fetch(e.request).then(r => {
+    fetch(e.request.mode === "navigate" ? new Request(e.request.url, { cache: "no-cache" }) : new Request(e.request, { cache: "no-cache" })).then(r => {
       if (r.ok) { const copie = r.clone(); caches.open(CACHE).then(c => c.put(e.request, copie)); }
       return r;
     }).catch(() => caches.match(e.request, { ignoreSearch: true })
