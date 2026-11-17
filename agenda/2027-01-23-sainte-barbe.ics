@@ -5,12 +5,15 @@ CALSCALE:GREGORIAN
 METHOD:PUBLISH
 BEGIN:VEVENT
 UID:2027-01-23-sainte-barbe@amicalespgerzat-source.github.io
-DTSTAMP:20261112T080307Z
-DTSTART:20270123T173000
-DTEND:20270123T193000
-SUMMARY:Sainte-Barbe (amicale)
-LOCATION:dépôt de gerbes à la caserne
-DESCRIPTION:17 h 30\nCérémonie à 18 h à la caserne\, puis repas à la 
- salle Le Galion.
+DTSTAMP:20261117T161438Z
+DTSTART:20270123T163000
+DTEND:20270123T183000
+SUMMARY:Sainte-Barbe
+LOCATION:à la caserne
+DESCRIPTION:rendez-vous 16 h 30\n14 h : installation de la salle Le Galion
+ \, pour ceux qui peuvent aider.\n16 h 30 : préparation de la cérémonie.
+ \n17 h 30 : dépôt de gerbes.\n18 h : pot de l'amitié à la caserne\,\nP
+ uis repas à la salle Le Galion.\nAffiche : https://amicalespgerzat-source
+ .github.io/affiches/sainte-barbe-2027.jpg
 END:VEVENT
 END:VCALENDAR
