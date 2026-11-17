@@ -103,6 +103,20 @@ else:
     ics.write_bytes(nouveau.encode("utf-8"))
     print("Agenda mis à jour :", len(evenements), "dates.")
 
+# Un fichier par date (bouton « Ajouter à mon agenda » de l'appli sur iPhone)
+entete = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Amicale SP Gerzat//Appli//FR", "CALSCALE:GREGORIAN", "METHOD:PUBLISH"]
+gardes = set()
+for k, e in evenements.items():
+    f = pathlib.Path("agenda/" + k + ".ics")
+    gardes.add(f.name)
+    contenu = "\r\n".join(plier(l) for l in entete + vevent(e) + ["END:VCALENDAR"]) + "\r\n"
+    vieux = f.read_bytes().decode("utf-8") if f.exists() else ""
+    if sans_tampon(vieux) != sans_tampon(contenu):
+        f.write_bytes(contenu.encode("utf-8"))
+for f in pathlib.Path("agenda").glob("[0-9][0-9][0-9][0-9]-*.ics"):
+    if f.name not in gardes:
+        f.unlink()
+
 
 # ---------- 2. Notifications ----------
 
