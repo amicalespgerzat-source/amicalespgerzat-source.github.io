@@ -1,5 +1,5 @@
 // Changer le numéro à chaque nouvelle version de l'appli
-const CACHE = "amicale-gerzat-v46";
+const CACHE = "amicale-gerzat-v47";
 const FICHIERS = [
   "./",
   "index.html",
@@ -23,12 +23,14 @@ self.addEventListener("activate", e => {
   );
 });
 
-// Réseau d'abord pour avoir les nouvelles inscriptions, copie locale si pas de réseau
+// Réseau d'abord pour avoir les nouvelles inscriptions, copie locale si pas de réseau.
+// no-cache : on redemande toujours au site, pour qu'une nouvelle version arrive tout de suite
 self.addEventListener("fetch", e => {
   const url = new URL(e.request.url);
   if (e.request.method !== "GET" || url.origin !== location.origin) return;
+  const frais = e.request.mode === "navigate" ? new Request(e.request.url, { cache: "no-cache" }) : new Request(e.request, { cache: "no-cache" });
   e.respondWith(
-    fetch(e.request)
+    fetch(frais)
       .then(r => {
         if (r.ok) {
           const copie = r.clone();
