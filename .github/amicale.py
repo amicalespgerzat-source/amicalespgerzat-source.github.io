@@ -29,7 +29,7 @@ def tableau(nom):
     m = re.search(r"const " + nom + r" = \[(.*?)\n\];", page, re.S)
     if not m:
         return []
-    return [dict(re.findall(r'(\w+):\s*"((?:[^"\\]|\\.)*)"', o)) for o in re.findall(r"\{(.*?)\}", m.group(1), re.S)]
+    return [{k: v.replace("\\n", "\n") for k, v in re.findall(r'(\w+):\s*"((?:[^"\\]|\\.)*)"', o)} for o in re.findall(r"\{(.*?)\}", m.group(1), re.S)]
 
 
 def slug(e):
