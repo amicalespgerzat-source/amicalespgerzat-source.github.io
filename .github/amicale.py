@@ -149,8 +149,11 @@ fichier_suivi = pathlib.Path("agenda/notifications.json")
 suivi = json.loads(fichier_suivi.read_text(encoding="utf-8")) if fichier_suivi.exists() else {}
 
 
-def envoyer(cle_suivi, titre, texte):
-    print(("[essai] " if ESSAI else "") + "Notification :", titre, "|", texte)
+def envoyer(cle_suivi, titre, texte, url=LIEN):
+    # Une notification liée à une date ouvre la page de cet événement dans l'appli
+    if url == LIEN and ":" in cle_suivi:
+        url = "https://amicalespgerzat-source.github.io/#evt-" + cle_suivi.rsplit(":", 1)[0]
+    print(("[essai] " if ESSAI else "") + "Notification :", titre, "|", texte, "|", url)
     if ESSAI:
         suivi[cle_suivi] = aujourdhui.isoformat()
         return True
@@ -158,7 +161,7 @@ def envoyer(cle_suivi, titre, texte):
         print("Clé OneSignal absente : rien n'est envoyé. Ajouter le secret ONESIGNAL_CLE dans GitHub.")
         return False
     corps = {"app_id": APP_ID, "target_channel": "push", "included_segments": ["Total Subscriptions"],
-             "headings": {"en": titre, "fr": titre}, "contents": {"en": texte, "fr": texte}, "url": LIEN}
+             "headings": {"en": titre, "fr": titre}, "contents": {"en": texte, "fr": texte}, "url": url}
     req = urllib.request.Request("https://api.onesignal.com/notifications", data=json.dumps(corps).encode("utf-8"),
                                  headers={"Content-Type": "application/json", "Authorization": "Key " + CLE})
     try:
