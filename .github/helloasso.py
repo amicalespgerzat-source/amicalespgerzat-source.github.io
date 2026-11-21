@@ -30,8 +30,10 @@ def tableau(nom):
     return [dict(re.findall(r'(\w+):\s*"((?:[^"\\]|\\.)*)"', o)) for o in re.findall(r"\{(.*?)\}", m.group(1), re.S)]
 
 
+import agenda_sheet
+_feuille = agenda_sheet.lire_agenda()
 a_faire = []
-for e in tableau("INSCRIPTIONS"):
+for e in (_feuille[1] if _feuille is not None else tableau("INSCRIPTIONS")):
     fichier = e.get("inscrits", "")
     m = re.search(r"helloasso\.com/associations/([^/]+)/([^/]+)/([^/?#]+)", e.get("lien", ""))
     if m and re.fullmatch(r"agenda/inscrits-[a-z0-9-]+\.json", fichier):

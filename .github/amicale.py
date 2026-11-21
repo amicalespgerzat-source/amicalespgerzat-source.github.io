@@ -42,8 +42,15 @@ def lire(d):
     return datetime.date(*map(int, d.split("-")))
 
 
+# Les dates viennent du Google Sheets « Agenda de l'amicale » ; s'il est illisible, de index.html
+import agenda_sheet
+_feuille = agenda_sheet.lire_agenda()
+if _feuille is not None:
+    print("Agenda lu dans le Google Sheets :", len(_feuille[0]) + len(_feuille[1]), "dates.")
+_toutes = (_feuille[0] + _feuille[1]) if _feuille is not None else tableau("AGENDA") + tableau("INSCRIPTIONS")
+
 evenements = {}
-for e in tableau("AGENDA") + tableau("INSCRIPTIONS"):
+for e in _toutes:
     try:
         e["_date"] = lire(e["date"])
         evenements[slug(e)] = e

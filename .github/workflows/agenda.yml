@@ -1,6 +1,6 @@
 # Agenda et notifications de l'amicale
 # Lance .github/amicale.py :
-#  - à chaque modification de index.html (agenda abonné + annonce des nouvelles dates) ;
+#  - à chaque modification de index.html, et toutes les heures en journée pour suivre le Google Sheets « Agenda de l'amicale » ;
 #  - chaque soir vers 18 h, heure de Paris (rappels 15 jours avant et la veille).
 # La clé OneSignal est dans les secrets du dépôt, sous le nom ONESIGNAL_CLE.
 name: Agenda de l'amicale
@@ -12,6 +12,8 @@ on:
   schedule:
     - cron: "0 16 * * *"
     - cron: "0 17 * * *"
+    # Toutes les heures en journée : une date ajoutée dans le Google Sheets est annoncée dans l'heure
+    - cron: "41 6-19 * * *"
   workflow_dispatch:
     inputs:
       essai:
