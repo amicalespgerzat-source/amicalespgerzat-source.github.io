@@ -1,0 +1,45 @@
+# Espace bureau de l'appli : comptes de l'amicale (totaux), chiffrés avec le code du bureau.
+# Lance .github/bureau.py chaque nuit (vers 3 h 40, heure de Paris), ou à la main (Run workflow).
+# Secrets du dépôt : COMPTA_URL (script Google de la compta, avec jeton) et CODE_BUREAU.
+name: Comptes du bureau
+
+on:
+  schedule:
+    - cron: "41 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency:
+  group: amicale
+  cancel-in-progress: false
+
+jobs:
+  comptes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Outil de chiffrement
+        run: pip install --quiet cryptography
+
+      - name: Lire les comptes et les chiffrer
+        env:
+          COMPTA_URL: ${{ secrets.COMPTA_URL }}
+          CODE_BUREAU: ${{ secrets.CODE_BUREAU }}
+        run: python3 .github/bureau.py
+
+      - name: Enregistrer et mettre en ligne
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git add bureau/bureau.json 2>/dev/null || true
+          if git diff --cached --quiet; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Comptes du bureau mis à jour automatiquement"
+          git pull --rebase
+          git push
+          gh api -X POST "repos/${{ github.repository }}/pages/builds" || true
