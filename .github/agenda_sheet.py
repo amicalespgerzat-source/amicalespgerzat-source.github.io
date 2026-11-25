@@ -4,7 +4,7 @@
 # Dernier jour d'inscription, Lien d'inscription, Liste des inscrits, Affiche, Cacher heure et lieu.
 # Avec un dernier jour d'inscription, la ligne est une inscription ; sinon, une simple date.
 # Renvoie (AGENDA, INSCRIPTIONS) au même format que les tableaux de index.html, ou None si le tableau est illisible.
-import csv, io, re, urllib.request
+import csv, io, re, urllib.parse, urllib.request
 
 FEUILLE = "1-ANd1ryleo8jOcjUr5rnV2J7HfhO6sL6G3bcjBg8ZNg"
 URL = "https://docs.google.com/spreadsheets/d/" + FEUILLE + "/gviz/tq?tqx=out:csv&headers=1&sheet=Agenda"
@@ -47,3 +47,33 @@ def lire_agenda():
             e.pop("dernierJour", None)
             agenda.append(e)
     return agenda, inscriptions
+
+
+# Onglet « À la une » : titre, texte, debut, fin, lien, photo, notifier.
+URL_UNE = "https://docs.google.com/spreadsheets/d/" + FEUILLE + "/gviz/tq?tqx=out:csv&headers=1&sheet=" + urllib.parse.quote("À la une")
+CLES_UNE = ["titre", "texte", "debut", "fin", "lien", "photo", "notifier"]
+
+
+def lire_une():
+    """Renvoie la liste des messages À la une (dates au format AAAA-MM-JJ), ou None si l'onglet est illisible."""
+    try:
+        with urllib.request.urlopen(URL_UNE, timeout=30) as r:
+            texte = r.read().decode("utf-8")
+    except Exception as err:
+        print("Onglet À la une illisible :", err)
+        return None
+    lignes = list(csv.reader(io.StringIO(texte)))
+    if not lignes or not lignes[0] or lignes[0][0].strip().lower() != "titre":
+        print("Onglet À la une : en-tête inattendu.")
+        return None
+    messages = []
+    for l in lignes[1:]:
+        l = (l + [""] * len(CLES_UNE))[:len(CLES_UNE)]
+        m = {k: v.strip() for k, v in zip(CLES_UNE, l) if v.strip()}
+        if not (m.get("titre") or m.get("texte")):
+            continue
+        for k in ("debut", "fin"):
+            if m.get(k):
+                m[k] = iso(m[k])
+        messages.append(m)
+    return messages

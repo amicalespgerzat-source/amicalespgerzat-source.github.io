@@ -8,6 +8,7 @@
 # un rappel qui tomberait le week-end part le vendredi d'avant,
 # une nouvelle date ajoutée le week-end est annoncée le lundi.
 # Ce qui a déjà été envoyé est noté dans agenda/notifications.json.
+# Aussi : les messages de l'onglet « À la une » marqués « oui » dans la colonne notifier.
 # Les dates viennent des tableaux AGENDA et INSCRIPTIONS de index.html.
 import datetime, json, os, pathlib, re, sys, unicodedata, urllib.request
 from zoneinfo import ZoneInfo
@@ -253,6 +254,31 @@ for k in sorted(evenements, key=lambda k: evenements[k]["_date"]):
                              " Inscription dans l'appli avant le " + jour(fermeture) + ".")
                 probleme |= not ok
                 continue
+
+# À la une : notification quand un message marqué « oui » dans la colonne notifier commence.
+# Même règles que « Nouvelle date » : en semaine, entre 8 h et 21 h (le week-end, le lundi).
+# Seulement dans les 7 jours après le début, pour ne jamais renvoyer un vieux message.
+une = agenda_sheet.lire_une() if _feuille is not None else None
+for m in une or []:
+    if m.get("notifier", "").lower() != "oui" or not m.get("titre"):
+        continue
+    try:
+        debut = lire(m["debut"]) if m.get("debut") else None
+        fin = lire(m["fin"]) if m.get("fin") else None
+    except Exception:
+        print("À la une ignoré, date mal écrite :", m.get("titre"))
+        continue
+    if not debut or debut > aujourdhui or (aujourdhui - debut).days > 7 or (fin and fin < aujourdhui):
+        continue
+    cle_une = "une-" + slug({"date": m["debut"], "titre": m["titre"]}) + ":une"
+    if cle_une in suivi or not journee or week_end:
+        continue
+    texte_une = m.get("texte", "").replace("\n", " ")
+    if len(texte_une) > 160:
+        texte_une = texte_une[:157].rsplit(" ", 1)[0] + "..."
+    ok = envoyer(cle_une, "À la une : " + m["titre"], texte_une or "Nouveau message de l'amicale.",
+                 "https://amicalespgerzat-source.github.io/#accueil")
+    probleme |= not ok
 
 # On oublie les dates passées depuis plus de 30 jours
 garder = {}
