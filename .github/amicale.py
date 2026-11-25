@@ -8,7 +8,8 @@
 # un rappel qui tomberait le week-end part le vendredi d'avant,
 # une nouvelle date ajoutée le week-end est annoncée le lundi.
 # Ce qui a déjà été envoyé est noté dans agenda/notifications.json.
-# Aussi : les messages de l'onglet « À la une » marqués « oui » dans la colonne notifier.
+# Aussi : les messages de l'onglet « À la une » marqués « oui » dans la colonne notifier,
+# et les photos ajoutées à une date passée (colonne Photos).
 # Les dates viennent des tableaux AGENDA et INSCRIPTIONS de index.html.
 import datetime, json, os, pathlib, re, sys, unicodedata, urllib.request
 from zoneinfo import ZoneInfo
@@ -255,6 +256,18 @@ for k in sorted(evenements, key=lambda k: evenements[k]["_date"]):
                 probleme |= not ok
                 continue
 
+# Photos : quand un lien est ajouté dans la colonne Photos d'une date passée (moins d'un an),
+# une notification « Les photos de ... sont en ligne », une seule fois, en semaine entre 8 h et 21 h.
+for k in sorted(evenements, key=lambda k: evenements[k]["_date"]):
+    e = evenements[k]
+    age = (aujourdhui - e["_date"]).days
+    if age < 1 or age > 366 or not e.get("photos", "").startswith("https://") or (k + ":photos") in suivi:
+        continue
+    if journee and not week_end:
+        ok = envoyer(k + ":photos", "Photos : " + e["titre"],
+                     "Les photos de " + e["titre"] + " du " + jour(e["_date"]) + " sont en ligne. Elles sont dans l'agenda de l'appli.")
+        probleme |= not ok
+
 # À la une : notification quand un message marqué « oui » dans la colonne notifier commence.
 # Même règles que « Nouvelle date » : en semaine, entre 8 h et 21 h (le week-end, le lundi).
 # Seulement dans les 7 jours après le début, pour ne jamais renvoyer un vieux message.
@@ -285,7 +298,7 @@ garder = {}
 for cle_suivi, quand in suivi.items():
     s = cle_suivi.rsplit(":", 1)[0]
     e = evenements.get(s)
-    if e and (aujourdhui - e["_date"]).days > 30:
+    if e and (aujourdhui - e["_date"]).days > (400 if cle_suivi.endswith(":photos") else 30):
         continue
     if not e and (aujourdhui - lire(quand)).days > 60:
         continue

@@ -1,14 +1,14 @@
 # Amicale des Sapeurs-Pompiers de Gerzat
 # Lecture de l'agenda dans le Google Sheets « Agenda de l'amicale » (onglet Agenda, partagé en lecture par lien).
 # Une ligne = une date. Colonnes, dans l'ordre : Titre, Date, Heure, Lieu, Texte, Tarif, Pour qui,
-# Dernier jour d'inscription, Lien d'inscription, Liste des inscrits, Affiche, Cacher heure et lieu.
+# Dernier jour d'inscription, Lien d'inscription, Liste des inscrits, Affiche, Cacher heure et lieu, Photos.
 # Avec un dernier jour d'inscription, la ligne est une inscription ; sinon, une simple date.
 # Renvoie (AGENDA, INSCRIPTIONS) au même format que les tableaux de index.html, ou None si le tableau est illisible.
 import csv, io, re, urllib.parse, urllib.request
 
 FEUILLE = "1-ANd1ryleo8jOcjUr5rnV2J7HfhO6sL6G3bcjBg8ZNg"
 URL = "https://docs.google.com/spreadsheets/d/" + FEUILLE + "/gviz/tq?tqx=out:csv&headers=1&sheet=Agenda"
-CLES = ["titre", "date", "heure", "lieu", "detail", "tarif", "public", "dernierJour", "lien", "inscrits", "affiche", "cacherHeure"]
+CLES = ["titre", "date", "heure", "lieu", "detail", "tarif", "public", "dernierJour", "lien", "inscrits", "affiche", "cacherHeure", "photos"]
 
 
 def iso(t):
