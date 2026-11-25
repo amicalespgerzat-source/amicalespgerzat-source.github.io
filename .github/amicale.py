@@ -269,7 +269,7 @@ for k in sorted(evenements, key=lambda k: evenements[k]["_date"]):
         probleme |= not ok
 
 # À la une : notification quand un message marqué « oui » dans la colonne notifier commence.
-# Même règles que « Nouvelle date » : en semaine, entre 8 h et 21 h (le week-end, le lundi).
+# En semaine dès le passage de 7 h 41 (vers 7 h 45), jusqu'à 21 h ; le week-end, le lundi.
 # Seulement dans les 7 jours après le début, pour ne jamais renvoyer un vieux message.
 une = agenda_sheet.lire_une() if _feuille is not None else None
 for m in une or []:
@@ -284,7 +284,7 @@ for m in une or []:
     if not debut or debut > aujourdhui or (aujourdhui - debut).days > 7 or (fin and fin < aujourdhui):
         continue
     cle_une = "une-" + slug({"date": m["debut"], "titre": m["titre"]}) + ":une"
-    if cle_une in suivi or not journee or week_end:
+    if cle_une in suivi or not (7 <= maintenant.hour < 21) or week_end:
         continue
     texte_une = m.get("texte", "").replace("\n", " ")
     if len(texte_une) > 160:
